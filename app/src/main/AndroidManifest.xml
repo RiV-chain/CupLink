@@ -95,6 +95,19 @@
         <activity
             android:name=".QRScanActivity" />
 
+        <activity android:name=".TileServiceActivity" android:theme="@android:style/Theme.NoDisplay"
+            android:allowTaskReparenting="true"
+            android:alwaysRetainTaskState="false"
+            android:clearTaskOnLaunch="true"
+            android:enabled="true"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".MainService"
             android:exported="false"
