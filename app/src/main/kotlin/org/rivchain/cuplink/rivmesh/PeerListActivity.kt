@@ -374,12 +374,13 @@ class PeerListActivity : AppCompatActivity() {
                 }
             }
             // Restart service
-            val intent = Intent(this, PacketTunnelProvider::class.java)
-            intent.action = PacketTunnelProvider.ACTION_STOP
-            startService(intent)
+            val intentStop = Intent(this, PacketTunnelProvider::class.java)
+            intentStop.action = PacketTunnelProvider.ACTION_STOP
+            startService(intentStop)
             Thread.sleep(1000)
-            intent.action = PacketTunnelProvider.ACTION_START
-            startService(intent)
+            val intentStart = Intent(this, PacketTunnelProvider::class.java)
+            intentStart.action = PacketTunnelProvider.ACTION_START
+            startService(intentStart)
             finish()
         }
 
