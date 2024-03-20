@@ -25,6 +25,7 @@ import com.vincentbrison.openlibraries.android.dualcache.SizeOf
 import kotlinx.coroutines.*
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.R
+import org.rivchain.cuplink.SettingsActivity
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.deserializeStringList2PeerInfoSet
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.ping
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
@@ -41,6 +42,8 @@ import java.nio.charset.Charset
 import java.util.*
 
 class PeerListActivity : AppCompatActivity() {
+
+    private lateinit var config: ConfigurationProxy
 
     companion object {
         const val PEER_LIST = "PEER_LIST"
@@ -73,6 +76,8 @@ class PeerListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_peer_list)
         setSupportActionBar(findViewById(R.id.toolbar))
+        config = ConfigurationProxy(applicationContext)
+
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { _ ->
             addNewPeer()
         }
@@ -351,11 +356,18 @@ class PeerListActivity : AppCompatActivity() {
         saveButton?.setOnClickListener {
             saveButton.isClickable = false
             cancelPeerListPing()
-            val result = Intent(this, MainActivity::class.java)
+            val result = Intent(this, SettingsActivity::class.java)
             val adapter = findViewById<ListView>(R.id.peerList).adapter as SelectPeerInfoListAdapter
             val selectedPeers = adapter.getSelectedPeers()
-            result.putExtra(PEER_LIST, serializePeerInfoSet2StringList(selectedPeers))
-            setResult(Activity.RESULT_OK, result)
+
+            config.updateJSON { json ->
+                val a = json.getJSONArray("Peers")
+                for (peer in selectedPeers){
+                    a.put(peer.toString())
+                }
+            }
+            //result.putExtra(PEER_LIST, serializePeerInfoSet2StringList(selectedPeers))
+            //setResult(Activity.RESULT_OK, result)
             finish()
         }
 
