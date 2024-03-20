@@ -2,6 +2,7 @@ package org.rivchain.cuplink.rivmesh
 
 import android.app.Activity
 import android.content.Intent
+import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -10,6 +11,7 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.PopupWindow
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
@@ -378,9 +380,14 @@ class PeerListActivity : AppCompatActivity() {
             intentStop.action = PacketTunnelProvider.ACTION_STOP
             startService(intentStop)
             Thread.sleep(1000)
-            val intentStart = Intent(this, PacketTunnelProvider::class.java)
-            intentStart.action = PacketTunnelProvider.ACTION_START
-            startService(intentStart)
+
+            val vpnIntent = VpnService.prepare(this)
+            if (vpnIntent != null) {
+                startVpnActivity.launch(vpnIntent)
+            } else {
+                start()
+            }
+
             finish()
         }
 
@@ -392,6 +399,18 @@ class PeerListActivity : AppCompatActivity() {
             editPeerListUrl()
         }
         return true
+    }
+
+    private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            start()
+        }
+    }
+
+    private fun start() {
+        val intent = Intent(this, PacketTunnelProvider::class.java)
+        intent.action = PacketTunnelProvider.ACTION_START
+        startService(intent)
     }
 
     private fun cancelPeerListPing() {
