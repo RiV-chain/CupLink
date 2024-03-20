@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.Color
 import android.os.Binder
 import android.os.Build
@@ -223,6 +224,13 @@ class MainService : Service(), Runnable {
             val message = resources.getText(R.string.listen_for_incoming_calls).toString()
             val notification = createNotification(message, false)
             startForeground(NOTIFICATION_ID, notification)
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                startForeground(NOTIFICATION_ID, notification)
+            } else {
+                startForeground(NOTIFICATION_ID, notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+            }
         } else if (intent.action == STOP_FOREGROUND_ACTION) {
             Log.d(this, "onStartCommand() Received Stop Foreground Intent")
             shutdown()
