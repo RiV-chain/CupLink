@@ -229,7 +229,7 @@ class MainService : Service(), Runnable {
                 startForeground(NOTIFICATION_ID, notification)
             } else {
                 startForeground(NOTIFICATION_ID, notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
             }
         } else if (intent.action == STOP_FOREGROUND_ACTION) {
             Log.d(this, "onStartCommand() Received Stop Foreground Intent")
