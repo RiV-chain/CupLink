@@ -32,6 +32,9 @@
     <!-- Allow the app to start on device bootup -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- Mesh specific permissions -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
 
     <queries>
         <!-- various power manager and autostart packages we may need to direct our users to -->
@@ -96,6 +99,28 @@
             android:name=".MainService"
             android:exported="false"
             android:foregroundServiceType="dataSync"/>
+
+        <service
+            android:name=".rivmesh.PacketTunnelProvider"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".rivmesh.MeshTileService"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:exported="true">
+            <meta-data android:name="android.service.quicksettings.ACTIVE_TILE" android:value="true" />
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE" android:value="true" />
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name=".StartActivity"

@@ -8,3 +8,7 @@
 /captures
 .externalNativeBuild
 /keystore.properties
+/mesh/mesh.aar
+/mesh/mesh-sources.jar
+/mesh/build/
+/app/src/main/assets/mesh-*
