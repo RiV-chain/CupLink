@@ -31,4 +31,15 @@
 
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="EditText.OutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColorHint"> @color/white </item>
+        <item name="hintTextColor"> @color/white </item>
+    </style>
+
+
 </resources>

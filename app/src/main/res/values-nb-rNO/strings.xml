@@ -138,4 +138,6 @@
     <string name="permission_notification_text">Permission is missing. Please grant it in order to receive notifications.</string>
     <string name="channel_name">VPN Service</string>
     <string name="channel_description">Main channel for foreground notification</string>
+    <string name="title_activity_peer_list">Edit peers</string>
+    <string name="node_info_copied">copied</string>
 </resources>
