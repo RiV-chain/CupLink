@@ -377,12 +377,14 @@ class PeerListActivity : AppCompatActivity() {
             val intentStop = Intent(this, PacketTunnelProvider::class.java)
             intentStop.action = PacketTunnelProvider.ACTION_STOP
             startService(intentStop)
-            Thread.sleep(3000)
 
-            val intentStart = Intent(this, PacketTunnelProvider::class.java)
-            intentStart.action = PacketTunnelProvider.ACTION_TOGGLE
-            startService(intentStart)
-            finish()
+            Thread {
+                Thread.sleep(3000)
+                val intentStart = Intent(this, PacketTunnelProvider::class.java)
+                intentStart.action = PacketTunnelProvider.ACTION_START
+                startService(intentStart)
+                finish()
+            }.start()
         }
 
         val editUrl = menu.findItem(R.id.editUrlItem) as MenuItem
