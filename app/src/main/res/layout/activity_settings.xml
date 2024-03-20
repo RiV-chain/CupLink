@@ -195,6 +195,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
+                    android:layout_marginBottom="5dp"
                     android:visibility="visible"
                     app:dividerColor="@color/light_grey" />
 
@@ -226,10 +227,14 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
-                        app:thumbTint="@color/selectedColor"
-                        android:textSize="@dimen/options_text_size"
                         android:paddingTop="15dp"
-                        android:paddingBottom="15dp"/>
+                        android:paddingBottom="15dp"
+                        android:background="@drawable/next_button_background"
+                        android:fontFamily="@font/lato_bold"
+                        android:text="Edit"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        style="?android:attr/borderlessButtonStyle"/>
 
                     </RelativeLayout>
 

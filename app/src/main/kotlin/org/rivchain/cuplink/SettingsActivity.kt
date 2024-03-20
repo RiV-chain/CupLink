@@ -23,11 +23,21 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PeerListActivity
+import org.rivchain.cuplink.rivmesh.PeerListActivity.Companion.PEER_LIST
+import org.rivchain.cuplink.rivmesh.models.PeerInfo
+import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
 import java.lang.Integer.parseInt
 
 class SettingsActivity : BaseActivity(), ServiceConnection {
     private var binder: MainBinder? = null
 
+    private var currentPeers = setOf<PeerInfo>()
+
+    companion object {
+        const val PEER_LIST_CODE = 1000
+        // not stored in the database
+        private var settingsMode = "basic"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -82,7 +92,9 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
 
         findViewById<View>(R.id.editPeers)
             .setOnClickListener {
-                startActivity(Intent(this@SettingsActivity, PeerListActivity::class.java))
+                val intent = Intent(this@SettingsActivity, PeerListActivity::class.java)
+                intent.putStringArrayListExtra(PEER_LIST, serializePeerInfoSet2StringList(currentPeers))
+                startActivityForResult(intent, PEER_LIST_CODE)
             }
 
         val databasePassword = binder.getService().databasePassword
@@ -585,10 +597,5 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 // ignore
             }
         }
-    }
-
-    companion object {
-        // not stored in the database
-        private var settingsMode = "basic"
     }
 }
