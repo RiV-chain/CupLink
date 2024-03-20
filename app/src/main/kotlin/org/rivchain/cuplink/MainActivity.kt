@@ -9,6 +9,7 @@ import android.content.ServiceConnection
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
+import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -32,6 +33,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.rivmesh.PacketTunnelProvider
 import org.rivchain.cuplink.util.PowerManager
 
 // the main view with tabs
@@ -53,6 +55,17 @@ class MainActivity : BaseActivity(), ServiceConnection {
         }
     }
 
+    private fun start() {
+        val intent = Intent(this, PacketTunnelProvider::class.java)
+        intent.action = PacketTunnelProvider.ACTION_START
+        startService(intent)
+    }
+
+    private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            start()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(this, "onCreate()")
 
@@ -82,6 +95,13 @@ class MainActivity : BaseActivity(), ServiceConnection {
             }
         } else {
             Log.d(this, "Power management fix skipped")
+        }
+
+        val vpnIntent = VpnService.prepare(this)
+        if (vpnIntent != null) {
+            startVpnActivity.launch(vpnIntent)
+        } else {
+            start()
         }
     }
 
