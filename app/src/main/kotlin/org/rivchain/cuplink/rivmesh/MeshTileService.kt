@@ -70,7 +70,7 @@ class MeshTileService: TileService(), MeshStateReceiver.StateReceiver {
         super.onClick()
         // Saving new state
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
-        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, false)
+        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, true)
         preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, !enabled) }
         // Starting or stopping VPN service
         val intent = Intent(this, PacketTunnelProvider::class.java)
@@ -82,7 +82,7 @@ class MeshTileService: TileService(), MeshStateReceiver.StateReceiver {
         val tile = qsTile ?: return
         val oldState = tile.state
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
-        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, false)
+        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, true)
         tile.state = when (enabled) {
             false -> Tile.STATE_INACTIVE
             true -> Tile.STATE_ACTIVE

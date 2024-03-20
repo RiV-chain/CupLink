@@ -67,7 +67,7 @@ open class PacketTunnelProvider: VpnService() {
             return START_NOT_STICKY
         }
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
-        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, false)
+        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, true)
         return when (intent.action ?: ACTION_STOP) {
             ACTION_STOP -> {
                 Log.d(TAG, "Stopping...")
