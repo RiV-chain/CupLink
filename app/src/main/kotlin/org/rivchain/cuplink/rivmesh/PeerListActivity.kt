@@ -23,6 +23,7 @@ import com.vincentbrison.openlibraries.android.dualcache.Builder
 import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer
 import com.vincentbrison.openlibraries.android.dualcache.SizeOf
 import kotlinx.coroutines.*
+import org.json.JSONObject
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.SettingsActivity
@@ -362,6 +363,7 @@ class PeerListActivity : AppCompatActivity() {
 
             config.updateJSON { json ->
                 val a = json.getJSONArray("Peers")
+                json.put("Peers", emptyArray<JSONObject>())
                 for (peer in selectedPeers){
                     a.put(peer.toString())
                 }
