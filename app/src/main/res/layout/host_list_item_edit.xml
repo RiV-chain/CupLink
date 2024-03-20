@@ -19,7 +19,7 @@
         android:gravity="center_vertical"
         android:minHeight="45dp"
         android:textSize="14sp"
-        android:textColor="@color/white"
+        android:textColor="@color/light_grey"
         android:layout_marginStart="10dp"
         app:layout_constraintEnd_toStartOf="@+id/ping"
         app:layout_constraintStart_toEndOf="@+id/countryFlag"
@@ -33,7 +33,7 @@
         android:gravity="center_vertical"
         android:minHeight="45dp"
         android:textSize="14sp"
-        android:textColor="@color/white"
+        android:textColor="@color/light_grey"
         app:layout_constraintEnd_toStartOf="@+id/frame"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -46,7 +46,6 @@
         android:scaleX="0.4"
         android:scaleY="0.4"
         app:layout_constraintEnd_toEndOf="parent"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
