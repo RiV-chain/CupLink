@@ -61,4 +61,6 @@
     <string name="channel_description">Main channel for foreground notification</string>
     <string name="title_activity_peer_list">Edit peers</string>
     <string name="node_info_copied">copied</string>
+    <string name="peers">Peers</string>
+    <string name="contact_menu_edit">Edit</string>
 </resources>

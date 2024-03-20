@@ -22,6 +22,7 @@ import androidx.appcompat.widget.Toolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.rivmesh.PeerListActivity
 import java.lang.Integer.parseInt
 
 class SettingsActivity : BaseActivity(), ServiceConnection {
@@ -77,6 +78,11 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         findViewById<View>(R.id.addressLayout)
             .setOnClickListener {
                 startActivity(Intent(this@SettingsActivity, AddressManagementActivity::class.java))
+            }
+
+        findViewById<View>(R.id.editPeers)
+            .setOnClickListener {
+                startActivity(Intent(this@SettingsActivity, PeerListActivity::class.java))
             }
 
         val databasePassword = binder.getService().databasePassword
