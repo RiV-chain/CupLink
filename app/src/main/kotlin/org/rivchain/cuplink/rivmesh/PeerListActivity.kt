@@ -363,7 +363,7 @@ class PeerListActivity : AppCompatActivity() {
 
             config.updateJSON { json ->
                 val a = json.getJSONArray("Peers")
-                json.put("Peers", emptyArray<JSONObject>())
+                json.put("Peers", emptyList<String>())
                 for (peer in selectedPeers){
                     a.put(peer.toString())
                 }
