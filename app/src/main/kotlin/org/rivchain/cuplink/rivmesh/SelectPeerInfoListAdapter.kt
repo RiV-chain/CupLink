@@ -49,10 +49,10 @@ class SelectPeerInfoListAdapter(
         peerInfoHolder.peerInfoText.text = peerId
         if(currentPeer.ping == Int.MAX_VALUE){
             peerInfoHolder.ping.text=""
-            peerInfoHolder.peerInfoText.setTextColor(Color.GRAY)
+            peerInfoHolder.peerInfoText.setTextColor(Color.RED)
         } else {
             peerInfoHolder.ping.text = currentPeer.ping.toString() + " ms"
-            peerInfoHolder.peerInfoText.setTextColor(Color.WHITE)
+            peerInfoHolder.peerInfoText.setTextColor(Color.LTGRAY)
         }
         peerInfoHolder.checkbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
