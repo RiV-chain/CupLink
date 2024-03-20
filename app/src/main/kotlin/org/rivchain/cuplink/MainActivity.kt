@@ -26,8 +26,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.preference.PreferenceManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
@@ -103,6 +105,8 @@ class MainActivity : BaseActivity(), ServiceConnection {
         } else {
             start()
         }
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
+        preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, true) }
     }
 
     override fun onDestroy() {

@@ -18,7 +18,7 @@ class NetworkStateCallback(val context: Context) : ConnectivityManager.NetworkCa
         Log.d(TAG, "onAvailable")
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        if (preferences.getBoolean(PREF_KEY_ENABLED, true)) {
+        if (preferences.getBoolean(PREF_KEY_ENABLED, false)) {
             Thread {
                 // The message often arrives before the connection is fully established
                 Thread.sleep(1000)
