@@ -373,8 +373,13 @@ class PeerListActivity : AppCompatActivity() {
                     a.put(peer.toString())
                 }
             }
-            //result.putExtra(PEER_LIST, serializePeerInfoSet2StringList(selectedPeers))
-            //setResult(Activity.RESULT_OK, result)
+            // Restart service
+            val intent = Intent(this, PacketTunnelProvider::class.java)
+            intent.action = PacketTunnelProvider.ACTION_STOP
+            startService(intent)
+            Thread.sleep(1000)
+            intent.action = PacketTunnelProvider.ACTION_START
+            startService(intent)
             finish()
         }
 
