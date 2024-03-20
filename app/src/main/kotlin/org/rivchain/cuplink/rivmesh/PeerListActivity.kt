@@ -364,9 +364,10 @@ class PeerListActivity : AppCompatActivity() {
             config.updateJSON { json ->
                 val a = json.getJSONArray("Peers")
                 val l = a.length()
-                val i = 0
+                var i = 0
                 while (i < l) {
                     a.remove(0)
+                    i++
                 }
                 for (peer in selectedPeers){
                     a.put(peer.toString())
