@@ -36,7 +36,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="EditText.OutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <style name="EditText.OutlinedBox" parent="Theme.AppCompat.DayNight">
         <item name="android:textColorHint"> @color/white </item>
         <item name="hintTextColor"> @color/white </item>
     </style>
