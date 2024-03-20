@@ -104,7 +104,8 @@
             android:name=".rivmesh.PacketTunnelProvider"
             android:permission="android.permission.BIND_VPN_SERVICE"
             android:exported="true"
-            android:foregroundServiceType="dataSync">
+            android:foregroundServiceType="dataSync"
+            tools:node="merge">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>

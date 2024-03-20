@@ -122,13 +122,12 @@ open class PacketTunnelProvider: VpnService() {
         val address = mesh.addressString
         val builder = Builder()
             .addAddress(address, 7)
-            .addRoute("fc::", 7)
             // We do this to trick the DNS-resolver into thinking that we have "regular" IPv6,
             // and therefore we need to resolve AAAA DNS-records.
             // See: https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/dns/net/getaddrinfo.c#1935
             // and: https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/dns/net/getaddrinfo.c#365
             // If we don't do this the DNS-resolver just doesn't do DNS-requests with record type AAAA,
-            // and we can't use DNS with Yggdrasil addresses.
+            // and we can't use DNS with RiV-mesh addresses.
             .addRoute("2000::", 128)
             .allowFamily(OsConstants.AF_INET)
             .allowBypass()
