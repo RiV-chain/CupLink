@@ -13,22 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="?android:windowBackground"
-        >
+        android:background="?android:windowBackground">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            >
-
-            <ImageView
-                android:id="@+id/toolbar_logo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_launcher"
-                android:visibility="visible"
-                android:contentDescription="logo" />
+            android:layout_height="?attr/actionBarSize">
 
             <TextView
                 android:id="@+id/toolbar_label"
@@ -56,7 +46,8 @@
         app:tabBackground="@drawable/tabs_selector"
         app:tabMaxWidth="0dp"
         app:tabGravity="fill"
-        app:tabMode="fixed" />
+        app:tabMode="fixed"
+        app:tabIconTint="@color/white"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/container"

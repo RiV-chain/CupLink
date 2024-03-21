@@ -15,14 +15,14 @@
         android:layout_margin="10dp"
         app:boxBackgroundMode="none"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/light_grey"
         style="@style/EditText.OutlinedBox">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/schemaInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Schema"
-            android:textColor="@color/white"
+            android:textColor="@color/light_grey"
             android:inputType="textNoSuggestions"
             android:textCursorDrawable="@null"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -36,7 +36,7 @@
         android:layout_margin="10dp"
         app:boxBackgroundMode="none"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/light_grey"
         style="@style/EditText.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -46,7 +46,7 @@
             android:digits="0,1,2,3,4,5,6,7,8,9,.,qwertzuiopasdfghjklyxcvbnm,_,-"
             android:hint="IP/domain"
             android:inputType="textNoSuggestions"
-            android:textColor="@color/white"
+            android:textColor="@color/light_grey"
             android:textCursorDrawable="@null"
             android:focusedByDefault="true"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -60,7 +60,7 @@
         android:layout_margin="10dp"
         app:boxBackgroundMode="none"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/light_grey"
         style="@style/EditText.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:digits="0123456789"
             android:hint="Port"
-            android:textColor="@color/white"
+            android:textColor="@color/light_grey"
             android:inputType="number"
             android:textCursorDrawable="@null"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -84,8 +84,8 @@
         app:ccp_showFullName="true"
         app:ccp_showPhoneCode="false"
         app:ccp_showNameCode="false"
-        app:ccpDialog_backgroundColor="@color/light_grey"
-        app:ccpDialog_textColor="@color/white"
+        app:ccpDialog_backgroundColor="@color/colorBackgroundDark"
+        app:ccpDialog_textColor="@color/light_grey"
         app:layout_constraintEnd_toEndOf="@+id/schema"
         app:layout_constraintTop_toBottomOf="@+id/port"
         android:background="@drawable/edit_text_rounded_corner"/>
@@ -100,9 +100,9 @@
         android:layout_marginRight="10dp"
         app:layout_constraintEnd_toEndOf="@+id/schema"
         app:layout_constraintTop_toBottomOf="@+id/ccp"
-        android:background="@drawable/button_selector"
+        android:background="@color/colorBackgroundDark"
         app:backgroundTint="@null"
         android:text="ADD"
-        android:textColor="@color/white"/>
+        android:textColor="@color/light_grey"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

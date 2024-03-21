@@ -204,20 +204,17 @@ class MainActivity : BaseActivity(), ServiceConnection {
             tabLayout.visibility = View.VISIBLE
         }
 
-        val toolbarLogo = findViewById<ImageView>(R.id.toolbar_logo)
         val toolbarLabel = findViewById<TextView>(R.id.toolbar_label)
         if (settings.showUsernameAsLogo) {
-            toolbarLogo.visibility = View.GONE
             toolbarLabel.visibility = View.VISIBLE
             toolbarLabel.text = settings.username
         } else {
             // default
-            toolbarLogo.visibility = View.VISIBLE
             toolbarLabel.visibility = View.GONE
         }
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
+            tab.contentDescription = when (position) {
                 0 -> getString(R.string.title_contacts)
                 else -> {
                     val eventsMissed = binder!!.getEvents().eventsMissed
@@ -225,6 +222,17 @@ class MainActivity : BaseActivity(), ServiceConnection {
                         getString(R.string.title_calls)
                     } else {
                         String.format("%s (%d)", getString(R.string.title_calls), eventsMissed)
+                    }
+                }
+            }
+            tab.icon = when (position) {
+                0 -> resources.getDrawable(R.drawable.ic_contacts, theme)
+                else -> {
+                    val eventsMissed = binder!!.getEvents().eventsMissed
+                    if (eventsMissed == 0) {
+                        resources.getDrawable(R.drawable.ic_call_accept, theme)
+                    } else {
+                        resources.getDrawable(android.R.drawable.stat_notify_missed_call, theme)
                     }
                 }
             }
