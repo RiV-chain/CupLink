@@ -8,8 +8,11 @@ import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.*
 import android.os.PowerManager.WakeLock
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.WindowManager.LayoutParams
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,7 +23,11 @@ import org.webrtc.*
 import java.net.InetSocketAddress
 import java.util.*
 
+
 class CallActivity : BaseActivity(), RTCCall.CallContext {
+    private var layoutMarginStartEnd = 0
+    private var layoutMarginTop = 0
+    private var layoutMarginBottom = 0
     private var binder: MainService.MainBinder? = null
     private lateinit var connection: ServiceConnection
     private lateinit var currentCall: RTCCall
@@ -61,6 +68,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private lateinit var changeUiButton: ImageButton // show/hide different control
     private lateinit var controlPanel: View
     private lateinit var capturePanel: View
+    private lateinit var backgroundView: ImageView
     private lateinit var captureQualityController: CaptureQualityController
 
     private var uiMode = 0
@@ -210,10 +218,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             localProxyVideoSink.setTarget(fullscreenRenderer)
             remoteProxyVideoSink.setTarget(pipRenderer)
 
+            fullscreenRenderer.setMirror(frontCameraEnabled)
             pipRenderer.setMirror(false)
-            fullscreenRenderer.setMirror(!frontCameraEnabled)
 
             showPipView(isRemoteVideoAvailable && showPipEnabled)
+            hideCallBackground(isRemoteVideoAvailable)
             showFullscreenView(isLocalVideoAvailable)
 
             // video available for pip
@@ -223,10 +232,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             localProxyVideoSink.setTarget(pipRenderer)
             remoteProxyVideoSink.setTarget(fullscreenRenderer)
 
-            pipRenderer.setMirror(!frontCameraEnabled)
+            pipRenderer.setMirror(frontCameraEnabled)
             fullscreenRenderer.setMirror(false)
 
             showPipView(isLocalVideoAvailable && showPipEnabled)
+            hideCallBackground(isRemoteVideoAvailable)
             showFullscreenView(isRemoteVideoAvailable)
 
             // video available for pip
@@ -309,6 +319,15 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             pipRenderer.visibility = View.VISIBLE
         } else {
             pipRenderer.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun hideCallBackground(enable: Boolean) {
+        Log.d(this, "hideCallBackground() enable=$enable")
+        if (enable) {
+            backgroundView.visibility = View.INVISIBLE
+        } else {
+            backgroundView.visibility = View.VISIBLE
         }
     }
 
@@ -445,6 +464,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         changeUiButton = findViewById(R.id.change_ui)
         controlPanel = findViewById(R.id.controlPanel)
         capturePanel = findViewById(R.id.capturePanel)
+        // Background
+        backgroundView = findViewById(R.id.background_view);
 
         contact = intent.extras!!["EXTRA_CONTACT"] as Contact
 
@@ -453,7 +474,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         rtcAudioManager = RTCAudioManager(applicationContext)
 
         pipRenderer.init(eglBase.eglBaseContext, null)
-        pipRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+        pipRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
+        pipRenderer.setMirror(true)
 
         fullscreenRenderer.init(eglBase.eglBaseContext, null)
         fullscreenRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
@@ -492,6 +514,10 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 finish()
             }
         }
+
+        layoutMarginStartEnd = applicationContext.resources.getDimensionPixelSize(R.dimen.call_activity_margin_start_end);
+        layoutMarginTop = applicationContext.resources.getDimensionPixelSize(R.dimen.call_activity_margin_top);
+        layoutMarginBottom = applicationContext.resources.getDimensionPixelSize(R.dimen.call_activity_margin_bottom);
     }
 
     private fun initOutgoingCall() {
@@ -665,6 +691,68 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             swappedVideoFeeds = !swappedVideoFeeds
             updateVideoDisplay()
         }
+
+        pipRenderer.setOnTouchListener(object : OnTouchListener {
+            var dX = 0f
+            var dY = 0f
+            var oX = 0f
+            var oY = 0f
+            var newX = 0f
+            var newY = 0f
+            private val gestureDetector =
+                GestureDetector(this@CallActivity, object : SimpleOnGestureListener() {
+                    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                        pipRenderer.translationX = 0f
+                        pipRenderer.translationY = 0f
+                        pipRenderer.performClick()
+                        return true
+                    }
+                })
+
+            override fun onTouch(v: View, event: MotionEvent): Boolean {
+                if (gestureDetector.onTouchEvent(event)) {
+                    return true
+                }
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        dX = v.x - event.rawX
+                        oX = v.x
+                        dY = v.y - event.rawY
+                        oY = v.y
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        newX = event.rawX + dX
+                        newY = event.rawY + dY
+                        if (newX < layoutMarginStartEnd) {
+                            newX = layoutMarginStartEnd.toFloat()
+                        } else if (newX > backgroundView.width - pipRenderer.width - layoutMarginStartEnd) {
+                            newX =
+                                (backgroundView.width - pipRenderer.width - layoutMarginStartEnd).toFloat()
+                        }
+                        if (newY < layoutMarginTop) {
+                            newY = layoutMarginTop.toFloat()
+                        } else if (newY > backgroundView.height - pipRenderer.height - layoutMarginBottom) {
+                            newY =
+                                (backgroundView.height - pipRenderer.height - layoutMarginBottom).toFloat()
+                        }
+                        v.animate()
+                            .x(newX)
+                            .y(newY)
+                            .setDuration(0)
+                            .start()
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        newX = event.rawX + dX
+                        newY = event.rawY + dY
+                    }
+
+                    else -> return false
+                }
+                return true
+            }
+        })
 
         // swap pip and fullscreen content
         fullscreenRenderer.setOnClickListener {

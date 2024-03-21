@@ -764,6 +764,7 @@ class RTCCall : RTCPeerConnection {
     }
 
     interface CallContext {
+
         fun getContext(): Context
         fun onStateChange(state: CallState)
         fun onLocalVideoEnabled(enabled: Boolean)

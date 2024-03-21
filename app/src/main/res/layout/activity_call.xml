@@ -3,23 +3,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".CallActivity">
+
+    <!-- Background image (for audio calls) -->
+    <ImageView
+        android:id="@+id/background_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <!-- Picture-in-Picture window -->
-        <org.webrtc.SurfaceViewRenderer
-            android:id="@+id/pip_video_view"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="center"
-            android:layout_marginBottom="80dp"
-            android:layout_marginEnd="5dp"
-            android:visibility="gone" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/content_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/call_activity_margin_top"
+            android:layout_marginBottom="@dimen/call_activity_margin_bottom"
+            android:layout_marginEnd="@dimen/call_activity_margin_start_end"
+            android:layout_marginStart="@dimen/call_activity_margin_start_end">
+
+            <org.webrtc.SurfaceViewRenderer
+                android:id="@+id/pip_video_view"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,3:4"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent=".3"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- fullscreen video window -->
         <org.webrtc.SurfaceViewRenderer
