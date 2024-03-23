@@ -860,7 +860,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         val speakerphoneMode = when (val mode = settings.speakerphoneMode) {
             "auto" -> RTCAudioManager.SpeakerphoneMode.AUTO
-            "on" -> RTCAudioManager.SpeakerphoneMode.ON
+            //"on" -> RTCAudioManager.SpeakerphoneMode.ON
             "off" -> RTCAudioManager.SpeakerphoneMode.OFF
             else -> {
                 Log.w(this, "Invalid speakerphone mode: $mode")
@@ -972,7 +972,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         // get matching button icon
         val icon = when (mode) {
             RTCAudioManager.SpeakerphoneMode.AUTO -> R.drawable.ic_audio_device_automatic // preferred device
-            RTCAudioManager.SpeakerphoneMode.ON -> R.drawable.ic_audio_device_speakerphone // enforced setting
+            //RTCAudioManager.SpeakerphoneMode.ON -> R.drawable.ic_audio_device_speakerphone // enforced setting
             RTCAudioManager.SpeakerphoneMode.OFF -> R.drawable.ic_audio_device_phone // enforced setting
         }
 
@@ -986,8 +986,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         // switch to the next speakerphone mode
         val newMode = when (oldMode) {
             RTCAudioManager.SpeakerphoneMode.AUTO -> RTCAudioManager.SpeakerphoneMode.OFF
-            RTCAudioManager.SpeakerphoneMode.OFF -> RTCAudioManager.SpeakerphoneMode.ON
-            RTCAudioManager.SpeakerphoneMode.ON -> RTCAudioManager.SpeakerphoneMode.AUTO
+            //RTCAudioManager.SpeakerphoneMode.OFF -> RTCAudioManager.SpeakerphoneMode.ON
+            RTCAudioManager.SpeakerphoneMode.OFF -> RTCAudioManager.SpeakerphoneMode.AUTO
         }
 
         Log.d(this, "changeSpeakerphoneMode() $oldMode => $newMode")

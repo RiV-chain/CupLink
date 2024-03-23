@@ -247,7 +247,7 @@
                 app:tint="@android:color/white"
                 android:padding="@dimen/call_button_image_padding"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_audio_device_speakerphone"
+                android:src="@drawable/ic_audio_device_automatic"
                 android:contentDescription="audio source selection" />
 
         </com.google.android.flexbox.FlexboxLayout>

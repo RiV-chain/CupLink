@@ -19,7 +19,9 @@ import java.util.*
  */
 class RTCAudioManager(contextArg: Context) {
     enum class SpeakerphoneMode {
-        AUTO, ON, OFF
+        AUTO,
+        //ON,
+        OFF
     }
 
     enum class AudioDevice {
@@ -241,7 +243,7 @@ class RTCAudioManager(contextArg: Context) {
         val isBluetoothConnected = bluetoothManager.isBluetoothHeadsetConnected()
         isSpeakerphoneOn = when (speakerphoneMode) {
             SpeakerphoneMode.AUTO -> (!isProximityNear && !isBluetoothConnected)
-            SpeakerphoneMode.ON -> true
+            //SpeakerphoneMode.ON -> true
             SpeakerphoneMode.OFF -> false
         }
 
