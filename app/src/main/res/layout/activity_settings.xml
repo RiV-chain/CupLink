@@ -272,7 +272,8 @@
                         android:paddingTop="15dp"
                         android:paddingBottom="15dp"
                         android:minWidth="48dp"
-                        android:theme="@style/SwitchTheme"/>
+                        android:theme="@style/SwitchTheme"
+                        />
 
                 </RelativeLayout>
 
