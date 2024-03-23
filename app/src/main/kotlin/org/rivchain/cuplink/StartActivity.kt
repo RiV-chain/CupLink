@@ -522,7 +522,12 @@ class StartActivity : BaseActivity(), ServiceConnection {
     private fun getDefaultAddress(): AddressEntry? {
         val addresses = AddressUtils.collectAddresses()
 
-        // preferable, since we can derive a fe80:: and other addresses from a MAC address
+        // preferable, fc::/7
+        val meshAddress = addresses.firstOrNull { it.address.startsWith("fc") }
+        if (meshAddress != null) {
+            return meshAddress
+        }
+        // since we can derive a fe80:: and other addresses from a MAC address
         val macAddress = addresses.firstOrNull { it.device.startsWith("wlan") && AddressUtils.isMACAddress(it.address) }
         if (macAddress != null) {
             return macAddress
