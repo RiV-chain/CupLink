@@ -20,8 +20,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import com.google.android.material.switchmaterial.SwitchMaterial
 import org.libsodium.jni.Sodium
-import org.rivchain.cuplink.AddressUtils.AddressType
+import org.rivchain.cuplink.util.AddressUtils.AddressType
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Utils
 import java.util.Locale
 

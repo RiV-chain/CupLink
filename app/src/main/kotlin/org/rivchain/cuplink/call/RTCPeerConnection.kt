@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
-import org.rivchain.cuplink.AddressUtils
+import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.CallActivity
 import org.rivchain.cuplink.Contact
 import org.rivchain.cuplink.Crypto

@@ -1,6 +1,7 @@
 package org.rivchain.cuplink
 
 import android.Manifest
+import android.app.Activity
 import android.app.Dialog
 import android.content.ComponentName
 import android.content.DialogInterface
@@ -8,11 +9,14 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.graphics.Typeface
+import android.net.Uri
+import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.Settings
 import android.text.Editable
 import android.text.Html
 import android.text.InputFilter
@@ -36,7 +40,10 @@ import androidx.preference.PreferenceManager
 import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.rivmesh.PacketTunnelProvider
+import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
+import org.rivchain.cuplink.util.PermissionManager.haveDrawOverlaysPermission
 import org.rivchain.cuplink.util.PermissionManager.haveMicrophonePermission
 import org.rivchain.cuplink.util.PermissionManager.havePostNotificationPermission
 import org.rivchain.cuplink.util.Utils
@@ -414,6 +421,22 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             10 -> {
+                if (!haveDrawOverlaysPermission(this)) {
+                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+                    requestDrawOverlaysPermissionLauncher.launch(intent)
+                } else {
+                    continueInit()
+                }
+            }
+            11 -> {
+                val vpnIntent = VpnService.prepare(this)
+                if (vpnIntent != null) {
+                    startVpnActivity.launch(vpnIntent)
+                } else {
+                    start()
+                }
+            }
+            12 -> {
                 Log.d(this, "init 6: start MainActivity")
                 val settings = binder!!.getSettings()
 
@@ -429,6 +452,29 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 finish()
             }
 
+        }
+    }
+
+    private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            start()
+        }
+    }
+
+    private fun start() {
+        val intent = Intent(this, PacketTunnelProvider::class.java)
+        intent.action = PacketTunnelProvider.ACTION_START
+        startService(intent)
+        continueInit()
+    }
+
+    private var requestDrawOverlaysPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (!Settings.canDrawOverlays(this)) {
+                    Toast.makeText(this, R.string.overlay_permission_missing, Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

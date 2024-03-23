@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.size
+import org.rivchain.cuplink.util.AddressUtils
 import java.text.DateFormat
 import kotlin.math.abs
 

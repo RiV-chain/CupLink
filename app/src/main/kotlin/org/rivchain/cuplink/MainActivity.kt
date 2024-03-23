@@ -36,6 +36,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PacketTunnelProvider
+import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.PowerManager
 
 // the main view with tabs
@@ -57,17 +58,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
         }
     }
 
-    private fun start() {
-        val intent = Intent(this, PacketTunnelProvider::class.java)
-        intent.action = PacketTunnelProvider.ACTION_START
-        startService(intent)
-    }
-
-    private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            start()
-        }
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(this, "onCreate()")
 
@@ -78,7 +68,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
         setContentView(R.layout.activity_main)
 
         initToolbar()
-        permissionToDrawOverlays()
 
         instance = this
 
@@ -99,12 +88,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
             Log.d(this, "Power management fix skipped")
         }
 
-        val vpnIntent = VpnService.prepare(this)
-        if (vpnIntent != null) {
-            startVpnActivity.launch(vpnIntent)
-        } else {
-            start()
-        }
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
         preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, true) }
     }
@@ -163,25 +146,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
                 }
             }
         }, 700)
-    }
-
-    private fun permissionToDrawOverlays() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!Settings.canDrawOverlays(this)) {
-                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-                requestDrawOverlaysPermissionLauncher.launch(intent)
-            }
-        }
-    }
-
-    private var requestDrawOverlaysPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode != Activity.RESULT_OK) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (!Settings.canDrawOverlays(this)) {
-                    Toast.makeText(this, R.string.overlay_permission_missing, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
     }
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {

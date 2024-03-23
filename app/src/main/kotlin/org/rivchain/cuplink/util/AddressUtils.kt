@@ -1,9 +1,12 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.util
 
 import android.net.InetAddresses
 import android.os.Build
 import android.util.Patterns
-import org.rivchain.cuplink.util.Utils
+import org.rivchain.cuplink.AddressEntry
+import org.rivchain.cuplink.Contact
+import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.MainService
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -309,7 +312,7 @@ internal object AddressUtils
         }
     }
 
-    fun collectAddresses(): List<AddressEntry> {
+    fun  collectAddresses(): List<AddressEntry> {
         val addressList = ArrayList<AddressEntry>()
         try {
             for (nif in Collections.list(NetworkInterface.getNetworkInterfaces())) {

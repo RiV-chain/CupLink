@@ -1,6 +1,7 @@
 package org.rivchain.cuplink
 
 import org.json.JSONObject
+import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Utils
 import java.net.InetSocketAddress
 import java.util.Date
