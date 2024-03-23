@@ -312,7 +312,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
         )
 
         // set by BootUpReceiver
-        isStartOnBootup = intent.getBooleanExtra(BootUpReceiver.IS_START_ON_BOOTUP, false)
+        isStartOnBootup = intent.getBooleanExtra(BootUpReceiver.IS_START_ON_BOOTUP, true)
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
