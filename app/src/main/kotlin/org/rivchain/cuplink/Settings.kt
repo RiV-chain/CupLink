@@ -5,6 +5,10 @@ import org.json.JSONObject
 import java.util.Locale
 
 class Settings {
+
+    /**
+     * Default values for settings
+     */
     var username = ""
     var secretKey = byteArrayOf()
     var publicKey = byteArrayOf()
@@ -19,7 +23,7 @@ class Settings {
     var disableAudioProcessing = false
     var showUsernameAsLogo = false
     var pushToTalk = false
-    var startOnBootup = false
+    var startOnBootup = true
     var connectRetries = 1
     var connectTimeout = 1500
     var enableMicrophoneByDefault = true
