@@ -359,6 +359,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 continueInit()
             }
             2 -> {
+                Log.d(this, "init 2: privacy policy")
                 if(preferences?.getString(POLICY, null) == null) {
                     showPolicy("En-Us");
                 } else {
@@ -366,7 +367,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             3 -> {
-                Log.d(this, "init 2: check database")
+                Log.d(this, "init 3: check database")
                 if (!binder!!.isDatabaseLoaded()) {
                     // database is probably encrypted
                     showDatabasePasswordDialog()
@@ -375,7 +376,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             4 -> {
-                Log.d(this, "init 3: check username")
+                Log.d(this, "init 4: check username")
                 if (binder!!.getSettings().username.isEmpty()) {
                     // set username
                     showMissingUsernameDialog()
@@ -384,7 +385,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             5 -> {
-                Log.d(this, "init 4: check key pair")
+                Log.d(this, "init 5: check key pair")
                 if (binder!!.getSettings().publicKey.isEmpty()) {
                     // generate key pair
                     initKeyPair()
@@ -392,14 +393,16 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 continueInit()
             }
             6 -> {
-                Log.d(this, "init 5: check addresses")
-                if (binder!!.getService().firstStart) {
-                    showMissingAddressDialog()
+                Log.d(this, "init 6: start VPN")
+                val vpnIntent = VpnService.prepare(this)
+                if (vpnIntent != null) {
+                    startVpnActivity.launch(vpnIntent)
                 } else {
-                    continueInit()
+                    start()
                 }
             }
             7 -> {
+                Log.d(this, "init 7: check notification permissions")
                 if (!havePostNotificationPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.POST_NOTIFICATIONS)
                 } else {
@@ -407,6 +410,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             8 -> {
+                Log.d(this, "init 8: check microphone permissions")
                 if (!haveMicrophonePermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.RECORD_AUDIO)
                 } else {
@@ -414,6 +418,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             9 -> {
+                Log.d(this, "init 9: check camera permissions")
                 if (!haveCameraPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.CAMERA)
                 } else {
@@ -421,6 +426,7 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             10 -> {
+                Log.d(this, "init 10: check overlay permissions")
                 if (!haveDrawOverlaysPermission(this)) {
                     val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
                     requestDrawOverlaysPermissionLauncher.launch(intent)
@@ -429,23 +435,20 @@ class StartActivity : BaseActivity(), ServiceConnection {
                 }
             }
             11 -> {
-                val vpnIntent = VpnService.prepare(this)
-                if (vpnIntent != null) {
-                    startVpnActivity.launch(vpnIntent)
+                Log.d(this, "init 11: check addresses")
+                if (binder!!.getService().firstStart) {
+                    showMissingAddressDialog()
                 } else {
-                    start()
+                    continueInit()
                 }
             }
             12 -> {
-                Log.d(this, "init 6: start MainActivity")
+                Log.d(this, "init 12: start MainActivity")
                 val settings = binder!!.getSettings()
-
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
-
                 // set night mode
                 setDefaultNightMode(settings.nightMode)
-
                 if (!isStartOnBootup) {
                     startActivity(Intent(this, MainActivity::class.java))
                 }
