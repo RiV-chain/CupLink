@@ -4,6 +4,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
+import org.rivchain.cuplink.util.Utils
 import java.io.Serializable
 import java.net.InetSocketAddress
 import java.util.Locale

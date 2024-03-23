@@ -11,8 +11,7 @@ import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
 import org.rivchain.cuplink.Log
-import org.rivchain.cuplink.Utils
-import java.util.*
+import org.rivchain.cuplink.util.Utils
 
 /**
  * RTCAudioManager manages all audio related parts.

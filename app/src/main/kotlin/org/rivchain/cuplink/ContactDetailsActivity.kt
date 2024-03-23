@@ -22,6 +22,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.AddressUtils.AddressType
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.util.Utils
 import java.util.Locale
 
 class ContactDetailsActivity : BaseActivity(), ServiceConnection {

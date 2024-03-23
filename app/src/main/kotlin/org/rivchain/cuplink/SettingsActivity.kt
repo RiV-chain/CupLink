@@ -26,6 +26,7 @@ import org.rivchain.cuplink.rivmesh.PeerListActivity
 import org.rivchain.cuplink.rivmesh.PeerListActivity.Companion.PEER_LIST
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
+import org.rivchain.cuplink.util.Utils
 import java.lang.Integer.parseInt
 
 class SettingsActivity : BaseActivity(), ServiceConnection {

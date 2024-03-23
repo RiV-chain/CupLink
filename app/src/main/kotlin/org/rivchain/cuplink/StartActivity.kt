@@ -39,6 +39,7 @@ import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
 import org.rivchain.cuplink.util.PermissionManager.haveMicrophonePermission
 import org.rivchain.cuplink.util.PermissionManager.havePostNotificationPermission
+import org.rivchain.cuplink.util.Utils
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern

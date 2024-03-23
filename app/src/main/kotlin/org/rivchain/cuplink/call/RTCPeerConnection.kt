@@ -11,7 +11,7 @@ import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.Log
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
-import org.rivchain.cuplink.Utils
+import org.rivchain.cuplink.util.Utils
 import java.io.IOException
 import java.lang.Integer.max
 import java.lang.Integer.min

@@ -1,4 +1,4 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.util
 
 import android.content.Context
 import android.content.pm.PackageManager

@@ -2,6 +2,7 @@ package org.rivchain.cuplink
 
 import org.json.JSONArray
 import org.json.JSONObject
+import org.rivchain.cuplink.util.Utils
 import java.util.Locale
 
 class Settings {

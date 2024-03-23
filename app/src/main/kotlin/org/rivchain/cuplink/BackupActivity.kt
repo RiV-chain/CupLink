@@ -15,8 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import org.rivchain.cuplink.MainService.MainBinder
-import org.rivchain.cuplink.Utils.readExternalFile
-import org.rivchain.cuplink.Utils.writeExternalFile
+import org.rivchain.cuplink.util.Utils.readExternalFile
+import org.rivchain.cuplink.util.Utils.writeExternalFile
 
 class BackupActivity : BaseActivity(), ServiceConnection {
     private var dialog: AlertDialog? = null

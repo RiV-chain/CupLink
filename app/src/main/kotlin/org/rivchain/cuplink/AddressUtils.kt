@@ -3,6 +3,7 @@ package org.rivchain.cuplink
 import android.net.InetAddresses
 import android.os.Build
 import android.util.Patterns
+import org.rivchain.cuplink.util.Utils
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader

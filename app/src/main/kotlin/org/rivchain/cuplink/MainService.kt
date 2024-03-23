@@ -17,8 +17,8 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import org.rivchain.cuplink.Utils.readInternalFile
-import org.rivchain.cuplink.Utils.writeInternalFile
+import org.rivchain.cuplink.util.Utils.readInternalFile
+import org.rivchain.cuplink.util.Utils.writeInternalFile
 import org.rivchain.cuplink.call.PacketWriter
 import org.rivchain.cuplink.call.Pinger
 import org.rivchain.cuplink.call.RTCPeerConnection
