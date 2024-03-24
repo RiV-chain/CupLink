@@ -7,9 +7,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Spinner
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatSeekBar
 import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
-import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
 import org.rivchain.cuplink.CallActivity
 import org.rivchain.cuplink.Log
 import org.rivchain.cuplink.R
@@ -24,6 +22,7 @@ class CaptureQualityController(private val callActivity: CallActivity) {
     private val framerateSlider = callActivity.findViewById<VerticalSeekBar>(R.id.captureFramerateSlider)
     private val degradationSpinner = callActivity.findViewById<Spinner>(R.id.degradationSpinner)
     private val formatText = callActivity.findViewById<TextView>(R.id.captureFormatText)
+    private val framerateText = callActivity.findViewById<TextView>(R.id.captureFramerateText)
 
     private val degradationValues =
             degradationSpinner.resources.getStringArray(R.array.videoDegradationModeValues)
@@ -88,6 +87,7 @@ class CaptureQualityController(private val callActivity: CallActivity) {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 resolutionSliderFraction = (progress.toDouble() / 100.0)
                 resolutionSliderInitialized = true
+                formatText.y = seekBar.thumb.getBounds().bottom.toFloat()
                 updateView()
             }
 
@@ -102,6 +102,7 @@ class CaptureQualityController(private val callActivity: CallActivity) {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 framerateSliderFraction = (progress.toDouble() / 100.0)
                 framerateSliderInitialized = true
+                framerateText.y = seekBar.thumb.getBounds().bottom.toFloat()
                 updateView()
             }
 
@@ -181,21 +182,25 @@ class CaptureQualityController(private val callActivity: CallActivity) {
                 resolutionSlider.visibility = View.VISIBLE
                 framerateSlider.visibility = View.INVISIBLE
                 formatText.visibility = View.VISIBLE
+                framerateText.visibility = View.INVISIBLE
             }
             "maintain_framerate" -> {
                 resolutionSlider.visibility = View.INVISIBLE
                 framerateSlider.visibility = View.VISIBLE
-                formatText.visibility = View.VISIBLE
+                formatText.visibility = View.INVISIBLE
+                framerateText.visibility = View.VISIBLE
             }
             "balanced" -> {
                 resolutionSlider.visibility = View.INVISIBLE
                 framerateSlider.visibility = View.INVISIBLE
                 formatText.visibility = View.GONE
+                framerateText.visibility = View.GONE
             }
             "disabled" -> {
                 resolutionSlider.visibility = View.VISIBLE
                 framerateSlider.visibility = View.VISIBLE
                 formatText.visibility = View.VISIBLE
+                framerateText.visibility = View.VISIBLE
             }
             else -> {
                 Log.w(this, "updateView() unhandled degradation=$degradation")
@@ -204,35 +209,41 @@ class CaptureQualityController(private val callActivity: CallActivity) {
         }
 
         // "<name> <resolution>@<framerate>"
-        var label = ""
+        var formatTextLabel = ""
         if (formatText.visibility == View.VISIBLE) {
             val format =  getSelectedFormat()
-            val framerate = getSelectedFramerate()
 
             if (resolutionSlider.visibility == View.VISIBLE) {
                 val resolution = "${format.width}x${format.height}"
                 if (resolution in resolutionNames) {
-                    label += "${resolutionNames[resolution]} "
+                    formatTextLabel += "${resolutionNames[resolution]} "
                 }
-                label += resolution
-            }
-
-            if (framerateSlider.visibility == View.VISIBLE) {
-                if (label.isNotEmpty()) {
-                    label += " @ "
-                }
-                label += "$framerate fps"
+                formatTextLabel += resolution
             }
 
             if (cameraName.isNotEmpty()) {
-                if (label.isNotEmpty()) {
-                    label += " / "
+                if (formatTextLabel.isNotEmpty()) {
+                    formatTextLabel += " / "
                 }
-                label += cameraName
+                formatTextLabel += cameraName
             }
+
+            formatText.text = formatTextLabel
+        }
+        var framerateTextLabel = ""
+        if (framerateText.visibility == View.VISIBLE) {
+
+            val framerate = getSelectedFramerate()
+
+            if (framerateSlider.visibility == View.VISIBLE) {
+                if (framerateTextLabel.isNotEmpty()) {
+                    framerateTextLabel += " @ "
+                }
+                framerateTextLabel += "$framerate fps"
+            }
+            framerateText.text = framerateTextLabel
         }
 
-        formatText.text = label
     }
 
     fun getSelectedDegradation(): String {
