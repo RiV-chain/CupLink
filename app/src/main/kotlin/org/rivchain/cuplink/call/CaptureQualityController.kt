@@ -7,6 +7,9 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatSeekBar
+import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
 import org.rivchain.cuplink.CallActivity
 import org.rivchain.cuplink.Log
 import org.rivchain.cuplink.R
@@ -17,8 +20,8 @@ import org.webrtc.CameraEnumerationAndroid.CaptureFormat
  * Control capture format based on a seekbar listeners.
  */
 class CaptureQualityController(private val callActivity: CallActivity) {
-    private val resolutionSlider = callActivity.findViewById<SeekBar>(R.id.captureResolutionSlider)
-    private val framerateSlider = callActivity.findViewById<SeekBar>(R.id.captureFramerateSlider)
+    private val resolutionSlider = callActivity.findViewById<VerticalSeekBar>(R.id.captureResolutionSlider)
+    private val framerateSlider = callActivity.findViewById<VerticalSeekBar>(R.id.captureFramerateSlider)
     private val degradationSpinner = callActivity.findViewById<Spinner>(R.id.degradationSpinner)
     private val formatText = callActivity.findViewById<TextView>(R.id.captureFormatText)
 
@@ -176,17 +179,17 @@ class CaptureQualityController(private val callActivity: CallActivity) {
         when (degradation) {
             "maintain_resolution" -> {
                 resolutionSlider.visibility = View.VISIBLE
-                framerateSlider.visibility = View.GONE
+                framerateSlider.visibility = View.INVISIBLE
                 formatText.visibility = View.VISIBLE
             }
             "maintain_framerate" -> {
-                resolutionSlider.visibility = View.GONE
+                resolutionSlider.visibility = View.INVISIBLE
                 framerateSlider.visibility = View.VISIBLE
                 formatText.visibility = View.VISIBLE
             }
             "balanced" -> {
-                resolutionSlider.visibility = View.GONE
-                framerateSlider.visibility = View.GONE
+                resolutionSlider.visibility = View.INVISIBLE
+                framerateSlider.visibility = View.INVISIBLE
                 formatText.visibility = View.GONE
             }
             "disabled" -> {

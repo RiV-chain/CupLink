@@ -16,6 +16,7 @@ import android.view.View.OnTouchListener
 import android.view.WindowManager.LayoutParams
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import org.rivchain.cuplink.call.*
 import org.rivchain.cuplink.call.RTCPeerConnection.CallState
@@ -70,6 +71,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private lateinit var controlPanel: View
     private lateinit var capturePanel: View
     private lateinit var backgroundView: ImageView
+    private lateinit var settingsView: ConstraintLayout
     private lateinit var captureQualityController: CaptureQualityController
 
     private var uiMode = 0
@@ -467,6 +469,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         capturePanel = findViewById(R.id.capturePanel)
         // Background
         backgroundView = findViewById(R.id.background_view);
+        settingsView = findViewById(R.id.settings_view);
 
         contact = intent.extras!!["EXTRA_CONTACT"] as Contact
 
@@ -725,17 +728,17 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     MotionEvent.ACTION_MOVE -> {
                         newX = event.rawX + dX
                         newY = event.rawY + dY
-                        if (newX < layoutMarginStartEnd) {
-                            newX = layoutMarginStartEnd.toFloat()
-                        } else if (newX > backgroundView.width - pipRenderer.width - layoutMarginStartEnd) {
+                        if (newX < 0) {
+                            newX = 0f
+                        } else if (newX > settingsView.width - pipRenderer.width) {
                             newX =
-                                (backgroundView.width - pipRenderer.width - layoutMarginStartEnd).toFloat()
+                                (settingsView.width - pipRenderer.width).toFloat()
                         }
-                        if (newY < layoutMarginTop) {
-                            newY = layoutMarginTop.toFloat()
-                        } else if (newY > backgroundView.height - pipRenderer.height - layoutMarginBottom) {
+                        if (newY < 0) {
+                            newY = 0f
+                        } else if (newY > settingsView.height - pipRenderer.height) {
                             newY =
-                                (backgroundView.height - pipRenderer.height - layoutMarginBottom).toFloat()
+                                (settingsView.height - pipRenderer.height).toFloat()
                         }
                         v.animate()
                             .x(newX)

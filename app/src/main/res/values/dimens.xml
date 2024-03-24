@@ -13,7 +13,7 @@
     <dimen name="headline_text_size">18sp</dimen>
 
     <!-- Calls -->
-    <dimen name="call_activity_margin_start_end">16dp</dimen>
+    <dimen name="call_activity_margin_start_end">45dp</dimen>
     <dimen name="call_activity_margin_top">120dp</dimen>
     <dimen name="call_activity_margin_bottom">80dp</dimen>
 </resources>
