@@ -1,5 +1,8 @@
 package org.rivchain.cuplink.call
 
+import android.content.Context
+import android.content.res.Resources
+import android.util.DisplayMetrics
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -13,6 +16,7 @@ import org.rivchain.cuplink.Log
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.Settings
 import org.webrtc.CameraEnumerationAndroid.CaptureFormat
+
 
 /**
  * Control capture format based on a seekbar listeners.
@@ -57,6 +61,9 @@ class CaptureQualityController(private val callActivity: CallActivity) {
     private var defaultDegradation = ""
 
     init {
+        //
+        var topResolution = resolutionSlider.thumb.getBounds().top.toFloat()
+        var topFramerate = framerateSlider.thumb.getBounds().top.toFloat()
         // setup spinner
         val spinnerAdapter = ArrayAdapter.createFromResource(
             degradationSpinner.context,
@@ -87,7 +94,7 @@ class CaptureQualityController(private val callActivity: CallActivity) {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 resolutionSliderFraction = (progress.toDouble() / 100.0)
                 resolutionSliderInitialized = true
-                formatText.y = seekBar.thumb.getBounds().bottom.toFloat()
+                //formatText.translationY = seekBar.thumb.getBounds().top  - topResolution
                 updateView()
             }
 
@@ -102,7 +109,7 @@ class CaptureQualityController(private val callActivity: CallActivity) {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 framerateSliderFraction = (progress.toDouble() / 100.0)
                 framerateSliderInitialized = true
-                framerateText.y = seekBar.thumb.getBounds().bottom.toFloat()
+                //framerateText.translationY = seekBar.thumb.getBounds().top  - topFramerate
                 updateView()
             }
 
@@ -220,14 +227,14 @@ class CaptureQualityController(private val callActivity: CallActivity) {
                 }
                 formatTextLabel += resolution
             }
-
+            /*
             if (cameraName.isNotEmpty()) {
                 if (formatTextLabel.isNotEmpty()) {
                     formatTextLabel += " / "
                 }
                 formatTextLabel += cameraName
             }
-
+            */
             formatText.text = formatTextLabel
         }
         var framerateTextLabel = ""
@@ -236,9 +243,10 @@ class CaptureQualityController(private val callActivity: CallActivity) {
             val framerate = getSelectedFramerate()
 
             if (framerateSlider.visibility == View.VISIBLE) {
+                /*
                 if (framerateTextLabel.isNotEmpty()) {
                     framerateTextLabel += " @ "
-                }
+                }*/
                 framerateTextLabel += "$framerate fps"
             }
             framerateText.text = framerateTextLabel
