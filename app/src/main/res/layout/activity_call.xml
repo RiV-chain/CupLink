@@ -64,23 +64,22 @@
                     android:textSize="12sp"
                     android:visibility="gone" />
 
-                    <!-- video capture quality controls -->
-                    <LinearLayout
-                        android:id="@+id/capturePanel"
-                        android:layout_width="match_parent"
+                <!-- video capture quality controls -->
+                <LinearLayout
+                    android:id="@+id/capturePanel"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <Spinner
+                        android:id="@+id/degradationSpinner"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical">
+                        android:layout_marginTop="8dp"
+                        android:textSize="@dimen/options_text_size" />
 
-                        <Spinner
-                            android:id="@+id/degradationSpinner"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textSize="@dimen/options_text_size" />
-
-                    </LinearLayout>
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -93,11 +92,26 @@
                 app:layout_constraintTop_toBottomOf="@+id/call_layout"
                 android:translationZ="1dp">
 
+                <ImageButton
+                    android:id="@+id/captureResolution"
+                    android:layout_width="50dp"
+                    android:layout_height="0dp"
+                    android:src="@android:drawable/presence_video_online"
+                    android:scaleType="fitCenter"
+                    android:scaleX="0.6"
+                    android:scaleY="0.6"
+                    android:visibility="invisible"
+                    android:background="@drawable/flag_transparent"
+                    app:layout_constraintBottom_toBottomOf="@+id/captureFramerate"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/captureFramerate" />
+
                 <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
                     android:id="@+id/captureResolutionSliderWrapper"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:alpha="0.6"
+                    android:layout_margin="16dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -151,8 +165,8 @@
                     android:layout_height="0dp"
                     android:layout_margin="10dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
                     app:layout_constraintDimensionRatio="H,3:4"
+                    app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
                     app:layout_constraintWidth_percent=".35" />
 
                 <TextView
@@ -170,12 +184,23 @@
                     app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <Button
+                    android:id="@+id/captureFramerate"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:text="FPS"
+                    android:visibility="invisible"
+                    android:background="@drawable/flag_transparent"
+                    android:textColor="@android:color/holo_green_light"
+                    app:layout_constraintBottom_toTopOf="@+id/captureFramerateSliderWrapper"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
                 <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
                     android:id="@+id/captureFramerateSliderWrapper"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:alpha="0.6"
+                    android:layout_margin="15dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"

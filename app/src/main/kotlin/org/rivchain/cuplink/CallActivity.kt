@@ -3,6 +3,7 @@ package org.rivchain.cuplink
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.*
+import android.content.res.Configuration
 import android.media.AudioManager
 import android.media.Ringtone
 import android.media.RingtoneManager
@@ -27,9 +28,7 @@ import java.util.*
 
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
-    private var layoutMarginStartEnd = 0
-    private var layoutMarginTop = 0
-    private var layoutMarginBottom = 0
+
     private var binder: MainService.MainBinder? = null
     private lateinit var connection: ServiceConnection
     private lateinit var currentCall: RTCCall
@@ -70,6 +69,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private lateinit var changeUiButton: ImageButton // show/hide different control
     private lateinit var controlPanel: View
     private lateinit var capturePanel: View
+    private lateinit var captureResolution: ImageView
+    private lateinit var captureFramerate: Button
     private lateinit var backgroundView: ImageView
     private lateinit var settingsView: ConstraintLayout
     private lateinit var captureQualityController: CaptureQualityController
@@ -274,10 +275,14 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
 
             if (enable) {
-                capturePanel.visibility = View.VISIBLE
+                //capturePanel.visibility = View.VISIBLE
+                captureResolution.visibility = View.VISIBLE
+                captureFramerate.visibility = View.VISIBLE
                 callAddress.visibility = View.VISIBLE
             } else {
-                capturePanel.visibility = View.GONE
+                //capturePanel.visibility = View.GONE
+                captureResolution.visibility = View.GONE
+                captureFramerate.visibility = View.GONE
                 callAddress.visibility = View.GONE
             }
         }
@@ -467,6 +472,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         changeUiButton = findViewById(R.id.change_ui)
         controlPanel = findViewById(R.id.controlPanel)
         capturePanel = findViewById(R.id.capturePanel)
+        captureResolution = findViewById(R.id.captureResolution)
+        captureFramerate = findViewById(R.id.captureFramerate)
+
         // Background
         backgroundView = findViewById(R.id.background_view);
         settingsView = findViewById(R.id.settings_view);
@@ -518,10 +526,13 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 finish()
             }
         }
-
-        layoutMarginStartEnd = applicationContext.resources.getDimensionPixelSize(R.dimen.call_activity_margin_start_end);
-        layoutMarginTop = applicationContext.resources.getDimensionPixelSize(R.dimen.call_activity_margin_top);
-        layoutMarginBottom = applicationContext.resources.getDimensionPixelSize(R.dimen.call_activity_margin_bottom);
+        if (getResources().configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // landscape
+            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
+        } else {
+            // portrait
+            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
+        }
     }
 
     private fun initOutgoingCall() {

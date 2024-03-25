@@ -6,6 +6,8 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Spinner
@@ -22,8 +24,11 @@ import org.webrtc.CameraEnumerationAndroid.CaptureFormat
  * Control capture format based on a seekbar listeners.
  */
 class CaptureQualityController(private val callActivity: CallActivity) {
+    private val captureResolution = callActivity.findViewById<ImageButton>(R.id.captureResolution)
+    private val captureFramerate = callActivity.findViewById<Button>(R.id.captureFramerate)
     private val resolutionSlider = callActivity.findViewById<VerticalSeekBar>(R.id.captureResolutionSlider)
     private val framerateSlider = callActivity.findViewById<VerticalSeekBar>(R.id.captureFramerateSlider)
+
     private val degradationSpinner = callActivity.findViewById<Spinner>(R.id.degradationSpinner)
     private val formatText = callActivity.findViewById<TextView>(R.id.captureFormatText)
     private val framerateText = callActivity.findViewById<TextView>(R.id.captureFramerateText)
@@ -61,9 +66,7 @@ class CaptureQualityController(private val callActivity: CallActivity) {
     private var defaultDegradation = ""
 
     init {
-        //
-        var topResolution = resolutionSlider.thumb.getBounds().top.toFloat()
-        var topFramerate = framerateSlider.thumb.getBounds().top.toFloat()
+
         // setup spinner
         val spinnerAdapter = ArrayAdapter.createFromResource(
             degradationSpinner.context,
@@ -73,7 +76,8 @@ class CaptureQualityController(private val callActivity: CallActivity) {
         spinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_settings)
 
         degradationSpinner.adapter = spinnerAdapter
-        //degradationSpinner.setSelection(degradationValues.indexOf(degradation))
+
+        //This listener invoked only by a captureResolution or captureFramerate buttons
         degradationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             var check = 0
             override fun onItemSelected(parent: AdapterView<*>?, view: View, pos: Int, id: Long) {
@@ -87,6 +91,37 @@ class CaptureQualityController(private val callActivity: CallActivity) {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // ignore
+            }
+        }
+
+        // Here are captureResolution and captureFramerate buttons listeners
+        captureResolution.setOnClickListener {
+            if (resolutionSlider.visibility == View.INVISIBLE && framerateSlider.visibility == View.INVISIBLE){
+                degradationSpinner.setSelection(1)
+            } else
+            if (resolutionSlider.visibility == View.INVISIBLE && framerateSlider.visibility == View.VISIBLE){
+                degradationSpinner.setSelection(3)
+            } else
+            if (resolutionSlider.visibility == View.VISIBLE && framerateSlider.visibility == View.INVISIBLE){
+                degradationSpinner.setSelection(0)
+            } else
+            if (resolutionSlider.visibility == View.VISIBLE && framerateSlider.visibility == View.VISIBLE){
+                degradationSpinner.setSelection(2)
+            }
+        }
+
+        captureFramerate.setOnClickListener {
+            if (resolutionSlider.visibility == View.INVISIBLE && framerateSlider.visibility == View.INVISIBLE){
+                degradationSpinner.setSelection(2)
+            } else
+            if (resolutionSlider.visibility == View.VISIBLE && framerateSlider.visibility == View.INVISIBLE){
+                degradationSpinner.setSelection(3)
+            } else
+            if (resolutionSlider.visibility == View.INVISIBLE && framerateSlider.visibility == View.VISIBLE){
+                degradationSpinner.setSelection(0)
+            } else
+            if (resolutionSlider.visibility == View.VISIBLE && framerateSlider.visibility == View.VISIBLE){
+                degradationSpinner.setSelection(1)
             }
         }
 
