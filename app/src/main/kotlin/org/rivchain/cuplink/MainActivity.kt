@@ -21,10 +21,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -35,7 +33,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import org.rivchain.cuplink.MainService.MainBinder
-import org.rivchain.cuplink.rivmesh.PacketTunnelProvider
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.PowerManager
 
@@ -165,7 +162,8 @@ class MainActivity : BaseActivity(), ServiceConnection {
             tabLayout.visibility = View.GONE
         } else {
             // default
-            tabLayout.visibility = View.VISIBLE
+            //tabLayout.visibility = View.VISIBLE
+            tabLayout.visibility = View.GONE
         }
 
         val toolbarLabel = findViewById<TextView>(R.id.toolbar_label)

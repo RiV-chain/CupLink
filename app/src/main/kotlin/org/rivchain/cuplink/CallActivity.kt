@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.*
 import android.content.res.Configuration
+import android.hardware.SensorManager.SENSOR_DELAY_NORMAL
 import android.media.AudioManager
 import android.media.Ringtone
 import android.media.RingtoneManager
@@ -12,6 +13,8 @@ import android.os.PowerManager.WakeLock
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
+import android.view.OrientationEventListener
+import android.view.OrientationListener
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.WindowManager.LayoutParams
@@ -74,6 +77,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private lateinit var backgroundView: ImageView
     private lateinit var settingsView: ConstraintLayout
     private lateinit var captureQualityController: CaptureQualityController
+    private lateinit var orientationListener: OrientationEventListener
 
     private var uiMode = 0
 
@@ -278,12 +282,12 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 //capturePanel.visibility = View.VISIBLE
                 captureResolution.visibility = View.VISIBLE
                 captureFramerate.visibility = View.VISIBLE
-                callAddress.visibility = View.VISIBLE
+                //callAddress.visibility = View.VISIBLE
             } else {
                 //capturePanel.visibility = View.GONE
                 captureResolution.visibility = View.GONE
                 captureFramerate.visibility = View.GONE
-                callAddress.visibility = View.GONE
+                //callAddress.visibility = View.GONE
             }
         }
 
@@ -431,8 +435,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             } else {
                 getString(R.string.connecting_to_address)
             }
-
-            callAddress.text = String.format(formatString, addressString)
+            //callAddress.text = String.format(formatString, addressString)
         }
     }
 
@@ -458,7 +461,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         callStatus = findViewById(R.id.callStatus)
         callStats = findViewById(R.id.callStats)
-        callAddress = findViewById(R.id.callAddress)
+        //callAddress = findViewById(R.id.callAddress)
         callName = findViewById(R.id.callName)
         pipRenderer = findViewById(R.id.pip_video_view)
         fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
@@ -529,10 +532,61 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         if (getResources().configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // landscape
             (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
+            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
         } else {
             // portrait
             (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
+            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
         }
+
+        // Set up a listener to detect orientation changes.
+        orientationListener = OrientationListenerImpl(this)
+    }
+
+    private class OrientationListenerImpl(private val context: Context) : OrientationEventListener(context) {
+
+        val ROTATION_O = 1 // portrait
+        val ROTATION_90 = 2 // landscape counter-clockwise
+        val ROTATION_180 = 3 // portrait inverted
+        val ROTATION_270 = 4 // landscape clockwise
+
+
+        private var rotation = 0
+        override fun onOrientationChanged(orientation: Int) {
+            if ((orientation < 35 || orientation > 325) && rotation != ROTATION_O) { // PORTRAIT
+                rotation = ROTATION_O
+            } else if (orientation in 146..214 && rotation != ROTATION_180) { // REVERSE PORTRAIT
+                rotation = ROTATION_180
+            } else if (orientation in 56..124 && rotation != ROTATION_270) { // REVERSE LANDSCAPE
+                rotation = ROTATION_270
+            } else if (orientation in 236..304 && rotation != ROTATION_90) { //LANDSCAPE
+                rotation = ROTATION_90
+            }
+
+            // We'll just display the value, but it should be stashed for further use or acted upon immediately.
+            Log.d("Applog", "rotation = $rotation")
+
+            if (rotation == ROTATION_O || rotation == ROTATION_180){
+                // portrait
+                ((context  as CallActivity).pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
+                (context.pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
+            } else
+            if (rotation == ROTATION_270 || rotation == ROTATION_90){
+                ((context  as CallActivity).pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
+                (context.pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
+            }
+        }
+    }
+
+
+    override fun onStart() {
+        orientationListener.enable()
+        super.onStart()
+    }
+
+    override fun onStop() {
+        orientationListener.disable()
+        super.onStop()
     }
 
     private fun initOutgoingCall() {
