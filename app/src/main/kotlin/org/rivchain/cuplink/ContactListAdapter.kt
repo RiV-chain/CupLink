@@ -46,8 +46,6 @@ internal class ContactListAdapter(
         }
 
         val state = itemView.findViewById<ImageView>(R.id.contact_state)
-        val bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
         val p = Paint()
         p.color = when (contact.state) {
             Contact.State.CONTACT_ONLINE -> Color.parseColor("#00ff0a") // green
@@ -58,14 +56,7 @@ internal class ContactListAdapter(
             Contact.State.COMMUNICATION_FAILED -> Color.parseColor("#808080") // grey
             Contact.State.PENDING -> Color.parseColor("#00000000") // transparent
         }
-        canvas.drawCircle(100f, 100f, 100f, p)
-        if (contact.blocked) {
-            // draw smaller dark red circle on top
-            p.color = Color.parseColor("#ba0000")
-            canvas.drawCircle(100f, 100f, 70f, p)
-        }
-        state.setImageBitmap(bitmap)
-
+        state.setColorFilter(p.color);
         return itemView
     }
 }

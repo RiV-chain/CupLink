@@ -8,15 +8,25 @@
     tools:context=".CallActivity">
 
     <!-- Background image (for audio calls) -->
-    <ImageView
-        android:id="@+id/background_view"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription"/>
+        android:background="@color/colorPrimaryDark">
+        <!-- Background image (for audio calls) -->
+        <ImageView
+            android:id="@+id/background_view"
+            android:src="@drawable/cup_link"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:scaleX="0.35"
+            android:scaleY="0.35"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription"
+            android:background="@color/colorPrimaryDark"/>
+    </FrameLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/video_settings"

@@ -32,7 +32,7 @@
     <string name="button_yes">Yes</string>
     <string name="call_authentication_failed">Authentication Failed</string>
     <string name="call_connected">Connected</string>
-    <string name="call_connecting">Calling…</string>
+    <string name="call_connecting">Calling</string>
     <string name="call_connection_failed">Connection Failed</string>
     <string name="call_denied">Declined</string>
     <string name="call_ended">Call Ended</string>
@@ -41,9 +41,9 @@
     <string name="call_error_not_listening">Error: No app running</string>
     <string name="call_error_unresolved_hostname">Error: Cannot resolve address</string>
     <string name="call_no_network">No network - enable Wi-Fi\?</string>
-    <string name="call_ringing">Ringing…</string>
+    <string name="call_ringing">Ringing</string>
     <string name="call_start_or_abort">Start or Abort Call</string>
-    <string name="call_waiting">Waiting…</string>
+    <string name="call_waiting">Waiting</string>
     <string name="camera_back">Back</string>
     <string name="camera_front">Front</string>
     <string name="capture_format_change_text">Slide to change capture format</string>

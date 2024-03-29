@@ -24,7 +24,7 @@
 
     <style name="MySpinner" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:dividerHeight">1dp</item>
-        <item name="android:divider">#7C7B7B</item>
+        <item name="android:divider">#121212</item>
     </style>
 
     <style name="SwitchTheme" parent="Theme.AppCompat.Light">
