@@ -330,9 +330,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private fun showPipView(enable: Boolean) {
         Log.d(this, "showPipView() enable=$enable")
         if (enable) {
-            pipRenderer.visibility = View.VISIBLE
+            pipContainer.visibility = View.VISIBLE
         } else {
-            pipRenderer.visibility = View.INVISIBLE
+            pipContainer.visibility = View.INVISIBLE
         }
     }
 
@@ -764,7 +764,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             updateVideoDisplay()
         }
 
-        pipRenderer.setOnTouchListener(object : OnTouchListener {
+        pipContainer.setOnTouchListener(object : OnTouchListener {
             var dX = 0f
             var dY = 0f
             var oX = 0f
@@ -774,9 +774,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             private val gestureDetector =
                 GestureDetector(this@CallActivity, object : SimpleOnGestureListener() {
                     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                        pipRenderer.translationX = 0f
-                        pipRenderer.translationY = 0f
-                        pipRenderer.performClick()
+                        pipContainer.translationX = 0f
+                        pipContainer.translationY = 0f
+                        pipContainer.performClick()
                         return true
                     }
                 })
@@ -798,15 +798,15 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                         newY = event.rawY + dY
                         if (newX < 0) {
                             newX = 0f
-                        } else if (newX > settingsView.width - pipRenderer.width) {
+                        } else if (newX > settingsView.width - pipContainer.width) {
                             newX =
-                                (settingsView.width - pipRenderer.width).toFloat()
+                                (settingsView.width - pipContainer.width).toFloat()
                         }
                         if (newY < 0) {
                             newY = 0f
-                        } else if (newY > settingsView.height - pipRenderer.height) {
+                        } else if (newY > settingsView.height - pipContainer.height) {
                             newY =
-                                (settingsView.height - pipRenderer.height).toFloat()
+                                (settingsView.height - pipContainer.height).toFloat()
                         }
                         v.animate()
                             .x(newX)
