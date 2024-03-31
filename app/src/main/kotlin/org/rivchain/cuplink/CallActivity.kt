@@ -764,7 +764,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             updateVideoDisplay()
         }
 
-        pipContainer.setOnTouchListener(object : OnTouchListener {
+        pipRenderer.setOnTouchListener(object : OnTouchListener {
             var dX = 0f
             var dY = 0f
             var oX = 0f
