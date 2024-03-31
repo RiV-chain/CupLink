@@ -757,14 +757,14 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         val settings = binder!!.getSettings()
 
         // swap pip and fullscreen content
-        pipRenderer.setOnClickListener {
+        pipContainer.setOnClickListener {
             Log.d(this, "pipRenderer.setOnClickListener()")
             showPipEnabled = true
             swappedVideoFeeds = !swappedVideoFeeds
             updateVideoDisplay()
         }
 
-        pipRenderer.setOnTouchListener(object : OnTouchListener {
+        pipContainer.setOnTouchListener(object : OnTouchListener {
             var dX = 0f
             var dY = 0f
             var oX = 0f
