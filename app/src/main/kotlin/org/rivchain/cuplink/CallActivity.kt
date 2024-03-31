@@ -20,6 +20,7 @@ import android.view.View.OnTouchListener
 import android.view.WindowManager.LayoutParams
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import org.rivchain.cuplink.call.*
@@ -51,6 +52,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private val remoteProxyVideoSink = RTCCall.ProxyVideoSink()
     private val localProxyVideoSink = RTCCall.ProxyVideoSink()
 
+    private lateinit var pipContainer: CardView
     private lateinit var pipRenderer: SurfaceViewRenderer
     private lateinit var fullscreenRenderer: SurfaceViewRenderer
 
@@ -463,6 +465,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         callStats = findViewById(R.id.callStats)
         //callAddress = findViewById(R.id.callAddress)
         callName = findViewById(R.id.callName)
+        pipContainer = findViewById(R.id.pip_video_view_container)
         pipRenderer = findViewById(R.id.pip_video_view)
         fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
         toggleCameraButton = findViewById(R.id.toggleCameraButton)
@@ -531,12 +534,12 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         }
         if (getResources().configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // landscape
-            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
-            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
         } else {
             // portrait
-            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
-            (pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
         }
 
         // Set up a listener to detect orientation changes.
@@ -568,12 +571,12 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
             if (rotation == ROTATION_O || rotation == ROTATION_180){
                 // portrait
-                ((context  as CallActivity).pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
-                (context.pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
+                ((context  as CallActivity).pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
+                (context.pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
             } else
             if (rotation == ROTATION_270 || rotation == ROTATION_90){
-                ((context  as CallActivity).pipRenderer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
-                (context.pipRenderer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
+                ((context  as CallActivity).pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
+                (context.pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
             }
         }
     }
