@@ -49,7 +49,7 @@ internal class ContactListAdapter(
         val p = Paint()
         p.color = when (contact.state) {
             Contact.State.CONTACT_ONLINE -> Color.parseColor("#00ff0a") // green
-            Contact.State.CONTACT_OFFLINE -> Color.parseColor("#ff0000") // red
+            Contact.State.CONTACT_OFFLINE -> Color.parseColor("#808080") // red
             Contact.State.NETWORK_UNREACHABLE -> Color.parseColor("#f25400") // light orange
             Contact.State.APP_NOT_RUNNING -> Color.parseColor("#ff7000") // orange
             Contact.State.AUTHENTICATION_FAILED -> Color.parseColor("#612c00") // brown

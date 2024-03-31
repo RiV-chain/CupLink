@@ -190,15 +190,27 @@
                     app:layout_constraintHeight_percent=".4"
                     app:layout_constraintWidth_percent=".4" />
 
-                <org.webrtc.SurfaceViewRenderer
-                    android:id="@+id/pip_video_view"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_margin="10dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="W,3:4"
-                    app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
-                    app:layout_constraintHeight_percent=".6" />
+               <!-- Use transparent background to avoid overlap -->
+               <androidx.cardview.widget.CardView
+                   android:id="@+id/pip_video_view_container"
+                   android:layout_width="0dp"
+                   android:layout_height="0dp"
+                   android:layout_margin="10dp"
+                   android:background="@android:color/transparent"
+                   app:cardCornerRadius="3dp"
+                   app:cardElevation="0dp"
+                   app:layout_constraintBottom_toBottomOf="parent"
+                   app:layout_constraintDimensionRatio="W,3:4"
+                   app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
+                   app:layout_constraintHeight_percent=".6" >
+
+               <org.webrtc.SurfaceViewRenderer
+                   android:id="@+id/pip_video_view"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent" />
+
+           </androidx.cardview.widget.CardView>
+
 
                 <TextView
                     android:id="@+id/captureFramerateText"
