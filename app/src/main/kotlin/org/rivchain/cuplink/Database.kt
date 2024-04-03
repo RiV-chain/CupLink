@@ -24,12 +24,9 @@ class Database {
     companion object {
         fun fromData(db_data: ByteArray, password: String?): Database {
             // encrypt database
-            val stringData = if (password != null && password.isNotEmpty()) {
+            val stringData = if (!password.isNullOrEmpty()) {
                 Log.d(this, "Decrypt database")
-                val encrypted = decryptDatabase(db_data, password.toByteArray())
-                if (encrypted == null) {
-                    throw WrongPasswordException()
-                }
+                val encrypted = decryptDatabase(db_data, password.toByteArray()) ?: throw WrongPasswordException()
                 encrypted
             } else {
                 if (db_data.isNotEmpty() && db_data[0] != '{'.code.toByte()) {
@@ -55,7 +52,7 @@ class Database {
             var dbdata : ByteArray? = obj.toString().toByteArray()
 
             // encrypt database
-            if (password != null && password.isNotEmpty()) {
+            if (!password.isNullOrEmpty()) {
                 Log.d(this, "Encrypt database")
                 dbdata = encryptDatabase(dbdata, password.toByteArray())
             }
