@@ -165,6 +165,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
             }
         }
 
+        /*
         findViewById<SwitchMaterial>(R.id.disableCallHistorySwitch).apply {
             isChecked = settings.disableCallHistory
             setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
@@ -174,7 +175,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 }
                 binder.saveDatabase()
             }
-        }
+        }*/
 
         findViewById<SwitchMaterial>(R.id.startOnBootupSwitch).apply {
             isChecked = settings.startOnBootup
