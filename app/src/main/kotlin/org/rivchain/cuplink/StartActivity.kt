@@ -58,7 +58,8 @@ import java.util.regex.Pattern
  * Show splash screen, name setup dialog, database password dialog and
  * start background service before starting the MainActivity.
  */
-class StartActivity : BaseActivity(), ServiceConnection {
+class StartActivity// to avoid "class has no zero argument constructor" on some devices
+    () : BaseActivity(), ServiceConnection {
     private var binder: MainBinder? = null
     private var dialog : Dialog? = null
     private var startState = 0

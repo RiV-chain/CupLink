@@ -52,6 +52,17 @@
     <!-- Mesh specific permissions -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
+    <!-- Launcher shortcuts -->
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
+
+    <!-- Huawei launcher badges -->
+    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE"/>
+    <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="com.huawei.android.launcher.permission.WRITE_SETTINGS"/>
+
+    <!-- Sony launcher badges -->
+    <uses-permission android:name="com.sonymobile.home.permission.PROVIDER_INSERT_BADGE"/>
+
 
     <queries>
         <!-- various power manager and autostart packages we may need to direct our users to -->
@@ -101,16 +112,22 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="false"
+        android:appCategory="social"
         tools:replace="android:allowBackup">
 
         <activity
-            android:name=".MainActivity" />
+            android:name=".MainActivity"
+            android:launchMode="singleTask"
+            android:configChanges="uiMode"/>
 
         <activity
-            android:name=".QRShowActivity" />
+            android:name=".QRShowActivity"
+            android:noHistory="true"/>
 
         <activity
-            android:name=".QRScanActivity" />
+            android:name=".QRScanActivity"
+            android:noHistory="true"/>
 
         <activity android:name=".rivmesh.TileServiceActivity" android:theme="@android:style/Theme.NoDisplay"
             android:allowTaskReparenting="true"
@@ -164,18 +181,30 @@
 
         <activity
             android:name=".StartActivity"
+            android:launchMode="singleTop"
+            android:configChanges="uiMode"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <!-- samsung multiwindow -->
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <activity
             android:name=".CallActivity"
             android:parentActivityName=".MainActivity"
-            android:configChanges="orientation|smallestScreenSize|screenSize|screenLayout"
-            android:screenOrientation="fullUser" />
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|touchscreen|keyboard|keyboardHidden|uiMode"
+            android:launchMode="singleTask"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@style/Theme.Threema.TransparentStatusbar_Fullscreen">
+            <intent-filter android:label="@string/cuplink_call">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".SettingsActivity"
@@ -183,7 +212,8 @@
 
         <activity
             android:name=".AboutActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:configChanges="uiMode"/>
 
         <activity
             android:name=".ContactDetailsActivity"
@@ -199,7 +229,8 @@
 
         <activity
             android:name=".LicenseActivity"
-            android:parentActivityName=".AboutActivity" />
+            android:parentActivityName=".AboutActivity"
+            android:configChanges="uiMode"/>
 
         <receiver
             android:name=".BootUpReceiver"
@@ -210,5 +241,21 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+        <!-- samsung multiwindow -->
+        <uses-library
+            android:name="com.sec.android.app.multiwindow"
+            android:required="false"/>
+
+        <meta-data
+            android:name="com.samsung.android.sdk.multiwindow.penwindow.enable"
+            android:value="true"/>
+        <meta-data
+            android:name="com.sec.android.support.multiwindow"
+            android:value="true"/>
+        <meta-data
+            android:name="com.samsung.android.keepalive.density"
+            android:value="true"/>
+
     </application>
 </manifest>

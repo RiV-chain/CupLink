@@ -9,4 +9,5 @@
     <color name="white">#FFFFFF</color>
     <color name="selectedColor">#009688</color>
     <color name="unselectedColor">#434343</color>
+    <color name="md_theme_light_surface">#FFFBFF</color>
 </resources>
