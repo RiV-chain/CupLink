@@ -2,6 +2,7 @@ package org.rivchain.cuplink
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.content.*
 import android.content.res.Configuration
 import android.hardware.SensorManager.SENSOR_DELAY_NORMAL
@@ -17,12 +18,17 @@ import android.view.OrientationEventListener
 import android.view.OrientationListener
 import android.view.View
 import android.view.View.OnTouchListener
+import android.view.Window
+import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import org.rivchain.cuplink.call.*
 import org.rivchain.cuplink.call.RTCPeerConnection.CallState
 import org.rivchain.cuplink.util.Utils
@@ -100,6 +106,67 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             runOnUiThread {
                 callStats.text = stats
             }
+        }
+    }
+
+
+    private fun setFullscreen() {
+        // Set window styles for fullscreen-window size. Needs to be done before
+        // adding content.
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        window.addFlags(getFullscreenWindowFlags())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val keyguard = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager?
+            keyguard?.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
+                override fun onDismissError() {
+                    Log.w(this, "Keyguard dismissing is currently not feasible")
+                }
+
+                override fun onDismissSucceeded() {
+                    Log.d(this, "Keyguard dismissed")
+                }
+
+                override fun onDismissCancelled() {
+                    Log.d(this, "Keyguard dismissing cancelled")
+                }
+            })
+        }
+    }
+
+    private fun getFullscreenWindowFlags(): Int {
+        var flags = (
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        or WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES
+                )
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            @Suppress("DEPRECATION")
+            flags = flags or WindowManager.LayoutParams.FLAG_FULLSCREEN
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            @Suppress("DEPRECATION")
+            flags = flags or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            @Suppress("DEPRECATION")
+            flags = flags or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        }
+        return flags
+    }
+
+    private fun hideSystemUi() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, findViewById(R.id.call_layout)).let {
+                controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
     }
 
@@ -456,7 +523,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         // keep screen on during the call
         window.addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
 
+        setFullscreen()
         setContentView(R.layout.activity_call)
+        hideSystemUi()
 
         // keep screen on during the call
         //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
