@@ -523,9 +523,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         // keep screen on during the call
         window.addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        setFullscreen()
         setContentView(R.layout.activity_call)
-        hideSystemUi()
 
         // keep screen on during the call
         //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

@@ -198,8 +198,7 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|touchscreen|keyboard|keyboardHidden|uiMode"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
-            android:exported="true"
-            android:theme="@style/Theme.Threema.TransparentStatusbar_Fullscreen">
+            android:exported="true">
             <intent-filter android:label="@string/cuplink_call">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
