@@ -199,7 +199,7 @@
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:theme="@style/Theme.Threema.TransparentStatusbar_Fullscreen">
+            android:theme="@style/Theme.Threema.TransparentStatusbar">
             <intent-filter android:label="@string/cuplink_call">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
