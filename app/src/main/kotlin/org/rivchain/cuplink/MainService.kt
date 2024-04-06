@@ -345,24 +345,24 @@ class MainService : Service(), Runnable {
 
             pingContacts(listOf(contact))
 
-            MainService.refreshContacts(this@MainService)
-            MainService.refreshEvents(this@MainService)
+            refreshContacts(this@MainService)
+            refreshEvents(this@MainService)
         }
 
         fun deleteContact(publicKey: ByteArray) {
             getDatabase().contacts.deleteContact(publicKey)
             saveDatabase()
 
-            MainService.refreshContacts(this@MainService)
-            MainService.refreshEvents(this@MainService)
+            refreshContacts(this@MainService)
+            refreshEvents(this@MainService)
         }
 
         fun deleteEvents(eventDates: List<Date>) {
             getDatabase().events.deleteEvents(eventDates)
             saveDatabase()
 
-            MainService.refreshContacts(this@MainService)
-            MainService.refreshEvents(this@MainService)
+            refreshContacts(this@MainService)
+            refreshEvents(this@MainService)
         }
 
         fun shutdown() {
@@ -372,7 +372,8 @@ class MainService : Service(), Runnable {
         fun pingContacts(contactList: List<Contact>) {
             Log.d(this, "pingContacts()")
             Thread(
-                Pinger(binder, contactList)
+                //fix ConcurrentModificationException
+                Pinger(binder, ArrayList(contactList))
             ).start()
         }
 
@@ -392,13 +393,13 @@ class MainService : Service(), Runnable {
             if (!getSettings().disableCallHistory) {
                 getEvents().addEvent(event)
                 saveDatabase()
-                MainService.refreshEvents(this@MainService)
+                refreshEvents(this@MainService)
             }
         }
 
         fun clearEvents() {
             getEvents().clearEvents()
-            MainService.refreshEvents(this@MainService)
+            refreshEvents(this@MainService)
         }
     }
 
