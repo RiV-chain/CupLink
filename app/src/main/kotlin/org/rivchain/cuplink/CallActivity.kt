@@ -2,26 +2,39 @@ package org.rivchain.cuplink
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.KeyguardManager
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.res.Configuration
-import android.hardware.SensorManager.SENSOR_DELAY_NORMAL
+import android.graphics.Rect
 import android.media.AudioManager
 import android.media.Ringtone
 import android.media.RingtoneManager
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.os.PowerManager
 import android.os.PowerManager.WakeLock
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.util.DisplayMetrics
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.OrientationEventListener
-import android.view.OrientationListener
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.Window
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -29,12 +42,22 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import org.rivchain.cuplink.call.*
+import org.rivchain.cuplink.call.CaptureQualityController
+import org.rivchain.cuplink.call.RTCAudioManager
+import org.rivchain.cuplink.call.RTCCall
+import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.call.RTCPeerConnection.CallState
+import org.rivchain.cuplink.call.RTCProximitySensor
+import org.rivchain.cuplink.call.StatsReportUtil
 import org.rivchain.cuplink.util.Utils
-import org.webrtc.*
+import org.webrtc.CameraEnumerationAndroid
+import org.webrtc.EglBase
+import org.webrtc.RTCStatsCollectorCallback
+import org.webrtc.RTCStatsReport
+import org.webrtc.RendererCommon
+import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
-import java.util.*
+import java.util.Date
 
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
@@ -109,35 +132,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         }
     }
 
-
-    private fun setFullscreen() {
-        // Set window styles for fullscreen-window size. Needs to be done before
-        // adding content.
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.addFlags(getFullscreenWindowFlags())
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val keyguard = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager?
-            keyguard?.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
-                override fun onDismissError() {
-                    Log.w(this, "Keyguard dismissing is currently not feasible")
-                }
-
-                override fun onDismissSucceeded() {
-                    Log.d(this, "Keyguard dismissed")
-                }
-
-                override fun onDismissCancelled() {
-                    Log.d(this, "Keyguard dismissing cancelled")
-                }
-            })
-        }
-    }
-
     private fun getFullscreenWindowFlags(): Int {
         var flags = (
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -156,7 +150,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         return flags
     }
 
-    private fun hideSystemUi() {
+    private fun hideSystemBar() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, findViewById(R.id.call_layout)).let {
                 controller ->
@@ -522,7 +516,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         // keep screen on during the call
         window.addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
-
+        //extend screen view over systembar
+        window.setFlags(LayoutParams.FLAG_LAYOUT_NO_LIMITS, LayoutParams.FLAG_LAYOUT_NO_LIMITS)
         setContentView(R.layout.activity_call)
 
         // keep screen on during the call
@@ -611,6 +606,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         // Set up a listener to detect orientation changes.
         orientationListener = OrientationListenerImpl(this)
+
     }
 
     private class OrientationListenerImpl(private val context: Context) : OrientationEventListener(context) {
