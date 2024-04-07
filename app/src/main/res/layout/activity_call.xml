@@ -45,7 +45,6 @@
                 android:layout_marginEnd="10dp"
                 app:layout_constraintBottom_toTopOf="@+id/controlPanel"
                 app:layout_constraintTop_toTopOf="parent"
-
                 android:translationZ="1dp">
 
                <!-- icon in the top left corner -->
@@ -272,7 +271,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:paddingBottom="10dp"
+                android:layout_marginBottom="30dp"
                 app:justifyContent="space_evenly"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:translationZ="1dp">
