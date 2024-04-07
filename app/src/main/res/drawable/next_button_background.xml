@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="125dp"
-    android:height="50dp"
-    android:viewportWidth="125"
-    android:viewportHeight="50">
-
-    <path
-        android:pathData="M3 0
-                           L122 0
-                           A3 3 0 0 1 125 3
-                           L125 47
-                           A3 3 0 0 1 122 50
-                           L3 50
-                           A3 3 0 0 1 0 47
-                           L0 3
-                           A3 3 0 0 1 3 0Z"
-        android:fillColor="@color/selectedColor" />
-
-</vector>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="3dp" /> <!-- Rounded corners with 3px radius -->
+    <gradient
+        android:startColor="@color/selectedColor"
+        android:endColor="@color/selectedColor" />
+</shape>

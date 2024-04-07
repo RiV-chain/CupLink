@@ -103,6 +103,6 @@
         android:background="@drawable/next_button_background"
         app:backgroundTint="@null"
         android:text="ADD"
-        android:textColor="@color/light_grey"/>
+        android:textColor="@color/white"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
