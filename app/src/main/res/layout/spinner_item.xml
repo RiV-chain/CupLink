@@ -11,4 +11,5 @@
     android:textSize="20sp"
     android:gravity="start"
     android:textColor="@color/white"
-    android:textIsSelectable="false"/>
+    android:textIsSelectable="false"
+    android:background="@color/colorPrimaryDark"/>

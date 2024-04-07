@@ -4,4 +4,5 @@
     android:layout_height="wrap_content"
     android:textSize="@dimen/options_text_size"
     android:gravity="end"
-    android:textColor="?android:textColorSecondary" />
+    android:textColor="?android:textColorSecondary"
+    android:background="@color/colorPrimaryDark"/>
