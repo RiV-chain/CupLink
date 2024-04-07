@@ -6,8 +6,10 @@
     <color name="colorBackgroundDark">#35455d</color>
     <color name="black">#000000</color>
     <color name="light_grey">#B1B1B1</color>
+    <color name="light_light_grey">#E3E3E3</color>
     <color name="white">#FFFFFF</color>
     <color name="selectedColor">#009688</color>
     <color name="unselectedColor">#434343</color>
     <color name="md_theme_light_surface">#FFFBFF</color>
+    <color name="gallery_background">#ff1a1a1a</color>
 </resources>

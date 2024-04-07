@@ -3,8 +3,7 @@
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="?android:windowBackground"
-    >
+    android:background="@color/colorPrimaryDark">
 
     <TextView
         android:id="@+id/ConnectRetriesTextView"
@@ -18,8 +17,7 @@
         android:layout_marginTop="10dp"
         android:textSize="23sp"
         android:fontFamily="@font/lato_bold"
-        android:text="@string/settings_connect_retries"
-        android:textColor="?android:textColorPrimary" />
+        android:text="@string/settings_connect_retries"/>
 
     <EditText
         android:id="@+id/ConnectRetriesEditText"

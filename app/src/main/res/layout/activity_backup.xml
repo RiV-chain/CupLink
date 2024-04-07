@@ -88,7 +88,6 @@
             android:layout_marginTop="10dp"
             android:textSize="16sp"
             android:fontFamily="@font/lato_bold"
-            android:textColor="?android:textColorPrimary"
             android:text="@string/password_title" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -96,15 +95,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/selectedColor"
-            >
+            app:passwordToggleTint="@color/selectedColor">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/PasswordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_background"
-                android:textColor="?android:textColorSecondary"
                 android:textAlignment="textStart"
                 android:maxLines="1"
                 android:textSize="16sp"

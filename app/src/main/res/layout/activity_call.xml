@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".CallActivity">
+    tools:context=".CallActivity"
+    android:background="@color/gallery_background">
 
     <!-- Background image (for audio calls) -->
     <FrameLayout
@@ -29,328 +30,328 @@
             android:background="@color/colorPrimaryDark"/>
     </FrameLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/video_settings"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/video_settings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
 
-           <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/settings_view"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/settings_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/controlPanel"
+            app:layout_constraintTop_toTopOf="parent"
+            android:translationZ="1dp">
+
+            <!-- icon in the top left corner -->
+            <ImageButton
+                android:id="@+id/change_ui"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/ic_call_stats"
+                android:contentDescription="Toggle debug output"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- icon in the top right corner -->
+            <ImageButton
+                android:id="@+id/change_pip_window"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/ic_toggle_pip"
+                android:contentDescription="Show pip window"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- caller name, call status, ... -->
+            <LinearLayout
+                android:id="@+id/call_layout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="50dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                app:layout_constraintBottom_toTopOf="@+id/controlPanel"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_margin="3dp"
+                android:orientation="vertical"
                 app:layout_constraintTop_toTopOf="parent"
                 android:translationZ="1dp">
 
-               <!-- icon in the top left corner -->
-               <ImageButton
-                   android:id="@+id/change_ui"
-                   android:layout_width="30dp"
-                   android:layout_height="30dp"
-                   android:layout_alignParentStart="true"
-                   android:layout_alignParentTop="true"
-                   android:layout_margin="10dp"
-                   android:background="@drawable/ic_call_stats"
-                   android:contentDescription="Toggle debug output"
-                   app:layout_constraintTop_toTopOf="parent"
-                   app:layout_constraintStart_toStartOf="parent"/>
-
-               <!-- icon in the top right corner -->
-               <ImageButton
-                   android:id="@+id/change_pip_window"
-                   android:layout_width="30dp"
-                   android:layout_height="30dp"
-                   android:layout_alignParentTop="true"
-                   android:layout_alignParentEnd="true"
-                   android:layout_margin="10dp"
-                   android:background="@drawable/ic_toggle_pip"
-                   android:contentDescription="Show pip window"
-                   app:layout_constraintTop_toTopOf="parent"
-                   app:layout_constraintEnd_toEndOf="parent"/>
-
-               <!-- caller name, call status, ... -->
-               <LinearLayout
-                   android:id="@+id/call_layout"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:gravity="center_horizontal"
-                   android:layout_margin="3dp"
-                   android:orientation="vertical"
-                   app:layout_constraintTop_toTopOf="parent"
-                   android:translationZ="1dp">
-
-                   <TextView
-                       android:id="@+id/callName"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:text="@string/unknown_caller"
-                       android:textColor="?android:textColorPrimary"
-                       android:textSize="30sp" />
-
-                   <TextView
-                       android:id="@+id/callStatus"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:text="@string/call_start_or_abort"
-                       android:textColor="@android:color/darker_gray"
-                       android:textSize="20sp" />
-
-                   <!--TextView
-                       android:id="@+id/callAddress"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:layout_marginTop="4dp"
-                       android:text=""
-                       android:textColor="@android:color/holo_green_light"
-                       android:textSize="12sp"
-                       android:visibility="gone" /-->
-
-                   <!-- video capture quality controls -->
-                   <LinearLayout
-                       android:id="@+id/capturePanel"
-                       android:layout_width="match_parent"
-                       android:layout_height="0dp"
-                       android:gravity="center_horizontal"
-                       android:orientation="vertical">
-
-                       <Spinner
-                           android:id="@+id/degradationSpinner"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:layout_marginTop="8dp"
-                           android:textSize="@dimen/options_text_size" />
-
-                   </LinearLayout>
-
-               </LinearLayout>
-
-               <ImageButton
-                   android:id="@+id/captureResolution"
-                   android:layout_width="50dp"
-                   android:layout_height="50dp"
-                   android:background="@drawable/flag_transparent"
-                   android:scaleType="fitCenter"
-                   android:scaleX="0.6"
-                   android:scaleY="0.6"
-                   android:src="@android:drawable/presence_video_online"
-                   android:visibility="invisible"
-                   app:layout_constraintStart_toStartOf="parent"
-                   app:layout_constraintTop_toBottomOf="@+id/call_layout" />
-
-               <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
-                   android:id="@+id/captureResolutionSliderWrapper"
-                   android:layout_width="wrap_content"
-                   android:layout_height="0dp"
-                   android:layout_margin="15dp"
-                   android:alpha="0.8"
-                   app:layout_constraintHeight_percent=".5"
-                   app:layout_constraintStart_toStartOf="parent"
-                   app:layout_constraintTop_toBottomOf="@+id/captureResolution">
-
-                   <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
-                       android:id="@+id/captureResolutionSlider"
-                       android:layout_width="0dp"
-                       android:layout_height="0dp"
-                       android:progress="50"
-                       android:splitTrack="false"
-                       android:visibility="invisible"
-                       app:seekBarRotation="CW90" /> <!-- Rotation: CW90 or CW270 -->
-               </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
-
                 <TextView
-                    android:id="@+id/captureFormatText"
+                    android:id="@+id/callName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:padding="10dp"
-                    android:text="@string/capture_format_change_text"
-                    android:textColor="@android:color/darker_gray"
-                    android:background="@drawable/tooltip_background"
-                    android:textSize="16sp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/captureResolutionSliderWrapper"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:text="@string/unknown_caller"
+                    android:textColor="?android:textColorPrimary"
+                    android:textSize="30sp" />
 
-                <!-- debug info window in the left lower corner -->
                 <TextView
-                    android:id="@+id/callStats"
+                    android:id="@+id/callStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/call_start_or_abort"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="20sp" />
+
+                <!--TextView
+                    android:id="@+id/callAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text=""
+                    android:textColor="@android:color/holo_green_light"
+                    android:textSize="12sp"
+                    android:visibility="gone" /-->
+
+                <!-- video capture quality controls -->
+                <LinearLayout
+                    android:id="@+id/capturePanel"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <Spinner
+                        android:id="@+id/degradationSpinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="@dimen/options_text_size" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/captureResolution"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/flag_transparent"
+                android:scaleType="fitCenter"
+                android:scaleX="0.6"
+                android:scaleY="0.6"
+                android:src="@android:drawable/presence_video_online"
+                android:visibility="invisible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/call_layout" />
+
+            <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
+                android:id="@+id/captureResolutionSliderWrapper"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_margin="15dp"
+                android:alpha="0.8"
+                app:layout_constraintHeight_percent=".5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/captureResolution">
+
+                <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+                    android:id="@+id/captureResolutionSlider"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:alpha="0.6"
-                    android:layout_margin="10dp"
-                    android:lines="10"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/holo_green_light"
-                    android:background="@color/colorBackgroundDark"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/captureResolutionSliderWrapper"
-                    app:layout_constraintHeight_percent=".4"
-                    app:layout_constraintWidth_percent=".4" />
+                    android:progress="50"
+                    android:splitTrack="false"
+                    android:visibility="invisible"
+                    app:seekBarRotation="CW90" /> <!-- Rotation: CW90 or CW270 -->
+            </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
-               <!-- Use transparent background to avoid overlap -->
-               <androidx.cardview.widget.CardView
-                   android:id="@+id/pip_video_view_container"
-                   android:layout_width="0dp"
-                   android:layout_height="0dp"
-                   android:layout_margin="10dp"
-                   android:background="@android:color/transparent"
-                   app:cardCornerRadius="3dp"
-                   app:cardElevation="0dp"
-                   app:layout_constraintBottom_toBottomOf="parent"
-                   app:layout_constraintDimensionRatio="W,3:4"
-                   app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
-                   app:layout_constraintHeight_percent=".6" >
-
-               <org.webrtc.SurfaceViewRenderer
-                   android:id="@+id/pip_video_view"
-                   android:layout_width="match_parent"
-                   android:layout_height="match_parent" />
-
-           </androidx.cardview.widget.CardView>
-
-
-                <TextView
-                    android:id="@+id/captureFramerateText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:padding="10dp"
-                    android:text="@string/capture_format_change_text"
-                    android:textColor="@android:color/darker_gray"
-                    android:background="@drawable/tooltip_background"
-                    android:textSize="16sp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-               <Button
-                   android:id="@+id/captureFramerate"
-                   android:layout_width="50dp"
-                   android:layout_height="wrap_content"
-                   android:background="@drawable/flag_transparent"
-                   android:text="FPS"
-                   android:textColor="@android:color/holo_green_light"
-                   android:visibility="invisible"
-                   app:layout_constraintEnd_toEndOf="parent"
-                   app:layout_constraintTop_toBottomOf="@+id/call_layout" />
-
-               <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
-                   android:id="@+id/captureFramerateSliderWrapper"
-                   android:layout_width="wrap_content"
-                   android:layout_height="0dp"
-                   android:layout_margin="15dp"
-                   android:alpha="0.8"
-                   app:layout_constraintEnd_toEndOf="parent"
-                   app:layout_constraintHeight_percent=".5"
-                   app:layout_constraintTop_toBottomOf="@+id/captureFramerate">
-
-                   <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
-                       android:id="@+id/captureFramerateSlider"
-                       android:layout_width="0dp"
-                       android:layout_height="0dp"
-                       android:progress="50"
-                       android:splitTrack="false"
-                       android:visibility="invisible"
-                       app:seekBarRotation="CW90" /> <!-- Rotation: CW90 or CW270 -->
-               </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Picture-in-Picture window -->
-            <com.google.android.flexbox.FlexboxLayout
-                android:id="@+id/controlPanel"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/captureFormatText"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="50dp"
-                app:justifyContent="space_evenly"
+                android:layout_margin="20dp"
+                android:padding="10dp"
+                android:text="@string/capture_format_change_text"
+                android:textColor="@android:color/darker_gray"
+                android:background="@drawable/tooltip_background"
+                android:textSize="16sp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:translationZ="1dp">
+                app:layout_constraintStart_toEndOf="@+id/captureResolutionSliderWrapper"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageButton
-                    android:id="@+id/acceptButton"
-                    android:layout_width="@dimen/call_button_size"
-                    android:layout_height="@dimen/call_button_size"
-                    android:background="@drawable/ic_button_background"
-                    android:contentDescription="accept call"
-                    android:padding="@dimen/call_button_image_padding"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_call_accept"
-                    app:tint="@android:color/white" />
+            <!-- debug info window in the left lower corner -->
+            <TextView
+                android:id="@+id/callStats"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:alpha="0.6"
+                android:layout_margin="10dp"
+                android:lines="10"
+                android:textSize="14sp"
+                android:textColor="@android:color/holo_green_light"
+                android:background="@color/colorBackgroundDark"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/captureResolutionSliderWrapper"
+                app:layout_constraintHeight_percent=".4"
+                app:layout_constraintWidth_percent=".4" />
 
-                <ImageButton
-                    android:id="@+id/toggleCameraButton"
-                    android:layout_width="@dimen/call_button_size"
-                    android:layout_height="@dimen/call_button_size"
-                    android:background="@drawable/ic_button_background"
-                    android:contentDescription="switch camera on/off"
-                    android:padding="@dimen/call_button_image_padding"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_camera_on"
-                    app:tint="@android:color/white" />
+            <!-- Use transparent background to avoid overlap -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/pip_video_view_container"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="10dp"
+                android:background="@android:color/transparent"
+                app:cardCornerRadius="3dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="W,3:4"
+                app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
+                app:layout_constraintHeight_percent=".6" >
 
-                <ImageButton
-                    android:id="@+id/frontFacingSwitch"
-                    android:layout_width="@dimen/call_button_size"
-                    android:layout_height="@dimen/call_button_size"
-                    android:background="@drawable/ic_button_background"
-                    android:contentDescription="change camera"
-                    android:padding="@dimen/call_button_image_padding"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_switch_camera"
-                    android:visibility="gone"
-                    app:tint="@android:color/white" />
+                <org.webrtc.SurfaceViewRenderer
+                    android:id="@+id/pip_video_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-                <ImageButton
-                    android:id="@+id/declineButton"
-                    android:layout_width="@dimen/call_button_size"
-                    android:layout_height="@dimen/call_button_size"
-                    android:background="@drawable/ic_button_background_decline"
-                    android:contentDescription="decline call"
-                    android:padding="@dimen/call_button_image_padding"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_call_decline"
-                    app:tint="@android:color/white" />
+            </androidx.cardview.widget.CardView>
 
-                <ImageButton
-                    android:id="@+id/toggleMicButton"
-                    android:layout_width="@dimen/call_button_size"
-                    android:layout_height="@dimen/call_button_size"
-                    android:background="@drawable/ic_button_background"
-                    android:contentDescription="switch microphone on/off"
-                    android:padding="@dimen/call_button_image_padding"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_mic_on"
-                    app:tint="@android:color/white" />
 
-                <ImageButton
-                    android:id="@+id/speakerphoneButton"
-                    android:layout_width="@dimen/call_button_size"
-                    android:layout_height="@dimen/call_button_size"
-                    android:background="@drawable/ic_button_background"
-                    android:contentDescription="audio source selection"
-                    android:padding="@dimen/call_button_image_padding"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/ic_audio_device_automatic"
-                    app:tint="@android:color/white" />
+            <TextView
+                android:id="@+id/captureFramerateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:padding="10dp"
+                android:text="@string/capture_format_change_text"
+                android:textColor="@android:color/darker_gray"
+                android:background="@drawable/tooltip_background"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            </com.google.android.flexbox.FlexboxLayout>
+            <Button
+                android:id="@+id/captureFramerate"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/flag_transparent"
+                android:text="FPS"
+                android:textColor="@android:color/holo_green_light"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/call_layout" />
 
-            <!-- fullscreen video window -->
-            <org.webrtc.SurfaceViewRenderer
-                android:id="@+id/fullscreen_video_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+            <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
+                android:id="@+id/captureFramerateSliderWrapper"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_margin="15dp"
+                android:alpha="0.8"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent=".5"
+                app:layout_constraintTop_toBottomOf="@+id/captureFramerate">
+
+                <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+                    android:id="@+id/captureFramerateSlider"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:progress="50"
+                    android:splitTrack="false"
+                    android:visibility="invisible"
+                    app:seekBarRotation="CW90" /> <!-- Rotation: CW90 or CW270 -->
+            </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Picture-in-Picture window -->
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/controlPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="50dp"
+            app:justifyContent="space_evenly"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:translationZ="1dp">
+
+            <ImageButton
+                android:id="@+id/acceptButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@drawable/ic_button_background"
+                android:contentDescription="accept call"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_call_accept"
+                app:tint="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/toggleCameraButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@drawable/ic_button_background"
+                android:contentDescription="switch camera on/off"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_camera_on"
+                app:tint="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/frontFacingSwitch"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@drawable/ic_button_background"
+                android:contentDescription="change camera"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_switch_camera"
+                android:visibility="gone"
+                app:tint="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/declineButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@drawable/ic_button_background_decline"
+                android:contentDescription="decline call"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_call_decline"
+                app:tint="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/toggleMicButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@drawable/ic_button_background"
+                android:contentDescription="switch microphone on/off"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_mic_on"
+                app:tint="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/speakerphoneButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@drawable/ic_button_background"
+                android:contentDescription="audio source selection"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_audio_device_automatic"
+                app:tint="@android:color/white" />
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <!-- fullscreen video window -->
+        <org.webrtc.SurfaceViewRenderer
+            android:id="@+id/fullscreen_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

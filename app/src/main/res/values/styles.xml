@@ -7,6 +7,9 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:dropDownListViewStyle">@style/MySpinner</item>
+        <item name="android:textColor">@color/light_light_grey</item>
+        <item name="android:textColorHint">@color/light_grey</item>
+        <item name="android:textColorPrimary">@color/light_light_grey</item>
         <item name="android:textColorSecondary">@color/light_grey</item>
         <item name="android:itemBackground">@color/colorPrimaryDark</item>
     </style>
@@ -42,5 +45,9 @@
         <item name="hintTextColor"> @color/white </item>
     </style>
 
+    <style name="PPTCDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/light_light_grey</item>
+    </style>
 
 </resources>

@@ -518,7 +518,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         } else {
             msg.text = Html.fromHtml(readResourceFile(R.raw.pp_tc))
         }
-        val ab = AlertDialog.Builder(this)
+        val ab = AlertDialog.Builder(this, R.style.PPTCDialog)
         ab.setTitle("CupLink")
             .setIcon(R.mipmap.ic_launcher)
             .setView(view)
