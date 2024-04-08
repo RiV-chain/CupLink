@@ -188,24 +188,15 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             10 -> {
-                Log.d(this, "init 10: check overlay permissions")
-                if (!haveDrawOverlaysPermission(this)) {
-                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-                    requestDrawOverlaysPermissionLauncher.launch(intent)
-                } else {
-                    continueInit()
-                }
-            }
-            11 -> {
-                Log.d(this, "init 11: check addresses")
+                Log.d(this, "init 10: check addresses")
                 if (binder!!.getService().firstStart) {
                     showMissingAddressDialog()
                 } else {
                     continueInit()
                 }
             }
-            12 -> {
-                Log.d(this, "init 12: start MainActivity")
+            11 -> {
+                Log.d(this, "init 11: start MainActivity")
                 val settings = binder!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
