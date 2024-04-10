@@ -7,9 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.VpnService
-import android.preference.PreferenceManager
 import android.widget.Toast
-import org.rivchain.cuplink.rivmesh.PacketTunnelProvider
 
 /*
  * Start App on Android bootup. StartActivity is started to check
@@ -30,8 +28,8 @@ class BootUpReceiver : BroadcastReceiver() {
             Log.w(TAG, "Wrong action: ${intent?.action}")
         }
         Log.i(TAG, "CupLink enabled, starting service")
-        val serviceIntent = Intent(context, PacketTunnelProvider::class.java)
-        serviceIntent.action = PacketTunnelProvider.ACTION_START
+        val serviceIntent = Intent(context, MainService::class.java)
+        serviceIntent.action = MainService.ACTION_START
 
         val vpnIntent = VpnService.prepare(context)
         if (vpnIntent != null) {

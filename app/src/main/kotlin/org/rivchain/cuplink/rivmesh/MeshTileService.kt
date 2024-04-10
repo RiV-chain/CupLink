@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import org.rivchain.cuplink.MainApplication
+import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.PREF_KEY_ENABLED
 import org.rivchain.cuplink.R
 
@@ -73,8 +74,8 @@ class MeshTileService: TileService(), MeshStateReceiver.StateReceiver {
         val enabled = preferences.getBoolean(PREF_KEY_ENABLED, true)
         preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, !enabled) }
         // Starting or stopping VPN service
-        val intent = Intent(this, PacketTunnelProvider::class.java)
-        intent.action = PacketTunnelProvider.ACTION_TOGGLE
+        val intent = Intent(this, MainService::class.java)
+        intent.action = MainService.ACTION_TOGGLE
         startService(intent)
     }
 

@@ -9,14 +9,12 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.graphics.Typeface
-import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.provider.Settings
 import android.text.Editable
 import android.text.Html
 import android.text.InputFilter
@@ -40,10 +38,9 @@ import androidx.preference.PreferenceManager
 import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
-import org.rivchain.cuplink.rivmesh.PacketTunnelProvider
+import org.rivchain.cuplink.rivmesh.ConfigurationProxy
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
-import org.rivchain.cuplink.util.PermissionManager.haveDrawOverlaysPermission
 import org.rivchain.cuplink.util.PermissionManager.haveMicrophonePermission
 import org.rivchain.cuplink.util.PermissionManager.havePostNotificationPermission
 import org.rivchain.cuplink.util.Utils
@@ -90,46 +87,42 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val type = Typeface.createFromAsset(assets, "rounds_black.otf")
         findViewById<TextView>(R.id.splashText).typeface = type
 
-        // start MainService and call back via onServiceConnected()
-        MainService.start(this)
-
-        bindService(Intent(this, MainService::class.java), this, 0)
-
         requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean? ->
                 continueInit()
             }
+
+        Log.d(this, "Show privacy policy")
+        if(preferences?.getString(POLICY, null) == null) {
+            showPolicy("En-Us")
+        } else {
+            Log.d(this, "Start VPN")
+            val vpnIntent = VpnService.prepare(this)
+            if (vpnIntent != null) {
+                startVpnActivity.launch(vpnIntent)
+            } else {
+                bindService(Intent(this, MainService::class.java), this, 0)
+                // start MainService and call back via onServiceConnected()
+                MainService.startPacketsStream(this)
+            }
+        }
+
     }
 
     private fun continueInit() {
         startState += 1
         when (startState) {
             1 -> {
-                Log.d(this, "init 1: load database")
-                // open without password
-                try {
-                    binder!!.getService().loadDatabase()
-                } catch (e: Database.WrongPasswordException) {
-                    // ignore and continue with initialization,
-                    // the password dialog comes on the next startState
-                } catch (e: Exception) {
-                    Log.e(this, "${e.message}")
-                    Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
-                    finish()
-                    return
-                }
-                continueInit()
-            }
-            2 -> {
-                Log.d(this, "init 2: privacy policy")
-                if(preferences?.getString(POLICY, null) == null) {
-                    showPolicy("En-Us");
+                Log.d(this, "init 1: check addresses")
+                if (binder!!.getService().firstStart) {
+                    showMissingAddressDialog()
                 } else {
                     continueInit()
                 }
             }
-            3 -> {
-                Log.d(this, "init 3: check database")
+            2 -> {
+                Thread.sleep(1000)
+                Log.d(this, "init 2: check database")
                 if (!binder!!.isDatabaseLoaded()) {
                     // database is probably encrypted
                     showDatabasePasswordDialog()
@@ -137,8 +130,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            4 -> {
-                Log.d(this, "init 4: check username")
+            3 -> {
+                Log.d(this, "init 3: check username")
                 if (binder!!.getSettings().username.isEmpty()) {
                     // set username
                     showMissingUsernameDialog()
@@ -146,57 +139,40 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            5 -> {
-                Log.d(this, "init 5: check key pair")
+            4 -> {
+                Log.d(this, "init 4: check key pair")
                 if (binder!!.getSettings().publicKey.isEmpty()) {
                     // generate key pair
                     initKeyPair()
                 }
                 continueInit()
             }
-            6 -> {
-                Log.d(this, "init 6: start VPN")
-                val vpnIntent = VpnService.prepare(this)
-                if (vpnIntent != null) {
-                    startVpnActivity.launch(vpnIntent)
-                } else {
-                    start()
-                }
-            }
-            7 -> {
-                Log.d(this, "init 7: check notification permissions")
+            5 -> {
+                Log.d(this, "init 5: check notification permissions")
                 if (!havePostNotificationPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.POST_NOTIFICATIONS)
                 } else {
                     continueInit()
                 }
             }
-            8 -> {
-                Log.d(this, "init 8: check microphone permissions")
+            6 -> {
+                Log.d(this, "init 6: check microphone permissions")
                 if (!haveMicrophonePermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.RECORD_AUDIO)
                 } else {
                     continueInit()
                 }
             }
-            9 -> {
-                Log.d(this, "init 9: check camera permissions")
+            7 -> {
+                Log.d(this, "init 7: check camera permissions")
                 if (!haveCameraPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.CAMERA)
                 } else {
                     continueInit()
                 }
             }
-            10 -> {
-                Log.d(this, "init 10: check addresses")
-                if (binder!!.getService().firstStart) {
-                    showMissingAddressDialog()
-                } else {
-                    continueInit()
-                }
-            }
-            11 -> {
-                Log.d(this, "init 11: start MainActivity")
+            8 -> {
+                Log.d(this, "init 8: start MainActivity")
                 val settings = binder!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
@@ -207,30 +183,14 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
                 finish()
             }
-
         }
     }
 
     private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            start()
-        }
-    }
-
-    private fun start() {
-        val intent = Intent(this, PacketTunnelProvider::class.java)
-        intent.action = PacketTunnelProvider.ACTION_START
-        startService(intent)
-        continueInit()
-    }
-
-    private var requestDrawOverlaysPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode != Activity.RESULT_OK) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (!Settings.canDrawOverlays(this)) {
-                    Toast.makeText(this, R.string.overlay_permission_missing, Toast.LENGTH_LONG).show()
-                }
-            }
+            bindService(Intent(this, MainService::class.java), this, 0)
+            // start MainService and call back via onServiceConnected()
+            MainService.startPacketsStream(this)
         }
     }
 
@@ -518,7 +478,15 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 "Accept"
             ) { _: DialogInterface?, _: Int ->
                 preferences!!.edit().putString(POLICY, "accepted").apply()
-                continueInit()
+                Log.d(this, "Start VPN")
+                val vpnIntent = VpnService.prepare(this)
+                if (vpnIntent != null) {
+                    startVpnActivity.launch(vpnIntent)
+                } else {
+                    bindService(Intent(this, MainService::class.java), this, 0)
+                    // start MainService and call back via onServiceConnected()
+                    MainService.startPacketsStream(this)
+                }
             }
         ab.show()
     }

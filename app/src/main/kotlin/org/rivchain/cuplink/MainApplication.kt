@@ -17,18 +17,15 @@ import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
-import org.rivchain.cuplink.rivmesh.ConfigurationProxy
 import org.rivchain.cuplink.rivmesh.MeshStateReceiver
 import org.rivchain.cuplink.rivmesh.MeshTileService
 import org.rivchain.cuplink.rivmesh.NetworkStateCallback
-import org.rivchain.cuplink.rivmesh.SERVICE_NOTIFICATION_ID
 import org.rivchain.cuplink.rivmesh.State
 
 const val PREF_KEY_ENABLED = "enabled"
 const val MAIN_CHANNEL_ID = "CupLink Service"
 class MainApplication : Application(), MeshStateReceiver.StateReceiver {
 
-    private lateinit var config: ConfigurationProxy
     private var currentState: State = State.Disabled
 
     override fun attachBaseContext(base: Context) {
@@ -68,7 +65,6 @@ class MainApplication : Application(), MeshStateReceiver.StateReceiver {
 
     override fun onCreate() {
         super.onCreate()
-        config = ConfigurationProxy(applicationContext)
         val callback = NetworkStateCallback(this)
         callback.register()
         val receiver = MeshStateReceiver(this)

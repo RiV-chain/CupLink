@@ -1,9 +1,11 @@
 package org.rivchain.cuplink
 
+import mobile.Mobile
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rivchain.cuplink.Crypto.decryptDatabase
 import org.rivchain.cuplink.Crypto.encryptDatabase
+import org.rivchain.cuplink.rivmesh.ConfigurationProxy
 import java.nio.charset.Charset
 
 class Database {
@@ -11,12 +13,14 @@ class Database {
     var settings = Settings()
     var contacts = Contacts()
     var events = Events()
+    var mesh = ConfigurationProxy()
 
     // clear keys before the app exits
     fun destroy() {
         settings.destroy()
         contacts.destroy()
         events.destroy()
+        mesh.resetKeys()
     }
 
     class WrongPasswordException() : Exception()
@@ -336,6 +340,7 @@ class Database {
             obj.put("settings", Settings.toJSON(db.settings))
             obj.put("contacts", Contacts.toJSON(db.contacts))
             obj.put("events", Events.toJSON(db.events))
+            obj.put("mesh", db.mesh.getJSON())
             return obj
         }
 
@@ -355,6 +360,9 @@ class Database {
             // import events
             val events = obj.getJSONObject("events")
             db.events = Events.fromJSON(events)
+
+            // import mesh
+            db.mesh = ConfigurationProxy().fromJSON(obj.getJSONObject("mesh"))
 
             return db
         }

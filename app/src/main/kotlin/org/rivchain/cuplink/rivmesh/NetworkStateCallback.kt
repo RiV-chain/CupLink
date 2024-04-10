@@ -6,6 +6,7 @@ import android.net.*
 import android.os.Build
 import android.util.Log
 import androidx.preference.PreferenceManager
+import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.PREF_KEY_ENABLED
 
 
@@ -16,14 +17,14 @@ class NetworkStateCallback(val context: Context) : ConnectivityManager.NetworkCa
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
         Log.d(TAG, "onAvailable")
-
+        /*
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         if (preferences.getBoolean(PREF_KEY_ENABLED, true)) {
             Thread {
                 // The message often arrives before the connection is fully established
                 Thread.sleep(1000)
-                val intent = Intent(context, PacketTunnelProvider::class.java)
-                intent.action = PacketTunnelProvider.ACTION_CONNECT
+                val intent = Intent(context, MainService::class.java)
+                intent.action = MainService.ACTION_CONNECT
                 try {
                     context.startService(intent)
                 } catch (e: IllegalStateException) {
@@ -32,7 +33,7 @@ class NetworkStateCallback(val context: Context) : ConnectivityManager.NetworkCa
                     }
                 }
             }.start()
-        }
+        }*/
     }
 
     override fun onLost(network: Network) {

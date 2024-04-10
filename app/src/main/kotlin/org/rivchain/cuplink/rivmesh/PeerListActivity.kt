@@ -1,9 +1,11 @@
 package org.rivchain.cuplink.rivmesh
 
-import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.*
 import android.webkit.URLUtil
 import android.widget.Button
@@ -23,13 +25,12 @@ import com.vincentbrison.openlibraries.android.dualcache.Builder
 import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer
 import com.vincentbrison.openlibraries.android.dualcache.SizeOf
 import kotlinx.coroutines.*
-import org.json.JSONObject
-import org.rivchain.cuplink.MainActivity
+import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.SettingsActivity
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.deserializeStringList2PeerInfoSet
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.ping
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.models.Status
 import java.io.ByteArrayOutputStream
@@ -42,9 +43,9 @@ import java.net.UnknownHostException
 import java.nio.charset.Charset
 import java.util.*
 
-class PeerListActivity : AppCompatActivity() {
+class PeerListActivity : AppCompatActivity(), ServiceConnection {
 
-    private lateinit var config: ConfigurationProxy
+    internal var binder: MainService.MainBinder? = null
 
     companion object {
         const val PEER_LIST = "PEER_LIST"
@@ -77,7 +78,8 @@ class PeerListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_peer_list)
         setSupportActionBar(findViewById(R.id.toolbar))
-        config = ConfigurationProxy(applicationContext)
+
+        bindService(Intent(this, MainService::class.java), this, 0)
 
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { _ ->
             addNewPeer()
@@ -252,9 +254,7 @@ class PeerListActivity : AppCompatActivity() {
         val schemaInput = view.findViewById<TextView>(R.id.schemaInput)
         val ipInput = view.findViewById<TextView>(R.id.ipInput)
         ipInput.requestFocus()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            schemaInput.showSoftInputOnFocus = false
-        }
+        schemaInput.showSoftInputOnFocus = false
         schemaInput.setOnFocusChangeListener { v, _ ->
             if(schemaInput.isFocused) {
                 onClickSchemaList(v)
@@ -360,8 +360,7 @@ class PeerListActivity : AppCompatActivity() {
             val result = Intent(this, SettingsActivity::class.java)
             val adapter = findViewById<ListView>(R.id.peerList).adapter as SelectPeerInfoListAdapter
             val selectedPeers = adapter.getSelectedPeers()
-
-            config.updateJSON { json ->
+            binder!!.getMesh().updateJSON { json ->
                 val a = json.getJSONArray("Peers")
                 val l = a.length()
                 var i = 0
@@ -373,15 +372,16 @@ class PeerListActivity : AppCompatActivity() {
                     a.put(peer.toString())
                 }
             }
+            binder!!.saveDatabase()
             // Restart service
-            val intentStop = Intent(this, PacketTunnelProvider::class.java)
-            intentStop.action = PacketTunnelProvider.ACTION_STOP
+            val intentStop = Intent(this, MainService::class.java)
+            intentStop.action = MainService.ACTION_STOP
             startService(intentStop)
 
             Thread {
                 Thread.sleep(3000)
-                val intentStart = Intent(this, PacketTunnelProvider::class.java)
-                intentStart.action = PacketTunnelProvider.ACTION_START
+                val intentStart = Intent(this, MainService::class.java)
+                intentStart.action = MainService.ACTION_START
                 startService(intentStart)
                 finish()
             }.start()
@@ -404,6 +404,15 @@ class PeerListActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         cancelPeerListPing()
+    }
+
+    override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
+        Log.d(this, "onServiceConnected()")
+        binder = iBinder as MainService.MainBinder
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        //nothing_todo
     }
 }
 

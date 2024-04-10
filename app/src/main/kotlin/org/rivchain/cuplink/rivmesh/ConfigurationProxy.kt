@@ -1,31 +1,19 @@
 package org.rivchain.cuplink.rivmesh
 
-import android.content.Context
 import mobile.Mobile
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
 
-object ConfigurationProxy {
-    private lateinit var json: JSONObject
-    private lateinit var file: File
+class ConfigurationProxy() {
 
-    operator fun invoke(applicationContext: Context): ConfigurationProxy {
-        file = File(applicationContext.filesDir, "mesh.conf")
-        if (!file.exists()) {
-            val conf = Mobile.generateConfigJSON()
-            if (file.createNewFile()) {
-                file.writeBytes(conf)
-            }
-        }
+    lateinit var json: JSONObject
+    private var byteArray = byteArrayOf()
+
+    fun invoke(): ConfigurationProxy {
+        byteArray = Mobile.generateConfigJSON()
+        json = JSONObject(byteArray.toString(charset("UTF-8")))
         fix()
         return this
-    }
-
-    fun resetJSON() {
-        val conf = Mobile.generateConfigJSON()
-        file.writeBytes(conf)
-        fix()
     }
 
     fun resetKeys() {
@@ -42,10 +30,16 @@ object ConfigurationProxy {
     }
 
     fun updateJSON(fn: (JSONObject) -> Unit) {
-        json = JSONObject(file.readText(Charsets.UTF_8))
+        json = JSONObject(byteArray.toString(charset("UTF-8")))
         fn(json)
         val str = json.toString()
-        file.writeText(str, Charsets.UTF_8)
+        byteArray = str.toByteArray(charset("UTF-8"))
+    }
+
+    fun fromJSON(json: JSONObject): ConfigurationProxy{
+        this.byteArray = json.toString().toByteArray(charset("UTF-8"))
+        this.json = json
+        return this
     }
 
     private fun fix() {

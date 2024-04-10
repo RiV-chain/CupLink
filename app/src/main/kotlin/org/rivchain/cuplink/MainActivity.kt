@@ -9,7 +9,6 @@ import android.content.ServiceConnection
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
-import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -23,6 +22,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -88,17 +88,23 @@ class MainActivity : BaseActivity(), ServiceConnection {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
         preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, true) }
 
-        if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                !Settings.canDrawOverlays(this)
-            } else {
-                false
-            }
-        ) {
+        if(Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) {
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")
             )
-            startActivity(intent)
+            requestDrawOverlaysPermissionLauncher.launch(intent)
+        }
+    }
+
+    private var requestDrawOverlaysPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (!Settings.canDrawOverlays(this)) {
+                    Toast.makeText(this, R.string.overlay_permission_missing, Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -239,7 +245,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
                 startActivity(Intent(this, AboutActivity::class.java))
             }
             R.id.action_exit -> {
-                MainService.stop(this)
+                MainService.stopPacketsStream(this)
                 finish()
             }
         }
