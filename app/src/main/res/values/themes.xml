@@ -4,17 +4,17 @@
     <style name="AppBaseTheme" parent="Theme.Material3.Light">
     </style>
 
-    <style name="Theme.Threema.WithToolbar" parent="AppBaseTheme">
+    <style name="Theme.CupLink.WithToolbar" parent="AppBaseTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Threema.TransparentStatusbar" parent="Theme.Threema.WithToolbar">
+    <style name="Theme.CupLink.TransparentStatusbar" parent="Theme.CupLink.WithToolbar">
         <item name="toolbarStyle">@style/Widget.Material3.Toolbar</item>
         <item name="popup_menu_background">@color/md_theme_light_surface</item>
     </style>
 
-    <style name="Theme.Threema.TransparentStatusbar_Fullscreen" parent="Theme.Threema.TransparentStatusbar">
+    <style name="Theme.CupLink.TransparentStatusbar_Fullscreen" parent="Theme.CupLink.TransparentStatusbar">
         <item name="android:windowFullscreen">true</item>
     </style>
 

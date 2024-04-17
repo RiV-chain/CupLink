@@ -50,16 +50,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <com.google.android.material.imageview.ShapeableImageView
+            <ImageView
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:elevation="30dp"
                 app:strokeColor="@null"
-                android:theme="@style/CurvedImageViewStyle"
-                android:src="@mipmap/ic_launcher"
-                android:background="@mipmap/ic_launcher"/>
+                android:src="@drawable/cup_link"
+                android:background="@drawable/cup_link"/>
 
             <TextView
                 android:layout_width="wrap_content"
