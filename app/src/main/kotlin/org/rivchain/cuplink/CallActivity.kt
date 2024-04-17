@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.Configuration
-import android.graphics.Rect
 import android.media.AudioManager
 import android.media.Ringtone
 import android.media.RingtoneManager
@@ -20,14 +19,12 @@ import android.os.PowerManager.WakeLock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.util.DisplayMetrics
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.View.OnTouchListener
-import android.view.Window
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.widget.Button
@@ -58,7 +55,6 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
 import java.util.Date
-
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
@@ -130,6 +126,108 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 callStats.text = stats
             }
         }
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(this, "onCreate()")
+
+        isCallInProgress = true
+
+        // keep screen on during the call
+        window.addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
+        //extend screen view over systembar
+        window.setFlags(LayoutParams.FLAG_LAYOUT_NO_LIMITS, LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+
+        super.onCreate(savedInstanceState)
+
+        setContentView(R.layout.activity_call)
+
+        // keep screen on during the call
+        //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        callStatus = findViewById(R.id.callStatus)
+        callStats = findViewById(R.id.callStats)
+        //callAddress = findViewById(R.id.callAddress)
+        callName = findViewById(R.id.callName)
+        pipContainer = findViewById(R.id.pip_video_view_container)
+        pipRenderer = findViewById(R.id.pip_video_view)
+        fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
+        toggleCameraButton = findViewById(R.id.toggleCameraButton)
+        toggleMicButton = findViewById(R.id.toggleMicButton)
+        acceptButton = findViewById(R.id.acceptButton)
+        declineButton = findViewById(R.id.declineButton)
+        toggleFrontCameraButton = findViewById(R.id.frontFacingSwitch)
+        speakerphoneButton = findViewById(R.id.speakerphoneButton)
+        changePipButton = findViewById(R.id.change_pip_window)
+        changeUiButton = findViewById(R.id.change_ui)
+        controlPanel = findViewById(R.id.controlPanel)
+        capturePanel = findViewById(R.id.capturePanel)
+        captureResolution = findViewById(R.id.captureResolution)
+        captureFramerate = findViewById(R.id.captureFramerate)
+
+        // Background
+        backgroundView = findViewById(R.id.background_view);
+        settingsView = findViewById(R.id.settings_view);
+
+        contact = intent.extras!!["EXTRA_CONTACT"] as Contact
+
+        eglBase = EglBase.create()
+        proximitySensor = RTCProximitySensor(applicationContext)
+        rtcAudioManager = RTCAudioManager(applicationContext)
+
+        pipRenderer.init(eglBase.eglBaseContext, null)
+        pipRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
+        pipRenderer.setMirror(true)
+
+        fullscreenRenderer.init(eglBase.eglBaseContext, null)
+        fullscreenRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+
+        pipRenderer.setZOrderMediaOverlay(true)
+        pipRenderer.setEnableHardwareScaler(true)
+        fullscreenRenderer.setEnableHardwareScaler(false)
+
+        captureQualityController = CaptureQualityController(this)
+
+        // make both invisible
+        showPipView(false)
+        showFullscreenView(false)
+
+        acceptButton.visibility = View.GONE
+        declineButton.visibility = View.GONE
+        toggleMicButton.visibility = View.GONE
+        toggleCameraButton.visibility = View.GONE
+        toggleFrontCameraButton.visibility = View.GONE
+
+        initRinging()
+
+        if (contact.name.isEmpty()) {
+            callName.text = resources.getString(R.string.unknown_caller)
+        } else {
+            callName.text = contact.name
+        }
+
+        Log.d(this, "intent: ${intent.action}, state: ${this.lifecycle.currentState}")
+
+        when (val action = intent.action) {
+            "ACTION_OUTGOING_CALL" -> initOutgoingCall()
+            "ACTION_INCOMING_CALL" -> initIncomingCall()
+            else -> {
+                Log.e(this, "invalid action: $action, this should never happen")
+                finish()
+            }
+        }
+        if (getResources().configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // landscape
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
+        } else {
+            // portrait
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
+        }
+
+        // Set up a listener to detect orientation changes.
+        orientationListener = OrientationListenerImpl(this)
+
     }
 
     private fun getFullscreenWindowFlags(): Int {
@@ -506,107 +604,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         runOnUiThread {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(this, "onCreate()")
-
-        CallActivity.isCallInProgress = true
-        super.onCreate(savedInstanceState)
-
-        // keep screen on during the call
-        window.addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
-        //extend screen view over systembar
-        window.setFlags(LayoutParams.FLAG_LAYOUT_NO_LIMITS, LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-        setContentView(R.layout.activity_call)
-
-        // keep screen on during the call
-        //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        callStatus = findViewById(R.id.callStatus)
-        callStats = findViewById(R.id.callStats)
-        //callAddress = findViewById(R.id.callAddress)
-        callName = findViewById(R.id.callName)
-        pipContainer = findViewById(R.id.pip_video_view_container)
-        pipRenderer = findViewById(R.id.pip_video_view)
-        fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
-        toggleCameraButton = findViewById(R.id.toggleCameraButton)
-        toggleMicButton = findViewById(R.id.toggleMicButton)
-        acceptButton = findViewById(R.id.acceptButton)
-        declineButton = findViewById(R.id.declineButton)
-        toggleFrontCameraButton = findViewById(R.id.frontFacingSwitch)
-        speakerphoneButton = findViewById(R.id.speakerphoneButton)
-        changePipButton = findViewById(R.id.change_pip_window)
-        changeUiButton = findViewById(R.id.change_ui)
-        controlPanel = findViewById(R.id.controlPanel)
-        capturePanel = findViewById(R.id.capturePanel)
-        captureResolution = findViewById(R.id.captureResolution)
-        captureFramerate = findViewById(R.id.captureFramerate)
-
-        // Background
-        backgroundView = findViewById(R.id.background_view);
-        settingsView = findViewById(R.id.settings_view);
-
-        contact = intent.extras!!["EXTRA_CONTACT"] as Contact
-
-        eglBase = EglBase.create()
-        proximitySensor = RTCProximitySensor(applicationContext)
-        rtcAudioManager = RTCAudioManager(applicationContext)
-
-        pipRenderer.init(eglBase.eglBaseContext, null)
-        pipRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
-        pipRenderer.setMirror(true)
-
-        fullscreenRenderer.init(eglBase.eglBaseContext, null)
-        fullscreenRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
-
-        pipRenderer.setZOrderMediaOverlay(true)
-        pipRenderer.setEnableHardwareScaler(true)
-        fullscreenRenderer.setEnableHardwareScaler(false)
-
-        captureQualityController = CaptureQualityController(this)
-
-        // make both invisible
-        showPipView(false)
-        showFullscreenView(false)
-
-        acceptButton.visibility = View.GONE
-        declineButton.visibility = View.GONE
-        toggleMicButton.visibility = View.GONE
-        toggleCameraButton.visibility = View.GONE
-        toggleFrontCameraButton.visibility = View.GONE
-
-        initRinging()
-
-        if (contact.name.isEmpty()) {
-            callName.text = resources.getString(R.string.unknown_caller)
-        } else {
-            callName.text = contact.name
-        }
-
-        Log.d(this, "intent: ${intent.action}, state: ${this.lifecycle.currentState}")
-
-        when (val action = intent.action) {
-            "ACTION_OUTGOING_CALL" -> initOutgoingCall()
-            "ACTION_INCOMING_CALL" -> initIncomingCall()
-            else -> {
-                Log.e(this, "invalid action: $action, this should never happen")
-                finish()
-            }
-        }
-        if (getResources().configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            // landscape
-            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
-            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
-        } else {
-            // portrait
-            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
-            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
-        }
-
-        // Set up a listener to detect orientation changes.
-        orientationListener = OrientationListenerImpl(this)
-
     }
 
     private class OrientationListenerImpl(private val context: Context) : OrientationEventListener(context) {

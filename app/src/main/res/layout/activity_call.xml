@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".CallActivity"
-    android:background="@color/gallery_background">
+    android:background="@color/colorPrimaryDark">
 
     <!-- Background image (for audio calls) -->
     <FrameLayout

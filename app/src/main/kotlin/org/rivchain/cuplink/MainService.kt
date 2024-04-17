@@ -126,7 +126,7 @@ class MainService : VpnService() {
             .setOngoing(true)
             .setShowWhen(showSinceWhen)
             .setUsesChronometer(showSinceWhen)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.cup_link_small)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setCategory(Notification.CATEGORY_SERVICE)
             .setContentText(text)

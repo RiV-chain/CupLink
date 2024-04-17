@@ -36,15 +36,12 @@ class EventListFragment : Fragment() {
         // get last event that has an address
         val latestEvent = eventGroup.lastOrNull { it.address != null } ?: eventGroup.last()
 
-        val knownContact = binder.getContacts().getContactByPublicKey(latestEvent.publicKey)
-        val contact = if (knownContact != null) {
-            knownContact
-        } else {
-            latestEvent.createUnknownContact("")
-        }
+        val contact = binder.getContacts().getContactByPublicKey(latestEvent.publicKey)
+            ?: latestEvent.createUnknownContact("")
 
         if (contact.addresses.isEmpty()) {
-            Toast.makeText(activity, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT)
+                .show()
         } else {
             // start call
             Log.d(this, "start CallActivity")
