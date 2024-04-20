@@ -3,9 +3,8 @@ package org.rivchain.cuplink.util
 import android.net.InetAddresses
 import android.os.Build
 import android.util.Patterns
-import org.rivchain.cuplink.AddressEntry
-import org.rivchain.cuplink.Contact
-import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.model.AddressEntry
+import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.MainService
 import java.io.BufferedReader
 import java.io.IOException

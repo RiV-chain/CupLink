@@ -21,6 +21,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.rivchain.cuplink.adapter.EventListAdapter
+import org.rivchain.cuplink.model.Event
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 
 class EventListFragment : Fragment() {

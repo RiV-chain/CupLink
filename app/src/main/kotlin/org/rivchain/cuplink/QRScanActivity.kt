@@ -23,6 +23,7 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
 import org.json.JSONException
 import org.json.JSONObject
+import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Utils
 
 class QRScanActivity : BaseActivity(), BarcodeCallback, ServiceConnection {

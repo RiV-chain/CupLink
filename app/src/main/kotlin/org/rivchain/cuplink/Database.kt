@@ -1,11 +1,15 @@
 package org.rivchain.cuplink
 
-import mobile.Mobile
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rivchain.cuplink.Crypto.decryptDatabase
 import org.rivchain.cuplink.Crypto.encryptDatabase
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.model.Contacts
+import org.rivchain.cuplink.model.Events
+import org.rivchain.cuplink.model.Settings
 import org.rivchain.cuplink.rivmesh.ConfigurationProxy
+import org.rivchain.cuplink.util.Log
 import java.nio.charset.Charset
 
 class Database {

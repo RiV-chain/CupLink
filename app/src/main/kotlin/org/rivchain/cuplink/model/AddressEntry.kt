@@ -1,4 +1,4 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.model
 
 /*
  * Item for address management (AddressActivity)

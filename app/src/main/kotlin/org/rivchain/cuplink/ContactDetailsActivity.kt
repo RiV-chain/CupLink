@@ -22,7 +22,10 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.util.AddressUtils.AddressType
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.model.AddressEntry
+import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import java.util.Locale
 

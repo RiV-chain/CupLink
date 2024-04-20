@@ -22,6 +22,9 @@ import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.json.JSONException
+import org.rivchain.cuplink.adapter.ContactListAdapter
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.Log
 
 class ContactListFragment : Fragment() {
     private lateinit var contactListView: ListView

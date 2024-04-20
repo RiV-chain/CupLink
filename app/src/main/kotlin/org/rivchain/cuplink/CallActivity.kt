@@ -46,7 +46,11 @@ import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.call.RTCPeerConnection.CallState
 import org.rivchain.cuplink.call.RTCProximitySensor
 import org.rivchain.cuplink.call.StatsReportUtil
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.model.Event
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
+import org.rivchain.cuplink.renderer.TextureViewRenderer
 import org.webrtc.CameraEnumerationAndroid
 import org.webrtc.EglBase
 import org.webrtc.RTCStatsCollectorCallback
@@ -78,7 +82,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private val localProxyVideoSink = RTCCall.ProxyVideoSink()
 
     private lateinit var pipContainer: CardView
-    private lateinit var pipRenderer: SurfaceViewRenderer
+    private lateinit var pipRenderer: TextureViewRenderer
     private lateinit var fullscreenRenderer: SurfaceViewRenderer
 
     // call info texts
@@ -174,15 +178,15 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         proximitySensor = RTCProximitySensor(applicationContext)
         rtcAudioManager = RTCAudioManager(applicationContext)
 
-        pipRenderer.init(eglBase.eglBaseContext, null)
+        pipRenderer.init(eglBase)
         pipRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
         pipRenderer.setMirror(true)
 
         fullscreenRenderer.init(eglBase.eglBaseContext, null)
         fullscreenRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
 
-        pipRenderer.setZOrderMediaOverlay(true)
-        pipRenderer.setEnableHardwareScaler(true)
+        //pipRenderer.setZOrderMediaOverlay(true)
+        //pipRenderer.setEnableHardwareScaler(true)
         fullscreenRenderer.setEnableHardwareScaler(false)
 
         captureQualityController = CaptureQualityController(this)

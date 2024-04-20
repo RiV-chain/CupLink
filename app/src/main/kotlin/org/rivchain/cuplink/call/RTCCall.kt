@@ -4,6 +4,8 @@ import android.content.Context
 import org.json.JSONException
 import org.json.JSONObject
 import org.rivchain.cuplink.*
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import org.webrtc.*
 import org.webrtc.CameraEnumerationAndroid.CaptureFormat

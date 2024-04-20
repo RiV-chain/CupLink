@@ -34,6 +34,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PowerManager
 
 // the main view with tabs
