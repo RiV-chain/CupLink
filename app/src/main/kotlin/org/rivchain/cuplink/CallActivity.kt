@@ -185,8 +185,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         fullscreenRenderer.init(eglBase.eglBaseContext, null)
         fullscreenRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
 
-        //pipRenderer.setZOrderMediaOverlay(true)
-        //pipRenderer.setEnableHardwareScaler(true)
         fullscreenRenderer.setEnableHardwareScaler(false)
 
         captureQualityController = CaptureQualityController(this)
@@ -395,7 +393,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             pipRenderer.setMirror(false)
 
             showPipView(isRemoteVideoAvailable && showPipEnabled)
-            hideCallBackground(isRemoteVideoAvailable)
+            hideCallBackground(isLocalVideoAvailable)
             showFullscreenView(isLocalVideoAvailable)
 
             // video available for pip
