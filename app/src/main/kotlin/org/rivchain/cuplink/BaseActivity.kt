@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import org.rivchain.cuplink.util.Log
 
 /*
  * Base class for every Activity

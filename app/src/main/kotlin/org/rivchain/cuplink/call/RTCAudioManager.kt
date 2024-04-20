@@ -10,7 +10,7 @@ import android.content.Context
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
-import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 
 /**

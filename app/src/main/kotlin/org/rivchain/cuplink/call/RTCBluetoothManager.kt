@@ -25,7 +25,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.ActivityCompat
-import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 
 /**

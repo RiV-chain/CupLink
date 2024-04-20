@@ -15,7 +15,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
-import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import org.webrtc.ThreadUtils
 

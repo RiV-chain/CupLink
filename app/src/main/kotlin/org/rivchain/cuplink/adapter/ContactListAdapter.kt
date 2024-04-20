@@ -1,8 +1,6 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.adapter
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
@@ -12,6 +10,8 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import org.rivchain.cuplink.R
+import org.rivchain.cuplink.model.Contact
 
 internal class ContactListAdapter(
     context: Context,

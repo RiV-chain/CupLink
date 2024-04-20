@@ -1,4 +1,4 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.adapter
 
 import android.content.Context
 import android.text.format.DateUtils
@@ -10,6 +10,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.size
+import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.R
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.AddressUtils
 import java.text.DateFormat
 import kotlin.math.abs

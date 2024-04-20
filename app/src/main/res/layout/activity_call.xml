@@ -202,17 +202,18 @@
                 android:layout_height="0dp"
                 android:layout_margin="10dp"
                 android:background="@android:color/transparent"
-                app:cardCornerRadius="5dp"
+                app:cardCornerRadius="@dimen/cardview_corner_radius"
                 app:cardElevation="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="W,3:4"
                 app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
                 app:layout_constraintHeight_percent=".6" >
 
-                <org.webrtc.SurfaceViewRenderer
+                <org.rivchain.cuplink.renderer.TextureViewRenderer
                     android:id="@+id/pip_video_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"/>
 
             </androidx.cardview.widget.CardView>
 

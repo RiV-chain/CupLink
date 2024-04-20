@@ -38,8 +38,9 @@ import androidx.preference.PreferenceManager
 import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
-import org.rivchain.cuplink.rivmesh.ConfigurationProxy
+import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
 import org.rivchain.cuplink.util.PermissionManager.haveMicrophonePermission
 import org.rivchain.cuplink.util.PermissionManager.havePostNotificationPermission

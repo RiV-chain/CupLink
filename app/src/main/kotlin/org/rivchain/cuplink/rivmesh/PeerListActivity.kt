@@ -25,7 +25,7 @@ import com.vincentbrison.openlibraries.android.dualcache.Builder
 import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer
 import com.vincentbrison.openlibraries.android.dualcache.SizeOf
 import kotlinx.coroutines.*
-import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.SettingsActivity

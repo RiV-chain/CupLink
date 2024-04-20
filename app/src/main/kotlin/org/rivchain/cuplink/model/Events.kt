@@ -1,4 +1,4 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.model
 
 import org.json.JSONArray
 import org.json.JSONObject

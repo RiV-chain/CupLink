@@ -13,6 +13,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.model.Contact
 
 class QRShowActivity : BaseActivity(), ServiceConnection {
     private lateinit var publicKey: ByteArray

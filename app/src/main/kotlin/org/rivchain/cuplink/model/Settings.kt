@@ -1,7 +1,8 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.model
 
 import org.json.JSONArray
 import org.json.JSONObject
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Utils
 import java.util.Locale

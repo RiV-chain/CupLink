@@ -1,6 +1,7 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.util
 
 import android.util.Log
+import org.rivchain.cuplink.BuildConfig
 
 /*
 * Wrapper for android.util.Log to disable logging

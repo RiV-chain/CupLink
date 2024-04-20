@@ -6,9 +6,9 @@ import org.json.JSONObject
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.CallActivity
-import org.rivchain.cuplink.Contact
+import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.Crypto
-import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.util.Utils

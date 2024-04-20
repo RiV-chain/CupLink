@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.widget.Toast
+import org.rivchain.cuplink.util.Log
 
 /*
  * Start App on Android bootup. StartActivity is started to check

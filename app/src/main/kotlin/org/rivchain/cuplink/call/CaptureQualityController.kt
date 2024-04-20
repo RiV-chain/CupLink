@@ -1,8 +1,5 @@
 package org.rivchain.cuplink.call
 
-import android.content.Context
-import android.content.res.Resources
-import android.util.DisplayMetrics
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -14,9 +11,9 @@ import android.widget.Spinner
 import android.widget.TextView
 import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
 import org.rivchain.cuplink.CallActivity
-import org.rivchain.cuplink.Log
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.R
-import org.rivchain.cuplink.Settings
+import org.rivchain.cuplink.model.Settings
 import org.webrtc.CameraEnumerationAndroid.CaptureFormat
 
 

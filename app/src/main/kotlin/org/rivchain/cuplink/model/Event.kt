@@ -1,6 +1,8 @@
-package org.rivchain.cuplink
+package org.rivchain.cuplink.model
 
 import org.json.JSONObject
+import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Utils
 import java.net.InetSocketAddress
@@ -76,7 +78,9 @@ class Event(
 
         fun fromJSON(obj: JSONObject): Event {
             val publicKey = Utils.hexStringToByteArray(obj.getString("public_key"))!!
-            val address = AddressUtils.stringToInetSocketAddress(obj.optString("address"), MainService.serverPort)
+            val address = AddressUtils.stringToInetSocketAddress(obj.optString("address"),
+                MainService.serverPort
+            )
             val type = eventTypeFromString(obj.getString("type"))
             val date = Date(obj.getString("date").toLong(10))
             return Event(publicKey, address, type, date)
