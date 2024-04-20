@@ -48,9 +48,9 @@ import org.rivchain.cuplink.call.RTCProximitySensor
 import org.rivchain.cuplink.call.StatsReportUtil
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Event
+import org.rivchain.cuplink.renderer.TextureViewRenderer
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
-import org.rivchain.cuplink.renderer.TextureViewRenderer
 import org.webrtc.CameraEnumerationAndroid
 import org.webrtc.EglBase
 import org.webrtc.RTCStatsCollectorCallback
@@ -59,6 +59,7 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
 import java.util.Date
+
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
@@ -120,6 +121,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     // set by RTCall
     private var isLocalVideoAvailable = false // own camera is on/off
     private var isRemoteVideoAvailable = false // we receive a video feed
+
+    private var pressedTime: Long = 0
 
     private val statsCollector = object : RTCStatsCollectorCallback {
         var statsReportUtil = StatsReportUtil()
@@ -1289,5 +1292,16 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     companion object {
         @Volatile
         public var isCallInProgress: Boolean = false
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        if (pressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressedDispatcher.onBackPressed()
+            finish()
+        } else {
+            Toast.makeText(baseContext, "Press back again will exit this call", Toast.LENGTH_SHORT).show()
+        }
+        pressedTime = System.currentTimeMillis()
     }
 }
