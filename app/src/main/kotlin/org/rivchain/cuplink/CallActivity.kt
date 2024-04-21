@@ -232,7 +232,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         // Set up a listener to detect orientation changes.
         orientationListener = OrientationListenerImpl(this)
-
     }
 
     private fun getFullscreenWindowFlags(): Int {
@@ -697,6 +696,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             } else {
                 currentCall.decline()
             }
+            finish()
         }
 
         val startCallListener = View.OnClickListener {
