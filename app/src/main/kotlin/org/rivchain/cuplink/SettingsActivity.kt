@@ -1,5 +1,6 @@
 package org.rivchain.cuplink
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.ComponentName
 import android.content.Intent
@@ -18,6 +19,9 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
@@ -31,12 +35,13 @@ import org.rivchain.cuplink.util.Utils
 import java.lang.Integer.parseInt
 
 class SettingsActivity : BaseActivity(), ServiceConnection {
-    private var binder: MainBinder? = null
 
+    private var requestPeersLauncher: ActivityResultLauncher<Intent>? = null
+
+    private var binder: MainBinder? = null
     private var currentPeers = setOf<PeerInfo>()
 
     companion object {
-        const val PEER_LIST_CODE = 1000
         // not stored in the database
         private var settingsMode = "basic"
     }
@@ -60,6 +65,13 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
 
         bindService(Intent(this, MainService::class.java), this, 0)
         initViews()
+
+        requestPeersLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+                if (result.resultCode == RESULT_OK) {
+                    //nothing todo
+                }
+            }
     }
 
     override fun onDestroy() {
@@ -96,7 +108,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
             .setOnClickListener {
                 val intent = Intent(this@SettingsActivity, PeerListActivity::class.java)
                 intent.putStringArrayListExtra(PEER_LIST, serializePeerInfoSet2StringList(currentPeers))
-                startActivityForResult(intent, PEER_LIST_CODE)
+                requestPeersLauncher!!.launch(intent)
             }
 
         val databasePassword = binder.getService().databasePassword

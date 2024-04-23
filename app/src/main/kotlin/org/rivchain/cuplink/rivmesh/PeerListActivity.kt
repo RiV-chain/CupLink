@@ -368,7 +368,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
             startService(intentStop)
 
             Thread {
-                Thread.sleep(3000)
+                Thread.sleep(1000)
                 val intentStart = Intent(this, MainService::class.java)
                 intentStart.action = MainService.ACTION_START
                 startService(intentStart)

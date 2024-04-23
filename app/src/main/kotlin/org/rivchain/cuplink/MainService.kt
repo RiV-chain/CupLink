@@ -82,7 +82,7 @@ class MainService : VpnService() {
     private var readerStream: FileInputStream? = null
     private var writerStream: FileOutputStream? = null
     private var multicastLock: WifiManager.MulticastLock? = null
-    private var dbEnrypted: Boolean = false
+    private var dbEncrypted: Boolean = false
 
     private var KEY_ENABLE_CHROME_FIX = "enable_chrome_fix"
     private var KEY_DNS_SERVERS = "dns_servers"
@@ -97,7 +97,7 @@ class MainService : VpnService() {
         } catch (e: Database.WrongPasswordException) {
             // ignore and continue with initialization,
             // the password dialog comes on the next startState
-            dbEnrypted = true
+            dbEncrypted = true
         } catch (e: Exception) {
             Log.e(this, "${e.message}")
             Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
@@ -221,9 +221,15 @@ class MainService : VpnService() {
 
     override fun onDestroy() {
         Log.d(this, "onDestroy()")
+
         stopServer()
 
         stopPacketsStream()
+
+        if (!this::database.isInitialized) {
+            super.onDestroy()
+            return
+        }
 
         // say goodbye
         val database = this.database
@@ -333,7 +339,8 @@ class MainService : VpnService() {
     }
 
     private fun startPacketsStream() {
-
+        // !this::database.isInitialized means db is encrypted
+        // we will re-try to load it after the next db password prompt
         if (!this::database.isInitialized || !started.compareAndSet(false, true)) {
             return
         }
@@ -651,7 +658,7 @@ class MainService : VpnService() {
         }
 
         fun isDatabaseEncrypted(): Boolean {
-            return dbEnrypted
+            return dbEncrypted
         }
 
         fun getDatabase(): Database {

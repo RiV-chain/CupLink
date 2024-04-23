@@ -31,6 +31,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -39,6 +40,8 @@ import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.AddressEntry
+import org.rivchain.cuplink.rivmesh.PeerListActivity
+import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
@@ -63,7 +66,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private var startState = 0
     private var isStartOnBootup = false
     private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
+    private var requestPeersLauncher: ActivityResultLauncher<Intent>? = null
     private val POLICY = "policy"
+    private val PEERS = "peers"
     private var preferences: SharedPreferences? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +94,12 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         findViewById<TextView>(R.id.splashText).typeface = type
 
         requestPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean? ->
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                continueInit()
+            }
+        requestPeersLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                preferences!!.edit().putString(PEERS, "done").apply()
                 continueInit()
             }
         continueInit()
@@ -99,7 +109,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         startState += 1
         when (startState) {
             1 -> {
-                Log.d(this, "Show privacy policy")
+                Log.d(this, "init 1: show policy and start VPN")
                 if(preferences?.getString(POLICY, null) == null) {
                     showPolicy("En-Us")
                 } else {
@@ -115,7 +125,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             2 -> {
-                Log.d(this, "init 1: check addresses")
+                Log.d(this, "init 2: check addresses")
                 if (binder!!.getService().firstStart) {
                     showMissingAddressDialog()
                 } else {
@@ -123,8 +133,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             3 -> {
-                Thread.sleep(1000)
-                Log.d(this, "init 2: check database")
+                Log.d(this, "init 3: check database")
                 if (binder!!.isDatabaseEncrypted()) {
                     // database is probably encrypted
                     showDatabasePasswordDialog()
@@ -133,7 +142,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             4 -> {
-                Log.d(this, "init 3: check username")
+                Log.d(this, "init 4: check username")
                 if (binder!!.getSettings().username.isEmpty()) {
                     // set username
                     showMissingUsernameDialog()
@@ -142,39 +151,54 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             5 -> {
-                Log.d(this, "init 4: check key pair")
+                Log.d(this, "init 5: choose peers")
+                if(preferences?.getString(PEERS, null) == null) {
+                    val intent = Intent(this, PeerListActivity::class.java)
+                    intent.putStringArrayListExtra(
+                        PeerListActivity.PEER_LIST,
+                        org.rivchain.cuplink.rivmesh.util.Utils.serializePeerInfoSet2StringList(
+                            setOf()
+                        )
+                    )
+                    requestPeersLauncher!!.launch(intent)
+                } else {
+                    continueInit()
+                }
+            }
+            6 -> {
+                Log.d(this, "init 6: check key pair")
                 if (binder!!.getSettings().publicKey.isEmpty()) {
                     // generate key pair
                     initKeyPair()
                 }
                 continueInit()
             }
-            6 -> {
-                Log.d(this, "init 5: check notification permissions")
+            7 -> {
+                Log.d(this, "init 7: check notification permissions")
                 if (!havePostNotificationPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.POST_NOTIFICATIONS)
                 } else {
                     continueInit()
                 }
             }
-            7 -> {
-                Log.d(this, "init 6: check microphone permissions")
+            8 -> {
+                Log.d(this, "init 8: check microphone permissions")
                 if (!haveMicrophonePermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.RECORD_AUDIO)
                 } else {
                     continueInit()
                 }
             }
-            8 -> {
-                Log.d(this, "init 7: check camera permissions")
+            9 -> {
+                Log.d(this, "init 9: check camera permissions")
                 if (!haveCameraPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.CAMERA)
                 } else {
                     continueInit()
                 }
             }
-            9 -> {
-                Log.d(this, "init 8: start MainActivity")
+            10 -> {
+                Log.d(this, "init 10: start MainActivity")
                 val settings = binder!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
