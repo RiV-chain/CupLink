@@ -31,7 +31,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -41,7 +40,6 @@ import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.rivmesh.PeerListActivity
-import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
