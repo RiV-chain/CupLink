@@ -174,8 +174,16 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             7 -> {
                 Log.d(this, "init 7: check all permissions")
-                if (!havePostNotificationPermission(this)) {
-                    requestPermissionLauncher!!.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA))
+                if (!havePostNotificationPermission(this) ||
+                    !haveMicrophonePermission(this) ||
+                    !haveCameraPermission(this)
+                    ) {
+                    requestPermissionLauncher!!.launch(
+                        arrayOf(
+                            Manifest.permission.POST_NOTIFICATIONS,
+                            Manifest.permission.RECORD_AUDIO,
+                            Manifest.permission.CAMERA)
+                    )
                 } else {
                     continueInit()
                 }
