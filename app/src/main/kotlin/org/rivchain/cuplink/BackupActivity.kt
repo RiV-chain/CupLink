@@ -155,6 +155,18 @@ class BackupActivity : BaseActivity(), ServiceConnection {
             binder.getService().mergeDatabase(newDatabase)
             binder.saveDatabase()
             Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
+            // Restart service
+            val intentStop = Intent(this, MainService::class.java)
+            intentStop.action = MainService.ACTION_STOP
+            startService(intentStop)
+
+            Thread {
+                Thread.sleep(1000)
+                val intentStart = Intent(this, MainService::class.java)
+                intentStart.action = MainService.ACTION_START
+                startService(intentStart)
+            }.start()
+
             dialog.cancel()
         }
 
