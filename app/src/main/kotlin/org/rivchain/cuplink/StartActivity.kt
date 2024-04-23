@@ -31,7 +31,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -41,7 +40,6 @@ import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.rivmesh.PeerListActivity
-import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
@@ -65,7 +63,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private var dialog : Dialog? = null
     private var startState = 0
     private var isStartOnBootup = false
-    private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
+    private var requestPermissionLauncher: ActivityResultLauncher<Array<String>>? = null
     private var requestPeersLauncher: ActivityResultLauncher<Intent>? = null
     private val POLICY = "policy"
     private val PEERS = "peers"
@@ -93,10 +91,11 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val type = Typeface.createFromAsset(assets, "rounds_black.otf")
         findViewById<TextView>(R.id.splashText).typeface = type
 
-        requestPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                continueInit()
-            }
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { result: Map<String, Boolean> ->
+            continueInit()
+        }
         requestPeersLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 preferences!!.edit().putString(PEERS, "done").apply()
@@ -174,31 +173,23 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 continueInit()
             }
             7 -> {
-                Log.d(this, "init 7: check notification permissions")
-                if (!havePostNotificationPermission(this)) {
-                    requestPermissionLauncher!!.launch(Manifest.permission.POST_NOTIFICATIONS)
+                Log.d(this, "init 7: check all permissions")
+                if (!havePostNotificationPermission(this) ||
+                    !haveMicrophonePermission(this) ||
+                    !haveCameraPermission(this)
+                    ) {
+                    requestPermissionLauncher!!.launch(
+                        arrayOf(
+                            Manifest.permission.POST_NOTIFICATIONS,
+                            Manifest.permission.RECORD_AUDIO,
+                            Manifest.permission.CAMERA)
+                    )
                 } else {
                     continueInit()
                 }
             }
             8 -> {
-                Log.d(this, "init 8: check microphone permissions")
-                if (!haveMicrophonePermission(this)) {
-                    requestPermissionLauncher!!.launch(Manifest.permission.RECORD_AUDIO)
-                } else {
-                    continueInit()
-                }
-            }
-            9 -> {
-                Log.d(this, "init 9: check camera permissions")
-                if (!haveCameraPermission(this)) {
-                    requestPermissionLauncher!!.launch(Manifest.permission.CAMERA)
-                } else {
-                    continueInit()
-                }
-            }
-            10 -> {
-                Log.d(this, "init 10: start MainActivity")
+                Log.d(this, "init 8: start MainActivity")
                 val settings = binder!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
