@@ -63,7 +63,7 @@ class MainService : VpnService() {
     private val binder = MainBinder()
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
-    private var database: Database? = null
+    private lateinit var database: Database
     var firstStart = false
     private var databasePath = ""
     var databasePassword = ""
@@ -82,6 +82,7 @@ class MainService : VpnService() {
     private var readerStream: FileInputStream? = null
     private var writerStream: FileOutputStream? = null
     private var multicastLock: WifiManager.MulticastLock? = null
+    private var dbEnrypted: Boolean = false
 
     private var KEY_ENABLE_CHROME_FIX = "enable_chrome_fix"
     private var KEY_DNS_SERVERS = "dns_servers"
@@ -96,6 +97,7 @@ class MainService : VpnService() {
         } catch (e: Database.WrongPasswordException) {
             // ignore and continue with initialization,
             // the password dialog comes on the next startState
+            dbEnrypted = true
         } catch (e: Exception) {
             Log.e(this, "${e.message}")
             Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
@@ -140,7 +142,7 @@ class MainService : VpnService() {
             .build()
     }
 
-    fun loadDatabase() {
+    fun loadDatabase(): Database {
         if (File(databasePath).exists()) {
             // open existing database
             val db = readInternalFile(databasePath)
@@ -149,13 +151,14 @@ class MainService : VpnService() {
         } else {
             // create new database
             database = Database()
-            database!!.mesh.invoke()
+            database.mesh.invoke()
             firstStart = true
         }
+        return database
     }
 
     fun mergeDatabase(new_db: Database) {
-        val oldDatabase = database!!
+        val oldDatabase = database
 
         oldDatabase.settings = new_db.settings
 
@@ -173,11 +176,9 @@ class MainService : VpnService() {
     fun saveDatabase() {
         try {
             val db = database
-            if (db != null) {
-                val dbData = Database.toData(db, databasePassword)
-                if (dbData != null) {
-                    writeInternalFile(databasePath, dbData)
-                }
+            val dbData = Database.toData(db, databasePassword)
+            if (dbData != null) {
+                writeInternalFile(databasePath, dbData)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -226,7 +227,7 @@ class MainService : VpnService() {
 
         // say goodbye
         val database = this.database
-        if (database != null && serverSocket != null && serverSocket!!.isBound && !serverSocket!!.isClosed) {
+        if (serverSocket != null && serverSocket!!.isBound && !serverSocket!!.isClosed) {
             try {
                 val ownPublicKey = database.settings.publicKey
                 val ownSecretKey = database.settings.secretKey
@@ -268,7 +269,7 @@ class MainService : VpnService() {
 
         // save database on exit
         saveDatabase()
-        database?.destroy()
+        database.destroy()
 
         super.onDestroy()
     }
@@ -332,12 +333,13 @@ class MainService : VpnService() {
     }
 
     private fun startPacketsStream() {
-        // handle incoming connections
-        startServer()
 
-        if (!started.compareAndSet(false, true)) {
+        if (!this::database.isInitialized || !started.compareAndSet(false, true)) {
             return
         }
+
+        // handle incoming connections
+        startServer()
 
         val notification = createServiceNotification(this, State.Enabled)
         startForeground(SERVICE_NOTIFICATION_ID, notification)
@@ -648,23 +650,12 @@ class MainService : VpnService() {
             return this@MainService
         }
 
-        fun isDatabaseLoaded(): Boolean {
-            return this@MainService.database != null
+        fun isDatabaseEncrypted(): Boolean {
+            return dbEnrypted
         }
 
         fun getDatabase(): Database {
-            if (this@MainService.database == null) {
-                Log.e(this, "getDatabase() database is null => try to reload")
-                try {
-                    // database is null, this should not happen, but
-                    // happens anyway, so let's mitigate it for now
-                    // => try to reload it
-                    this@MainService.loadDatabase()
-                } catch (e: Exception) {
-                    Log.e(this, "getDatabase() failed to reload database")
-                }
-            }
-            return this@MainService.database!!
+            return this@MainService.database
         }
 
         fun getSettings(): Settings {
@@ -685,10 +676,10 @@ class MainService : VpnService() {
 
         fun getContactOrOwn(otherPublicKey: ByteArray): Contact? {
             val db = getDatabase()
-            if (db.settings.publicKey.contentEquals(otherPublicKey)) {
-                return db.settings.getOwnContact()
+            return if (db.settings.publicKey.contentEquals(otherPublicKey)) {
+                db.settings.getOwnContact()
             } else {
-                return db.contacts.getContactByPublicKey(otherPublicKey)
+                db.contacts.getContactByPublicKey(otherPublicKey)
             }
         }
 

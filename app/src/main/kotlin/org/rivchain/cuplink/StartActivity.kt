@@ -125,7 +125,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             3 -> {
                 Thread.sleep(1000)
                 Log.d(this, "init 2: check database")
-                if (!binder!!.isDatabaseLoaded()) {
+                if (binder!!.isDatabaseEncrypted()) {
                     // database is probably encrypted
                     showDatabasePasswordDialog()
                 } else {
@@ -200,7 +200,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         Log.d(this, "onServiceConnected")
         binder = iBinder as MainBinder
 
-        if (startState == 0) {
+        if (startState == 1) {
             if (binder!!.getService().firstStart) {
                 // show delayed splash page
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -427,16 +427,15 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             binder!!.getService().databasePassword = password
             try {
                 binder!!.getService().loadDatabase()
+                //MainService first run wasn't success due to db encryption
+                MainService.startPacketsStream(this)
+                // close dialog
+                ddialog.dismiss()
+                continueInit()
             } catch (e: Database.WrongPasswordException) {
                 Toast.makeText(this, R.string.wrong_password, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
-            }
-
-            if (binder!!.isDatabaseLoaded()) {
-                // close dialog
-                ddialog.dismiss()
-                continueInit()
             }
         }
         exitButton.setOnClickListener {

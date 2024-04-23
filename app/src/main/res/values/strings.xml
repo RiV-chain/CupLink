@@ -83,7 +83,7 @@
     <string name="error_address_invalid">Address invalid</string>
     <string name="error_address_multicast_not_supported">Multicast address not supported</string>
     <string name="failed_to_export_database">Failed to export database</string>
-    <string name="import_dialog">Import new settings and add %1$d contacts and %2$d events?</string>
+    <string name="import_dialog" translatable="false">Import new settings and add %1$d contacts, %2$d events, %3$d peers?</string>
     <string name="invalid_name">Invalid Name</string>
     <string name="invalid_number">Invalid Value (must be %1$d..%2$d)</string>
     <string name="invalid_qr">Invalid QR code</string>

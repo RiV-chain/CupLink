@@ -52,6 +52,7 @@ class Database {
             val db = fromJSON(obj)
             Log.d(this, "Loaded ${db.contacts.contactList.size} contacts")
             Log.d(this, "Loaded ${db.events.eventList.size} events")
+            Log.d(this, "Loaded ${db.mesh.peers.length()} peers")
             return db
         }
 
@@ -66,7 +67,7 @@ class Database {
             }
             Log.d(this, "Stored ${db.contacts.contactList.size} contacts")
             Log.d(this, "Stored ${db.events.eventList.size} events")
-
+            Log.d(this, "Stored ${db.mesh.peers.length()} peers")
             return dbdata
         }
 

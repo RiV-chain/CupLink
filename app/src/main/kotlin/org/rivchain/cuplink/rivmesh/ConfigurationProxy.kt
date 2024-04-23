@@ -3,6 +3,7 @@ package org.rivchain.cuplink.rivmesh
 import mobile.Mobile
 import org.json.JSONArray
 import org.json.JSONObject
+import org.rivchain.cuplink.rivmesh.models.PeerInfo
 
 class ConfigurationProxy() {
 
@@ -70,6 +71,40 @@ class ConfigurationProxy() {
 
     fun getJSONByteArray(): ByteArray {
         return json.toString().toByteArray(Charsets.UTF_8)
+    }
+
+    var peers: JSONArray
+        get() = json.getJSONArray("Peers")
+        set(value) {
+            updateJSON { json ->
+                val a = json.getJSONArray("Peers")
+                val l = a.length()
+                var i = 0
+                while (i < l) {
+                    a.remove(0)
+                    i++
+                }
+                for (i in 0 until value.length()) {
+                    a.put(value.getJSONObject(i).toString())
+                }
+            }
+            this.byteArray = json.toString().toByteArray(charset("UTF-8"))
+        }
+
+    fun setPeers(peers: Set<PeerInfo>){
+        updateJSON { json ->
+            val a = json.getJSONArray("Peers")
+            val l = a.length()
+            var i = 0
+            while (i < l) {
+                a.remove(0)
+                i++
+            }
+            for (peer in peers){
+                a.put(peer.toString())
+            }
+        }
+        this.byteArray = json.toString().toByteArray(charset("UTF-8"))
     }
 
     var multicastListen: Boolean

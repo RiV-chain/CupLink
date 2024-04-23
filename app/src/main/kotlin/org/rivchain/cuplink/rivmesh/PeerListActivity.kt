@@ -360,18 +360,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
             val result = Intent(this, SettingsActivity::class.java)
             val adapter = findViewById<ListView>(R.id.peerList).adapter as SelectPeerInfoListAdapter
             val selectedPeers = adapter.getSelectedPeers()
-            binder!!.getMesh().updateJSON { json ->
-                val a = json.getJSONArray("Peers")
-                val l = a.length()
-                var i = 0
-                while (i < l) {
-                    a.remove(0)
-                    i++
-                }
-                for (peer in selectedPeers){
-                    a.put(peer.toString())
-                }
-            }
+            binder!!.getMesh().setPeers(selectedPeers)
             binder!!.saveDatabase()
             // Restart service
             val intentStop = Intent(this, MainService::class.java)
