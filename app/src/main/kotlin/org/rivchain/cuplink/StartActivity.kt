@@ -92,28 +92,29 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean? ->
                 continueInit()
             }
-
-        Log.d(this, "Show privacy policy")
-        if(preferences?.getString(POLICY, null) == null) {
-            showPolicy("En-Us")
-        } else {
-            Log.d(this, "Start VPN")
-            val vpnIntent = VpnService.prepare(this)
-            if (vpnIntent != null) {
-                startVpnActivity.launch(vpnIntent)
-            } else {
-                bindService(Intent(this, MainService::class.java), this, 0)
-                // start MainService and call back via onServiceConnected()
-                MainService.startPacketsStream(this)
-            }
-        }
-
+        continueInit()
     }
 
     private fun continueInit() {
         startState += 1
         when (startState) {
             1 -> {
+                Log.d(this, "Show privacy policy")
+                if(preferences?.getString(POLICY, null) == null) {
+                    showPolicy("En-Us")
+                } else {
+                    Log.d(this, "Start VPN")
+                    val vpnIntent = VpnService.prepare(this)
+                    if (vpnIntent != null) {
+                        startVpnActivity.launch(vpnIntent)
+                    } else {
+                        bindService(Intent(this, MainService::class.java), this, 0)
+                        // start MainService and call back via onServiceConnected()
+                        MainService.startPacketsStream(this)
+                    }
+                }
+            }
+            2 -> {
                 Log.d(this, "init 1: check addresses")
                 if (binder!!.getService().firstStart) {
                     showMissingAddressDialog()
@@ -121,7 +122,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            2 -> {
+            3 -> {
                 Thread.sleep(1000)
                 Log.d(this, "init 2: check database")
                 if (!binder!!.isDatabaseLoaded()) {
@@ -131,7 +132,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            3 -> {
+            4 -> {
                 Log.d(this, "init 3: check username")
                 if (binder!!.getSettings().username.isEmpty()) {
                     // set username
@@ -140,7 +141,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            4 -> {
+            5 -> {
                 Log.d(this, "init 4: check key pair")
                 if (binder!!.getSettings().publicKey.isEmpty()) {
                     // generate key pair
@@ -148,7 +149,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
                 continueInit()
             }
-            5 -> {
+            6 -> {
                 Log.d(this, "init 5: check notification permissions")
                 if (!havePostNotificationPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -156,7 +157,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            6 -> {
+            7 -> {
                 Log.d(this, "init 6: check microphone permissions")
                 if (!haveMicrophonePermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.RECORD_AUDIO)
@@ -164,7 +165,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            7 -> {
+            8 -> {
                 Log.d(this, "init 7: check camera permissions")
                 if (!haveCameraPermission(this)) {
                     requestPermissionLauncher!!.launch(Manifest.permission.CAMERA)
@@ -172,7 +173,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            8 -> {
+            9 -> {
                 Log.d(this, "init 8: start MainActivity")
                 val settings = binder!!.getSettings()
                 // set in case we just updated the app
