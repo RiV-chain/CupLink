@@ -18,6 +18,7 @@ import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -61,6 +62,8 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
         // need to be called before super.onCreate()
         applyNightMode()
+
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
