@@ -28,6 +28,7 @@ import android.view.View.OnTouchListener
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.widget.Button
+import android.widget.Chronometer
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -89,6 +90,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
     // call info texts
     private lateinit var callStatus: TextView
+    private lateinit var callDuration: Chronometer
     private lateinit var callStats: TextView
     private lateinit var callAddress: TextView
     private lateinit var callName: TextView
@@ -155,6 +157,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         callStatus = findViewById(R.id.callStatus)
+        callDuration = findViewById(R.id.callDuration)
         callStats = findViewById(R.id.callStats)
         //callAddress = findViewById(R.id.callAddress)
         callName = findViewById(R.id.callName)
@@ -337,7 +340,10 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     // call started
                     acceptButton.visibility = View.GONE
                     declineButton.visibility = View.VISIBLE
-                    callStatus.text = getString(R.string.call_connected)
+                    //callStatus.text = getString(R.string.call_connected)
+                    callStatus.visibility = View.GONE
+                    callDuration.start()
+                    callDuration.visibility = View.VISIBLE
                     updateCameraButtons()
                     callWasStarted = true
                     setContactState(Contact.State.CONTACT_ONLINE)
@@ -352,6 +358,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     // normal call end
                     handleExit(R.string.call_ended)
                     setContactState(Contact.State.CONTACT_ONLINE)
+                    callDuration.stop()
                 }
                 CallState.ERROR_NO_CONNECTION -> {
                     handleError(R.string.call_connection_failed)
@@ -457,7 +464,13 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 updateDebug(false)
                 controlPanel.visibility = View.VISIBLE
                 callName.visibility = View.VISIBLE
-                callStatus.visibility = View.VISIBLE
+                if (callWasStarted) {
+                    callStatus.visibility = View.INVISIBLE
+                    callDuration.visibility = View.VISIBLE
+                } else {
+                    callStatus.visibility = View.VISIBLE
+                    callDuration.visibility = View.INVISIBLE
+                }
                 setVideoPreferencesButtonsEnabled(isLocalVideoAvailable)
             }
             1 -> {
@@ -466,6 +479,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 controlPanel.visibility = View.INVISIBLE
                 callName.visibility = View.INVISIBLE
                 callStatus.visibility = View.INVISIBLE
+                callDuration.visibility = View.INVISIBLE
                 setVideoPreferencesButtonsEnabled(false)
             }
         }
