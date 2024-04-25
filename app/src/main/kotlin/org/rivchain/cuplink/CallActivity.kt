@@ -717,13 +717,12 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 Log.d(this, "currentCall not set")
                 return@OnClickListener
             }
-
+            finish()
             if (callWasStarted) {
                 currentCall.hangup()
             } else {
                 currentCall.decline()
             }
-            finish()
         }
 
         val startCallListener = View.OnClickListener {
