@@ -39,6 +39,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
 import org.rivchain.cuplink.call.CaptureQualityController
 import org.rivchain.cuplink.call.RTCAudioManager
 import org.rivchain.cuplink.call.RTCCall
@@ -106,6 +107,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private lateinit var capturePanel: View
     private lateinit var captureResolution: ImageView
     private lateinit var captureFramerate: Button
+    private lateinit var resolutionSlider: VerticalSeekBar
+    private lateinit var framerateSlider: VerticalSeekBar
     private lateinit var backgroundView: ImageView
     private lateinit var settingsView: ConstraintLayout
     private lateinit var captureQualityController: CaptureQualityController
@@ -170,6 +173,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         capturePanel = findViewById(R.id.capturePanel)
         captureResolution = findViewById(R.id.captureResolution)
         captureFramerate = findViewById(R.id.captureFramerate)
+        resolutionSlider = findViewById(R.id.captureResolutionSlider)
+        framerateSlider = findViewById(R.id.captureFramerateSlider)
 
         // Background
         backgroundView = findViewById(R.id.background_view);
@@ -336,6 +341,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     updateCameraButtons()
                     callWasStarted = true
                     setContactState(Contact.State.CONTACT_ONLINE)
+                    changeUiButton.visibility = View.VISIBLE
                 }
                 CallState.DISMISSED -> {
                     // call did not start
@@ -415,6 +421,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             // video available for pip
             setPipButtonEnabled(isLocalVideoAvailable)
         }
+        setVideoPreferencesButtonsEnabled(isLocalVideoAvailable)
     }
 
     private fun updateCameraButtons() {
@@ -442,42 +449,48 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 currentCall.setStatsCollector(null)
                 callStats.visibility = View.GONE
             }
-
-            if (enable) {
-                //capturePanel.visibility = View.VISIBLE
-                captureResolution.visibility = View.VISIBLE
-                captureFramerate.visibility = View.VISIBLE
-                //callAddress.visibility = View.VISIBLE
-            } else {
-                //capturePanel.visibility = View.GONE
-                captureResolution.visibility = View.GONE
-                captureFramerate.visibility = View.GONE
-                //callAddress.visibility = View.GONE
-            }
         }
 
-        when (uiMode % 3) {
+        when (uiMode % 2) {
             0 -> {
                 // default
                 updateDebug(false)
                 controlPanel.visibility = View.VISIBLE
                 callName.visibility = View.VISIBLE
                 callStatus.visibility = View.VISIBLE
+                setVideoPreferencesButtonsEnabled(isLocalVideoAvailable)
             }
             1 -> {
-                // default + debug
-                updateDebug(true)
-                controlPanel.visibility = View.VISIBLE
-                callName.visibility = View.VISIBLE
-                callStatus.visibility = View.VISIBLE
-            }
-            2 -> {
                 // all off
                 updateDebug(false)
-                controlPanel.visibility = View.GONE
-                callName.visibility = View.GONE
-                callStatus.visibility = View.GONE
+                controlPanel.visibility = View.INVISIBLE
+                callName.visibility = View.INVISIBLE
+                callStatus.visibility = View.INVISIBLE
+                setVideoPreferencesButtonsEnabled(false)
             }
+        }
+    }
+
+    private fun setVideoPreferencesButtonsEnabled(enable: Boolean) {
+        Log.d(this, "setVideoPreferencesButtonsEnabled() enable=$enable")
+        if (enable) {
+            captureResolution.visibility = View.VISIBLE
+            captureFramerate.visibility = View.VISIBLE
+            if (captureResolution.tag == "on") {
+                resolutionSlider.visibility = View.VISIBLE
+            } else {
+                resolutionSlider.visibility = View.INVISIBLE
+            }
+            if (captureFramerate.tag == "on") {
+                framerateSlider.visibility = View.VISIBLE
+            } else {
+                framerateSlider.visibility = View.INVISIBLE
+            }
+        } else {
+            captureResolution.visibility = View.INVISIBLE
+            captureFramerate.visibility = View.INVISIBLE
+            resolutionSlider.visibility = View.INVISIBLE
+            framerateSlider.visibility = View.INVISIBLE
         }
     }
 
@@ -906,7 +919,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         }
 
         changeUiButton.setOnClickListener {
-            uiMode = (uiMode + 1) % 3
+            uiMode = (uiMode + 1) % 2
             updateControlDisplay()
         }
 

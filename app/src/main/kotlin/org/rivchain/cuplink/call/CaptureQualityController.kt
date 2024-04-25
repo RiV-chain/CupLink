@@ -218,24 +218,32 @@ class CaptureQualityController(private val callActivity: CallActivity) {
 
         when (degradation) {
             "maintain_resolution" -> {
+                captureResolution.tag = "on"
+                captureFramerate.tag = "off"
                 resolutionSlider.visibility = View.VISIBLE
                 framerateSlider.visibility = View.INVISIBLE
                 formatText.visibility = View.VISIBLE
                 framerateText.visibility = View.INVISIBLE
             }
             "maintain_framerate" -> {
+                captureResolution.tag = "off"
+                captureFramerate.tag = "on"
                 resolutionSlider.visibility = View.INVISIBLE
                 framerateSlider.visibility = View.VISIBLE
                 formatText.visibility = View.INVISIBLE
                 framerateText.visibility = View.VISIBLE
             }
             "balanced" -> {
+                captureResolution.tag = "off"
+                captureFramerate.tag = "off"
                 resolutionSlider.visibility = View.INVISIBLE
                 framerateSlider.visibility = View.INVISIBLE
                 formatText.visibility = View.GONE
                 framerateText.visibility = View.GONE
             }
             "disabled" -> {
+                captureResolution.tag = "on"
+                captureFramerate.tag = "on"
                 resolutionSlider.visibility = View.VISIBLE
                 framerateSlider.visibility = View.VISIBLE
                 formatText.visibility = View.VISIBLE
