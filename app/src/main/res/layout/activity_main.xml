@@ -8,14 +8,15 @@
     android:fitsSystemWindows="true"
     android:background="@color/colorPrimaryDark"
     tools:context=".MainActivity"
-    android:paddingTop="30dp">
+    >
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/colorPrimaryDark"
+        android:paddingTop="30dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
