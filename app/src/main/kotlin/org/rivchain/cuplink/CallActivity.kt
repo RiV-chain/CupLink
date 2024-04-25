@@ -465,11 +465,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 controlPanel.visibility = View.VISIBLE
                 callName.visibility = View.VISIBLE
                 if (callWasStarted) {
-                    callStatus.visibility = View.INVISIBLE
+                    callStatus.visibility = View.GONE
                     callDuration.visibility = View.VISIBLE
                 } else {
                     callStatus.visibility = View.VISIBLE
-                    callDuration.visibility = View.INVISIBLE
+                    callDuration.visibility = View.GONE
                 }
                 setVideoPreferencesButtonsEnabled(isLocalVideoAvailable)
             }
@@ -478,8 +478,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 updateDebug(false)
                 controlPanel.visibility = View.INVISIBLE
                 callName.visibility = View.INVISIBLE
-                callStatus.visibility = View.INVISIBLE
-                callDuration.visibility = View.INVISIBLE
+                callStatus.visibility = View.GONE
+                callDuration.visibility = View.GONE
                 setVideoPreferencesButtonsEnabled(false)
             }
         }
