@@ -284,6 +284,9 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
             if(ip.isEmpty()){
                 ipInput.error = "IP address is required"
             }
+            if(portInput.text.isEmpty()){
+                portInput.error = "Port is required"
+            }
             val port = portInput.text.toString().toInt()
             if(port<=0){
                 portInput.error = "Port should be > 0"
