@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -342,10 +343,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     declineButton.visibility = View.VISIBLE
                     //callStatus.text = getString(R.string.call_connected)
                     callStatus.visibility = View.GONE
-                    callDuration.start()
                     callDuration.visibility = View.VISIBLE
-                    updateCameraButtons()
+                    callDuration.setBase(SystemClock.elapsedRealtime());
+                    callDuration.start()
                     callWasStarted = true
+                    updateCameraButtons()
                     setContactState(Contact.State.CONTACT_ONLINE)
                     changeUiButton.visibility = View.VISIBLE
                 }
@@ -358,7 +360,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     // normal call end
                     handleExit(R.string.call_ended)
                     setContactState(Contact.State.CONTACT_ONLINE)
-                    callDuration.stop()
                 }
                 CallState.ERROR_NO_CONNECTION -> {
                     handleError(R.string.call_connection_failed)
@@ -717,7 +718,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 Log.d(this, "currentCall not set")
                 return@OnClickListener
             }
-            finish()
             if (callWasStarted) {
                 currentCall.hangup()
             } else {
@@ -1255,6 +1255,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
 
             eglBase.release()
+
+            callDuration.stop()
+
         } catch (e: Exception) {
             Log.e(this, "onDestroy() e=$e")
         } finally {
@@ -1269,7 +1272,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         if (activityActive) {
             stopRinging() // do not wait
             activityActive = false
-            Handler(mainLooper).postDelayed({ finish() }, 2000)
+            Handler(mainLooper).postDelayed({ finish() }, 1000)
         }
     }
 
