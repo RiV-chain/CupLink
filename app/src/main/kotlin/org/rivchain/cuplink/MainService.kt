@@ -23,6 +23,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
+import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.util.Utils.readInternalFile
 import org.rivchain.cuplink.util.Utils.writeInternalFile
 import org.rivchain.cuplink.call.PacketWriter
@@ -89,6 +90,10 @@ class MainService : VpnService() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Prevent UnsatisfiedLinkError
+        Sodium.sodium_init()
+
         databasePath = this.filesDir.toString() + "/database.bin"
         Log.d(this, "init 1: load database")
         // open without password

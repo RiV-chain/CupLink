@@ -268,7 +268,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
             resources.getStringArray(R.array.schemas),
             schemaInput
         );
-        view.findViewById<com.hbb20.CountryCodePicker>(R.id.ccp).setCountryForNameCode(countryCode)
+        view.findViewById<CountryCodePicker>(R.id.ccp).setCountryForNameCode(countryCode)
         val ab: AlertDialog.Builder = AlertDialog.Builder(this)
         ab.setCancelable(true).setView(view)
         val ad = ab.show()
