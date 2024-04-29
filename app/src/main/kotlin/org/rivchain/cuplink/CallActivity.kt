@@ -342,10 +342,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     declineButton.visibility = View.VISIBLE
                     //callStatus.text = getString(R.string.call_connected)
                     callStatus.visibility = View.GONE
-                    callDuration.start()
                     callDuration.visibility = View.VISIBLE
-                    updateCameraButtons()
+                    callDuration.base = 0
+                    callDuration.start()
                     callWasStarted = true
+                    updateCameraButtons()
                     setContactState(Contact.State.CONTACT_ONLINE)
                     changeUiButton.visibility = View.VISIBLE
                 }
@@ -358,7 +359,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     // normal call end
                     handleExit(R.string.call_ended)
                     setContactState(Contact.State.CONTACT_ONLINE)
-                    callDuration.stop()
                 }
                 CallState.ERROR_NO_CONNECTION -> {
                     handleError(R.string.call_connection_failed)
@@ -391,6 +391,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     handleError(R.string.call_no_network)
                     setContactState(Contact.State.CONTACT_OFFLINE)
                 }
+            }
+            if (callWasStarted) {
+                callDuration.stop()
             }
         }
     }
@@ -717,7 +720,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 Log.d(this, "currentCall not set")
                 return@OnClickListener
             }
-            finish()
             if (callWasStarted) {
                 currentCall.hangup()
             } else {
@@ -1269,7 +1271,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         if (activityActive) {
             stopRinging() // do not wait
             activityActive = false
-            Handler(mainLooper).postDelayed({ finish() }, 2000)
+            Handler(mainLooper).postDelayed({ finish() }, 1000)
         }
     }
 
