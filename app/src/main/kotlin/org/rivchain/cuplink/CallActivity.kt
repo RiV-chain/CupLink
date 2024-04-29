@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -343,6 +344,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     //callStatus.text = getString(R.string.call_connected)
                     callStatus.visibility = View.GONE
                     callDuration.visibility = View.VISIBLE
+                    callDuration.setBase(SystemClock.elapsedRealtime());
                     callDuration.start()
                     callWasStarted = true
                     updateCameraButtons()
