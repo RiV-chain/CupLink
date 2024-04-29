@@ -343,7 +343,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     //callStatus.text = getString(R.string.call_connected)
                     callStatus.visibility = View.GONE
                     callDuration.visibility = View.VISIBLE
-                    callDuration.base = 0
                     callDuration.start()
                     callWasStarted = true
                     updateCameraButtons()
