@@ -391,9 +391,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     setContactState(Contact.State.CONTACT_OFFLINE)
                 }
             }
-            if (callWasStarted) {
-                callDuration.stop()
-            }
         }
     }
 
@@ -1256,6 +1253,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
 
             eglBase.release()
+
+            callDuration.stop()
+
         } catch (e: Exception) {
             Log.e(this, "onDestroy() e=$e")
         } finally {
