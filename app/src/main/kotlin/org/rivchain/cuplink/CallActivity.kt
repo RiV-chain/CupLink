@@ -184,6 +184,16 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         backgroundView = findViewById(R.id.background_view);
         settingsView = findViewById(R.id.settings_view);
 
+        // make both invisible
+        showPipView(false)
+        showFullscreenView(false)
+
+        acceptButton.visibility = View.GONE
+        declineButton.visibility = View.GONE
+        toggleMicButton.visibility = View.GONE
+        toggleCameraButton.visibility = View.GONE
+        toggleFrontCameraButton.visibility = View.GONE
+
         contact = intent.extras!!["EXTRA_CONTACT"] as Contact
 
         eglBase = EglBase.create()
@@ -200,16 +210,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         fullscreenRenderer.setEnableHardwareScaler(false)
 
         captureQualityController = CaptureQualityController(this)
-
-        // make both invisible
-        showPipView(false)
-        showFullscreenView(false)
-
-        acceptButton.visibility = View.GONE
-        declineButton.visibility = View.GONE
-        toggleMicButton.visibility = View.GONE
-        toggleCameraButton.visibility = View.GONE
-        toggleFrontCameraButton.visibility = View.GONE
 
         initRinging()
 
@@ -521,9 +521,10 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private fun showPipView(enable: Boolean) {
         Log.d(this, "showPipView() enable=$enable")
         if (enable) {
-            pipContainer.visibility = View.VISIBLE
+            pipRenderer.visibility = View.VISIBLE
+            changePipButton.bringToFront()
         } else {
-            pipContainer.visibility = View.INVISIBLE
+            pipRenderer.visibility = View.GONE
         }
     }
 
@@ -1272,7 +1273,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         if (activityActive) {
             stopRinging() // do not wait
             activityActive = false
-            Handler(mainLooper).postDelayed({ finish() }, 1000)
+            Handler(mainLooper).postDelayed({ finish() }, 500)
         }
     }
 

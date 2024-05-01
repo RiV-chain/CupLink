@@ -64,28 +64,18 @@
 
             <!-- icon in the top right corner -->
             <ImageButton
-                android:id="@+id/change_pip_window"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="10dp"
-                android:background="@drawable/ic_toggle_pip"
-                android:contentDescription="Show pip window"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <!-- icon in the top right corner -->
-            <ImageButton
                 android:id="@+id/frontFacingSwitch"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_margin="10dp"
+                android:src="@drawable/is_front_facing_switch"
+                android:scaleType="center"
+                android:background="@android:color/transparent"
+                app:tint="@color/white"
                 android:visibility="gone"
-                android:background="@drawable/switch_camera_64x64"
                 android:contentDescription="Switch camera"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@+id/call_layout" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- caller name, call status, ... -->
 
@@ -216,22 +206,36 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_margin="10dp"
-                android:background="@android:color/transparent"
                 app:cardCornerRadius="@dimen/cardview_corner_radius"
                 app:cardElevation="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="W,3:4"
                 app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
-                app:layout_constraintHeight_percent=".6" >
-
-                <org.rivchain.cuplink.renderer.TextureViewRenderer
-                    android:id="@+id/pip_video_view"
+                app:layout_constraintHeight_percent=".6"
+                app:cardBackgroundColor="@android:color/transparent">
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"/>
-
+                    android:layout_height="match_parent">
+                    <!-- Close icon in the top right corner -->
+                    <ImageButton
+                        android:id="@+id/change_pip_window"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Close preview window"
+                        android:src="@drawable/ic_close"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/light_grey"
+                        android:visibility="gone"/>
+                    <org.rivchain.cuplink.renderer.TextureViewRenderer
+                        android:id="@+id/pip_video_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:visibility="gone"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
-
 
             <TextView
                 android:id="@+id/captureFramerateText"
