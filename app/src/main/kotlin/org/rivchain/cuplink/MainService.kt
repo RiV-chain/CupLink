@@ -23,6 +23,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
+import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.util.Utils.readInternalFile
 import org.rivchain.cuplink.util.Utils.writeInternalFile
@@ -92,7 +93,7 @@ class MainService : VpnService() {
         super.onCreate()
 
         // Prevent UnsatisfiedLinkError
-        Sodium.sodium_init()
+        NaCl.sodium()
 
         databasePath = this.filesDir.toString() + "/database.bin"
         Log.d(this, "init 1: load database")
