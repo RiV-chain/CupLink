@@ -23,7 +23,6 @@ import android.os.VibratorManager
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
-import android.view.OrientationEventListener
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.WindowManager
@@ -35,6 +34,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.UiThread
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
@@ -115,7 +115,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private lateinit var backgroundView: ImageView
     private lateinit var settingsView: ConstraintLayout
     private lateinit var captureQualityController: CaptureQualityController
-    private lateinit var orientationListener: OrientationEventListener
 
     private var uiMode = 0
 
@@ -229,18 +228,33 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 finish()
             }
         }
-        if (getResources().configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        adjustPipLayout(getResources().configuration)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration)
+    {
+        Log.d("tag", "config changed");
+        super.onConfigurationChanged(newConfig);
+        adjustPipLayout(newConfig)
+    }
+    @UiThread
+    private fun adjustPipLayout(newConfig: Configuration) {
+
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.d("tag", "Portrait");
+            // portrait
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
+            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
+        } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.d("tag", "Landscape");
             // landscape
             (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
             (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
         } else {
-            // portrait
-            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
-            (pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
+            Log.w("tag", "other: " + newConfig.orientation)
         }
-
-        // Set up a listener to detect orientation changes.
-        orientationListener = OrientationListenerImpl(this)
+        pipContainer.translationX = 0f
+        pipContainer.translationY = 0f
     }
 
     private fun getFullscreenWindowFlags(): Int {
@@ -638,53 +652,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
-
-    private class OrientationListenerImpl(private val context: Context) : OrientationEventListener(context) {
-
-        val ROTATION_O = 1 // portrait
-        val ROTATION_90 = 2 // landscape counter-clockwise
-        val ROTATION_180 = 3 // portrait inverted
-        val ROTATION_270 = 4 // landscape clockwise
-
-
-        private var rotation = 0
-        override fun onOrientationChanged(orientation: Int) {
-            if ((orientation < 35 || orientation > 325) && rotation != ROTATION_O) { // PORTRAIT
-                rotation = ROTATION_O
-            } else if (orientation in 146..214 && rotation != ROTATION_180) { // REVERSE PORTRAIT
-                rotation = ROTATION_180
-            } else if (orientation in 56..124 && rotation != ROTATION_270) { // REVERSE LANDSCAPE
-                rotation = ROTATION_270
-            } else if (orientation in 236..304 && rotation != ROTATION_90) { //LANDSCAPE
-                rotation = ROTATION_90
-            }
-
-            // We'll just display the value, but it should be stashed for further use or acted upon immediately.
-            Log.d("Applog", "rotation = $rotation")
-
-            if (rotation == ROTATION_O || rotation == ROTATION_180){
-                // portrait
-                ((context  as CallActivity).pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "H,3:4"
-                (context.pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentWidth = 0.35f
-            } else
-            if (rotation == ROTATION_270 || rotation == ROTATION_90){
-                ((context  as CallActivity).pipContainer.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = "W,3:4"
-                (context.pipContainer.layoutParams as ConstraintLayout.LayoutParams).matchConstraintPercentHeight = 0.6f
-            }
-        }
-    }
-
-
-    override fun onStart() {
-        orientationListener.enable()
-        super.onStart()
-    }
-
-    override fun onStop() {
-        orientationListener.disable()
-        super.onStop()
-    }
-
     private fun initOutgoingCall() {
         connection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {

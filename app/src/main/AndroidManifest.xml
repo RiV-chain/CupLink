@@ -190,7 +190,7 @@
         <activity
             android:name=".CallActivity"
             android:parentActivityName=".MainActivity"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|touchscreen|keyboard|keyboardHidden|uiMode"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|touchscreen|uiMode|navigation"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
             android:exported="true">
