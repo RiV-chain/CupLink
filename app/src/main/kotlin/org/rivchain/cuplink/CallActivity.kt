@@ -867,6 +867,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                             newY =
                                 (settingsView.height - pipContainer.height).toFloat()
                         }
+                        pipContainer.bringToFront()
                         v.animate()
                             .x(newX)
                             .y(newY)

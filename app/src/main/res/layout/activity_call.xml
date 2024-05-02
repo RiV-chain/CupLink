@@ -57,7 +57,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_margin="10dp"
                 android:visibility="invisible"
-                android:background="@drawable/full_screen_50x50"
+                android:background="@drawable/full_screen"
                 android:contentDescription="Toggle debug output"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
