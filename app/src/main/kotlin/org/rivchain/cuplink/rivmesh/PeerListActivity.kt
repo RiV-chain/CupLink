@@ -279,20 +279,25 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
             val schema = schemaInput.text.toString().lowercase(Locale.ROOT)
             if(schema.isEmpty()){
                 schemaInput.error = "Schema is required"
+                return@setOnClickListener
             }
             val ip = ipInput.text.toString().lowercase(Locale.ROOT)
             if(ip.isEmpty()){
                 ipInput.error = "IP address is required"
+                return@setOnClickListener
             }
             if(portInput.text.isEmpty()){
                 portInput.error = "Port is required"
+                return@setOnClickListener
             }
             val port = portInput.text.toString().toInt()
             if(port<=0){
                 portInput.error = "Port should be > 0"
+                return@setOnClickListener
             }
             if(port>=Short.MAX_VALUE){
                 portInput.error = "Port should be < "+Short.MAX_VALUE
+                return@setOnClickListener
             }
             val ccp = ccpInput.selectedCountryNameCode
             GlobalScope.launch {
