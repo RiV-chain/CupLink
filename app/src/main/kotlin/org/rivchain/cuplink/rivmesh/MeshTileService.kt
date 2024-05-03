@@ -8,23 +8,23 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import org.rivchain.cuplink.CallActivity
+import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainApplication
-import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.PREF_KEY_ENABLED
 import org.rivchain.cuplink.R
 
 private const val TAG = "TileService"
 
 @RequiresApi(Build.VERSION_CODES.N)
-class MeshTileService: TileService(), MeshStateReceiver.StateReceiver {
+class MeshTileService: TileService(), AppStateReceiver.StateReceiver {
 
-    private lateinit var receiver: MeshStateReceiver
+    private lateinit var receiver: AppStateReceiver
 
     override fun onCreate() {
         super.onCreate()
-        receiver = MeshStateReceiver(this)
+        receiver = AppStateReceiver(this)
     }
 
     /**
@@ -69,16 +69,28 @@ class MeshTileService: TileService(), MeshStateReceiver.StateReceiver {
 
     override fun onClick() {
         super.onClick()
-        // Saving new state
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
-        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, true)
-        preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, !enabled) }
-        // Starting or stopping VPN service
-        val intent = Intent(this, MainService::class.java)
-        intent.action = MainService.ACTION_TOGGLE
-        startService(intent)
+        if (isLocked && !isSecure) {
+            return
+        }
+        if (isCallActivityRunning()) {
+            bringActivityToFront(CallActivity::class.java)
+        } else {
+            bringActivityToFront(MainActivity::class.java)
+        }
     }
-
+    private fun bringActivityToFront(activityClass: Class<*>) {
+        val intent = Intent(this, activityClass)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    private fun isCallActivityRunning(): Boolean {
+        // Assuming there's a static variable in CallActivity that keeps track of its running state
+        return CallActivity.isCallInProgress
+    }
     private fun updateTileState(state: State) {
         val tile = qsTile ?: return
         val oldState = tile.state
@@ -94,6 +106,8 @@ class MeshTileService: TileService(), MeshStateReceiver.StateReceiver {
             tile.subtitle = when (state) {
                 State.Enabled -> getText(R.string.tile_enabled)
                 State.Connected -> getText(R.string.tile_connected)
+                State.Calling -> getText(R.string.is_calling)
+                State.CallEnded -> getText(R.string.call_ended)
                 else -> getText(R.string.tile_disabled)
             }
             changed = changed || (oldText != tile.subtitle)

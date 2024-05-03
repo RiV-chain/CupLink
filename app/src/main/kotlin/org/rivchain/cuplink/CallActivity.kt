@@ -41,6 +41,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
 import org.rivchain.cuplink.call.CaptureQualityController
 import org.rivchain.cuplink.call.RTCAudioManager
@@ -52,6 +53,11 @@ import org.rivchain.cuplink.call.StatsReportUtil
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.renderer.TextureViewRenderer
+import org.rivchain.cuplink.rivmesh.AppStateReceiver
+import org.rivchain.cuplink.rivmesh.STATE_CALLING
+import org.rivchain.cuplink.rivmesh.STATE_CALL_ENDED
+import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
+import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import org.webrtc.CameraEnumerationAndroid
@@ -229,6 +235,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
         }
         adjustPipLayout(getResources().configuration)
+
+        val intent = Intent(AppStateReceiver.APP_STATE_INTENT)
+        val state = STATE_CALLING
+        intent.putExtra("state", state)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration)
@@ -1233,7 +1244,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             RTCPeerConnection.incomingRTCCall = null // free for the garbage collector
             isCallInProgress = false
         }
-
+        val intent = Intent(AppStateReceiver.APP_STATE_INTENT)
+        //FIX me. Perhaps the state could be ENABLED
+        val state = STATE_CALL_ENDED
+        intent.putExtra("state", state)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
         super.onDestroy()
     }
 
@@ -1289,7 +1304,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
     companion object {
         @Volatile
-        public var isCallInProgress: Boolean = false
+        var isCallInProgress: Boolean = false
     }
 
     @SuppressLint("MissingSuperCall")

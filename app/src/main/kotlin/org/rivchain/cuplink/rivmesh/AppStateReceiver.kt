@@ -10,11 +10,13 @@ const val STATE_ENABLED = "enabled"
 const val STATE_DISABLED = "disabled"
 const val STATE_CONNECTED = "connected"
 const val STATE_RECONNECTING = "reconnecting"
+const val STATE_CALLING= "calling"
+const val STATE_CALL_ENDED = "call_ended"
 
-class MeshStateReceiver(var receiver: StateReceiver): BroadcastReceiver() {
+class AppStateReceiver(var receiver: StateReceiver): BroadcastReceiver() {
 
     companion object {
-        const val MESH_STATE_INTENT = "org.rivchain.cuplink.rivmesh.MeshStateReceiver.STATE"
+        const val APP_STATE_INTENT = "org.rivchain.cuplink.rivmesh.MeshStateReceiver.STATE"
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -25,6 +27,8 @@ class MeshStateReceiver(var receiver: StateReceiver): BroadcastReceiver() {
             STATE_DISABLED -> State.Disabled
             STATE_CONNECTED -> State.Connected
             STATE_RECONNECTING -> State.Reconnecting
+            STATE_CALLING -> State.Calling
+            STATE_CALL_ENDED -> State.CallEnded
             else -> State.Unknown
         }
         receiver.onStateChange(state)
@@ -32,7 +36,7 @@ class MeshStateReceiver(var receiver: StateReceiver): BroadcastReceiver() {
 
     fun register(context: Context) {
         LocalBroadcastManager.getInstance(context).registerReceiver(
-            this, IntentFilter(MESH_STATE_INTENT)
+            this, IntentFilter(APP_STATE_INTENT)
         )
     }
 
@@ -46,8 +50,9 @@ class MeshStateReceiver(var receiver: StateReceiver): BroadcastReceiver() {
 }
 
 /**
- * A class-supporter with an Mesh state
+ * A class-supporter with an App state.
+ * Calling state is received by CallActivity
  */
 enum class State {
-    Unknown, Disabled, Enabled, Connected, Reconnecting;
+    Unknown, Disabled, Enabled, Connected, Reconnecting, Calling, CallEnded;
 }

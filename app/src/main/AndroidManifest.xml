@@ -38,9 +38,9 @@
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS"/>
 
     <!-- Run server socket as foreground service. As such we must display a notification (sdk-28) -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" android:minSdkVersion="34"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" android:minSdkVersion="34"/>
-    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" android:minSdkVersion="34"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL"/>
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Allow to start activity from background -->
@@ -160,6 +160,18 @@
         </service>
 
         <service
+            android:name=".CupLinkCarService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.CALLING"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.car.SETTINGS" />
+            </intent-filter>
+        </service>
+
+        <service
             android:name=".rivmesh.MeshTileService"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:icon="@mipmap/ic_launcher"
@@ -253,6 +265,22 @@
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc"/>
+        <!-- Android auto -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc"/>
+        <meta-data
+            android:name="androidx.car.app.TintableAttributionIcon"
+            android:resource="@drawable/ic_audio_device_phone"/>
+        <meta-data
+            android:name="com.google.android.gms.car.notification.SmallIcon"
+            android:resource="@drawable/cup_link_small"/>
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="3.0"/>
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="3" />
 
         <meta-data android:name="firebase_analytics_collection_deactivated"
             android:value="true" />

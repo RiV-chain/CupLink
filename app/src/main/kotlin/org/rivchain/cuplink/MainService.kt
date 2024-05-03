@@ -24,7 +24,6 @@ import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
 import org.libsodium.jni.NaCl
-import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.util.Utils.readInternalFile
 import org.rivchain.cuplink.util.Utils.writeInternalFile
 import org.rivchain.cuplink.call.PacketWriter
@@ -36,7 +35,7 @@ import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.model.Events
 import org.rivchain.cuplink.model.Settings
 import org.rivchain.cuplink.rivmesh.ConfigurationProxy
-import org.rivchain.cuplink.rivmesh.MeshStateReceiver
+import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
 import org.rivchain.cuplink.rivmesh.STATE_DISABLED
 import org.rivchain.cuplink.rivmesh.STATE_ENABLED
@@ -425,7 +424,7 @@ class MainService : VpnService() {
             updater()
         }
 
-        var intent = Intent(MeshStateReceiver.MESH_STATE_INTENT)
+        var intent = Intent(AppStateReceiver.APP_STATE_INTENT)
         intent.putExtra("state", STATE_ENABLED)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
@@ -468,7 +467,7 @@ class MainService : VpnService() {
         intent.putExtra("started", false)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
 
-        intent = Intent(MeshStateReceiver.MESH_STATE_INTENT)
+        intent = Intent(AppStateReceiver.APP_STATE_INTENT)
         intent.putExtra("state", STATE_DISABLED)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
 
@@ -500,7 +499,7 @@ class MainService : VpnService() {
             }
             val curTime = System.currentTimeMillis()
             if (lastStateUpdate + 10000 < curTime) {
-                val intent = Intent(MeshStateReceiver.MESH_STATE_INTENT)
+                val intent = Intent(AppStateReceiver.APP_STATE_INTENT)
                 var state = STATE_ENABLED
                 val dht = mesh.dhtjson
                 if (dht != null && dht != "null") {

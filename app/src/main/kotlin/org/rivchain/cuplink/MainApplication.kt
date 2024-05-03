@@ -17,14 +17,14 @@ import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
-import org.rivchain.cuplink.rivmesh.MeshStateReceiver
+import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.MeshTileService
 import org.rivchain.cuplink.rivmesh.NetworkStateCallback
 import org.rivchain.cuplink.rivmesh.State
 
 const val PREF_KEY_ENABLED = "enabled"
 const val MAIN_CHANNEL_ID = "CupLink Service"
-class MainApplication : Application(), MeshStateReceiver.StateReceiver {
+class MainApplication : Application(), AppStateReceiver.StateReceiver {
 
     private var currentState: State = State.Disabled
 
@@ -67,7 +67,7 @@ class MainApplication : Application(), MeshStateReceiver.StateReceiver {
         super.onCreate()
         val callback = NetworkStateCallback(this)
         callback.register()
-        val receiver = MeshStateReceiver(this)
+        val receiver = AppStateReceiver(this)
         receiver.register(this)
     }
 
@@ -112,8 +112,10 @@ class MainApplication : Application(), MeshStateReceiver.StateReceiver {
 fun createServiceNotification(context: Context, state: State): Notification {
     createNotificationChannels(context)
 
-    val intent = Intent(context, MainActivity::class.java).apply {
-        this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    val intent = if (CallActivity.isCallInProgress) {
+        Intent(context, CallActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT }
+    } else {
+        Intent(context, MainActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT }
     }
     var flags = PendingIntent.FLAG_UPDATE_CURRENT
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -125,6 +127,8 @@ fun createServiceNotification(context: Context, state: State): Notification {
         State.Disabled -> context.getText(R.string.tile_disabled)
         State.Enabled -> context.getText(R.string.tile_enabled)
         State.Connected -> context.getText(R.string.tile_connected)
+        State.Calling -> context.getText(R.string.is_calling)
+        State.CallEnded -> context.getText(R.string.call_ended)
         else -> context.getText(R.string.tile_disabled)
     }
 
