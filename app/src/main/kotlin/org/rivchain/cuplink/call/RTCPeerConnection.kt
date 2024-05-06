@@ -1,6 +1,7 @@
 package org.rivchain.cuplink.call
 
 import android.content.Intent
+import android.provider.Settings
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
@@ -743,6 +744,8 @@ abstract class RTCPeerConnection(
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             service.startActivity(intent)
                         }
+                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        activity!!.startActivity(intent)
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()
                         incomingRTCCall = null
