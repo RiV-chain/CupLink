@@ -38,9 +38,9 @@
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS"/>
 
     <!-- Run server socket as foreground service. As such we must display a notification (sdk-28) -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" android:minSdkVersion="34"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" android:minSdkVersion="34"/>
-    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" android:minSdkVersion="34"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL"/>
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Allow to start activity from background -->
@@ -156,6 +156,14 @@
             tools:node="merge">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".CallService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
         </service>
 
