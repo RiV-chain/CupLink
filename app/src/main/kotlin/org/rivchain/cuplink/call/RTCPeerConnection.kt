@@ -883,9 +883,10 @@ abstract class RTCPeerConnection(
                     }
                 }
                 builder.setChannelId("incoming_calls4$chanIndex")
-            } else
+            } else {
                 builder.setSound(null)
-            val endIntent = Intent(activity, CallActivity::class.java)
+            }
+            val endIntent = Intent(service, CallActivity::class.java)
             endIntent.action = "ACTION_INCOMING_CALL"
             endIntent.putExtra("EXTRA_CONTACT", contact)
             var endTitle: CharSequence =
@@ -895,12 +896,12 @@ abstract class RTCPeerConnection(
                 endTitle.setSpan(ForegroundColorSpan(-0xbbcca), 0, endTitle.length, 0)
             }
             val endPendingIntent = PendingIntent.getBroadcast(
-                activity,
+                service,
                 0,
                 endIntent,
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
             )
-            val answerIntent = Intent(activity, CallActivity::class.java)
+            val answerIntent = Intent(service, CallActivity::class.java)
             answerIntent.action = "ACTION_INCOMING_CALL"
             endIntent.putExtra("EXTRA_CONTACT", contact)
             var answerTitle: CharSequence =
@@ -910,7 +911,7 @@ abstract class RTCPeerConnection(
                 answerTitle.setSpan(ForegroundColorSpan(-0xff5600), 0, answerTitle.length, 0)
             }
             val answerPendingIntent = PendingIntent.getBroadcast(
-                activity,
+                service,
                 0,
                 answerIntent,
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
