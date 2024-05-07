@@ -763,7 +763,7 @@ abstract class RTCPeerConnection(
                             //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             //service.startActivity(intent)
                         }
-                        showIncomingNotification(contact, activity!!, service)
+                        showIncomingNotification(contact, service)
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()
                         incomingRTCCall = null
@@ -805,7 +805,7 @@ abstract class RTCPeerConnection(
 
         private fun showIncomingNotification(
             contact: Contact?,
-            activity: Activity,
+            //activity: Activity,
             service: MainService
         ) {
             val intent = Intent(service, MainActivity::class.java)
@@ -813,7 +813,7 @@ abstract class RTCPeerConnection(
 
             val builder: Notification.Builder = Notification.Builder(service)
                 .setContentTitle(
-                    activity.getString(R.string.is_calling)
+                    service.getString(R.string.is_calling)
                 )
                 .setSmallIcon(R.drawable.ic_call_accept)
                 .setContentIntent(
@@ -825,9 +825,9 @@ abstract class RTCPeerConnection(
                     )
                 )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val nprefs: SharedPreferences = activity.application.getSharedPreferences("Notifications", Activity.MODE_PRIVATE)
+                val nprefs: SharedPreferences = service.application.getSharedPreferences("Notifications", Activity.MODE_PRIVATE)
                 var chanIndex = nprefs.getInt("calls_notification_channel", 0)
-                val nm = activity.getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
+                val nm = service.getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
                 var oldChannel = nm!!.getNotificationChannel("incoming_calls2$chanIndex")
                 if (oldChannel != null) {
                     nm.deleteNotificationChannel(oldChannel.id)
@@ -858,7 +858,7 @@ abstract class RTCPeerConnection(
                         .build()
                     val chan = NotificationChannel(
                         "incoming_calls4$chanIndex",
-                        activity.getString(
+                        service.getString(
                             R.string.call_ringing
                         ),
                         NotificationManager.IMPORTANCE_HIGH
@@ -868,7 +868,7 @@ abstract class RTCPeerConnection(
                     } catch (e: java.lang.Exception) {
                         Log.e(this, e.toString())
                     }
-                    chan.description = activity.getString(
+                    chan.description = service.getString(
                         R.string.call_ringing
                     )
                     chan.enableVibration(false)
@@ -890,7 +890,7 @@ abstract class RTCPeerConnection(
             endIntent.action = "ACTION_INCOMING_CALL"
             endIntent.putExtra("EXTRA_CONTACT", contact)
             var endTitle: CharSequence =
-                activity.getString(R.string.call_denied)
+                service.getString(R.string.call_denied)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 endTitle = SpannableString(endTitle)
                 endTitle.setSpan(ForegroundColorSpan(-0xbbcca), 0, endTitle.length, 0)
@@ -905,7 +905,7 @@ abstract class RTCPeerConnection(
             answerIntent.action = "ACTION_INCOMING_CALL"
             endIntent.putExtra("EXTRA_CONTACT", contact)
             var answerTitle: CharSequence =
-                activity.getString(R.string.call_connected)
+                service.getString(R.string.call_connected)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 answerTitle = SpannableString(answerTitle)
                 answerTitle.setSpan(ForegroundColorSpan(-0xff5600), 0, answerTitle.length, 0)
@@ -923,7 +923,7 @@ abstract class RTCPeerConnection(
             builder.setCategory(Notification.CATEGORY_CALL)
             builder.setFullScreenIntent(
                 PendingIntent.getActivity(
-                    activity,
+                    service,
                     0,
                     intent,
                     PendingIntent.FLAG_MUTABLE
@@ -955,7 +955,7 @@ abstract class RTCPeerConnection(
                 builder.setContentText(contact!!.name)
 
                 val customView: RemoteViews = RemoteViews(
-                    activity.packageName,
+                    service.packageName,
                     R.layout.call_notification_rtl
                 )
                 customView.setTextViewText(R.id.name, contact.name)
@@ -968,11 +968,11 @@ abstract class RTCPeerConnection(
                 //val avatar: Bitmap = getRoundAvatarBitmap(userOrChat)
                 customView.setTextViewText(
                     R.id.answer_text,
-                    activity.getString(R.string.call_connected)
+                    service.getString(R.string.call_connected)
                 )
                 customView.setTextViewText(
                     R.id.decline_text,
-                    activity.getString(R.string.button_abort)
+                    service.getString(R.string.button_abort)
                 )
                 //customView.setImageViewBitmap(R.id.photo, avatar)
                 customView.setOnClickPendingIntent(R.id.answer_btn, answerPendingIntent)
