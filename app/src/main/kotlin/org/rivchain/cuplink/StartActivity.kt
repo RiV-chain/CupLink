@@ -446,7 +446,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 MainService.startPacketsStream(this)
                 // close dialog
                 ddialog.dismiss()
-                continueInit()
             } catch (e: Database.WrongPasswordException) {
                 Toast.makeText(this, R.string.wrong_password, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
