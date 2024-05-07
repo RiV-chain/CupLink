@@ -944,39 +944,43 @@ abstract class RTCPeerConnection(
 
                 builder.setStyle(notificationStyle)
                 incomingNotification = builder.build()
+            } else {
+                builder.addAction(R.drawable.checkbox_rounded_corner, endTitle, endPendingIntent)
+                builder.addAction(
+                    R.drawable.ic_audio_device_phone,
+                    answerTitle,
+                    answerPendingIntent
+                )
+                builder.setContentText(contact!!.name)
+
+                val customView: RemoteViews = RemoteViews(
+                    activity.packageName,
+                    R.layout.call_notification_rtl
+                )
+                customView.setTextViewText(R.id.name, contact.name)
+                customView.setViewVisibility(R.id.subtitle, View.GONE)
+                customView.setTextViewText(
+                    R.id.title,
+                    contact.name,
+                )
+
+                //val avatar: Bitmap = getRoundAvatarBitmap(userOrChat)
+                customView.setTextViewText(
+                    R.id.answer_text,
+                    activity.getString(R.string.call_connected)
+                )
+                customView.setTextViewText(
+                    R.id.decline_text,
+                    activity.getString(R.string.button_abort)
+                )
+                //customView.setImageViewBitmap(R.id.photo, avatar)
+                customView.setOnClickPendingIntent(R.id.answer_btn, answerPendingIntent)
+                customView.setOnClickPendingIntent(R.id.decline_btn, endPendingIntent)
+                //builder.setLargeIcon(avatar)
+                incomingNotification = builder.getNotification()
+                incomingNotification.bigContentView = customView
+                incomingNotification.headsUpContentView = incomingNotification.bigContentView
             }
-            builder.addAction(R.drawable.checkbox_rounded_corner, endTitle, endPendingIntent)
-            builder.addAction(R.drawable.ic_audio_device_phone, answerTitle, answerPendingIntent)
-            builder.setContentText(contact!!.name)
-
-            val customView: RemoteViews = RemoteViews(
-                activity.packageName,
-                R.layout.call_notification_rtl
-            )
-            customView.setTextViewText(R.id.name, contact.name)
-            customView.setViewVisibility(R.id.subtitle, View.GONE)
-            customView.setTextViewText(
-                R.id.title,
-                contact.name,
-            )
-
-            //val avatar: Bitmap = getRoundAvatarBitmap(userOrChat)
-            customView.setTextViewText(
-                R.id.answer_text,
-                activity.getString(R.string.call_connected)
-            )
-            customView.setTextViewText(
-                R.id.decline_text,
-                activity.getString(R.string.button_abort)
-            )
-            //customView.setImageViewBitmap(R.id.photo, avatar)
-            customView.setOnClickPendingIntent(R.id.answer_btn, answerPendingIntent)
-            customView.setOnClickPendingIntent(R.id.decline_btn, endPendingIntent)
-            //builder.setLargeIcon(avatar)
-
-            incomingNotification = builder.notification
-            incomingNotification.bigContentView = customView
-            incomingNotification.headsUpContentView = incomingNotification.bigContentView
             service.startForeground(ID_INCOMING_CALL_NOTIFICATION, incomingNotification)
             //startRingtoneAndVibration()
         }
