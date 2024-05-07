@@ -42,6 +42,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL"/>
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
 
     <!-- Allow to start activity from background -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -158,6 +159,11 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
+
+        <!--FIX me and add other foregroundServiceTypes below-->
+        <service android:name=".CallService"
+            android:enabled="true"
+            android:foregroundServiceType="phoneCall"/>
 
         <service
             android:name=".CupLinkCarService"

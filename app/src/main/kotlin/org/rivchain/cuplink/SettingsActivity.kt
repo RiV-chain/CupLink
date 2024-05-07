@@ -6,10 +6,12 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
+import android.provider.Settings
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -332,8 +334,16 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         findViewById<SwitchMaterial>(R.id.autoAcceptCallsSwitch).apply {
             isChecked = settings.autoAcceptCalls
             setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-                settings.autoAcceptCalls = isChecked
-                binder.saveDatabase()
+                if(Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this@SettingsActivity) && isChecked) {
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    )
+                    requestDrawOverlaysPermissionLauncher.launch(intent)
+                } else {
+                    settings.autoAcceptCalls = isChecked
+                    binder.saveDatabase()
+                }
             }
         }
 
@@ -354,6 +364,21 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         applySettingsMode(settingsMode)
         applyVideoDegradationMode(settings.videoDegradationMode)
 
+    }
+
+    private var requestDrawOverlaysPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (!Settings.canDrawOverlays(this)) {
+                    Toast.makeText(this, R.string.overlay_permission_missing, Toast.LENGTH_LONG).show()
+                }
+            }
+        } else {
+            val binder = binder ?: return@registerForActivityResult
+            binder.getSettings().autoAcceptCalls = true
+            binder.saveDatabase()
+        }
     }
 
     private fun showChangeUsernameDialog() {

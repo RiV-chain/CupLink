@@ -2,14 +2,12 @@ package org.rivchain.cuplink
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.Configuration
-import android.media.AudioManager
-import android.media.Ringtone
-import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -17,9 +15,6 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.os.SystemClock
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
@@ -56,8 +51,6 @@ import org.rivchain.cuplink.renderer.TextureViewRenderer
 import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.STATE_CALLING
 import org.rivchain.cuplink.rivmesh.STATE_CALL_ENDED
-import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
-import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import org.webrtc.CameraEnumerationAndroid
@@ -68,7 +61,6 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
 import java.util.Date
-
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
@@ -85,8 +77,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
     private var activityActive = true
     private var callEventType = Event.Type.UNKNOWN
-    private lateinit var vibrator: Vibrator
-    private lateinit var ringtone: Ringtone
 
     private val remoteProxyVideoSink = RTCCall.ProxyVideoSink()
     private val localProxyVideoSink = RTCCall.ProxyVideoSink()
@@ -216,7 +206,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         captureQualityController = CaptureQualityController(this)
 
-        initRinging()
+        // this activity auto accepts calls always
+        //initRinging()
 
         if (contact.name.isEmpty()) {
             callName.text = resources.getString(R.string.unknown_caller)
@@ -229,6 +220,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         when (val action = intent.action) {
             "ACTION_OUTGOING_CALL" -> initOutgoingCall()
             "ACTION_INCOMING_CALL" -> initIncomingCall()
+            "ANSWER_INCOMING_CALL" -> initIncomingCall()
+            "DECLINE_INCOMING_CALL" -> {
+                Log.d(this, "action: $action")
+                finish()
+            }
             else -> {
                 Log.e(this, "invalid action: $action, this should never happen")
                 finish()
@@ -240,6 +236,19 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         val state = STATE_CALLING
         intent.putExtra("state", state)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+
+        PendingIntent.getBroadcast(
+            this,
+            0,
+            Intent().apply {
+                setAction(CallService.START_CALL_ACTION)
+                putExtra("EXTRA_CONTACT", contact)
+            },
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                PendingIntent.FLAG_IMMUTABLE
+            else
+                0
+        ).send()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration)
@@ -733,6 +742,30 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     private fun initIncomingCall() {
+        initServiceConnection()
+
+        // decline before call starts
+        val declineListener = View.OnClickListener {
+            Log.d(this, "decline call...")
+            declineCall()
+        }
+
+        // accept call
+        val acceptListener = View.OnClickListener {
+            Log.d(this, "accept call...")
+            acceptCall()
+        }
+
+        acceptButton.setOnClickListener(acceptListener)
+        declineButton.setOnClickListener(declineListener)
+
+        acceptButton.visibility = View.VISIBLE
+        declineButton.visibility = View.VISIBLE
+
+        bindService(Intent(this, MainService::class.java), connection, 0)
+    }
+
+    private fun initServiceConnection(){
         connection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
                 Log.d(this@CallActivity, "onServiceConnected()")
@@ -759,59 +792,35 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
                 updateControlDisplay()
                 updateVideoDisplay()
-
                 continueCallSetup()
 
-                if (binder!!.getSettings().autoAcceptCalls) {
-                    acceptButton.performClick()
-                } else {
-                    startRinging()
-                }
+                acceptButton.performClick()
             }
 
             override fun onServiceDisconnected(componentName: ComponentName) {
                 // nothing to do
             }
         }
+    }
 
-        // decline before call starts
-        val declineListener = View.OnClickListener {
-            Log.d(this, "decline call...")
-            stopRinging()
-
-            if (callWasStarted) {
-                currentCall.hangup()
-            } else {
-                currentCall.decline()
-            }
+    private fun declineCall(){
+        if (callWasStarted) {
+            currentCall.hangup()
+        } else {
+            currentCall.decline()
         }
+    }
 
-        // accept call
-        val acceptListener = View.OnClickListener {
-            Log.d(this, "accept call...")
-            if (!this::currentCall.isInitialized) {
-                Log.d(this, "currentCall not set")
-                return@OnClickListener
-            }
-
-            stopRinging()
-
-            acceptButton.visibility = View.GONE
-            declineButton.visibility = View.VISIBLE
-
-            currentCall.initVideo()
-            currentCall.initIncoming()
-
-            initCall()
+    private fun acceptCall(){
+        if (!this::currentCall.isInitialized) {
+            Log.d(this, "currentCall not set")
+            return
         }
-
-        acceptButton.setOnClickListener(acceptListener)
-        declineButton.setOnClickListener(declineListener)
-
-        acceptButton.visibility = View.VISIBLE
+        acceptButton.visibility = View.GONE
         declineButton.visibility = View.VISIBLE
-
-        bindService(Intent(this, MainService::class.java), connection, 0)
+        currentCall.initVideo()
+        currentCall.initIncoming()
+        initCall()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -1034,57 +1043,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         }
     }
 
-    private fun initRinging() {
-        Log.d(this, "initRinging")
-
-        // init ringtone
-        ringtone = RingtoneManager.getRingtone(
-            this,
-            RingtoneManager.getActualDefaultRingtoneUri(
-                applicationContext,
-                RingtoneManager.TYPE_RINGTONE
-            )
-        )
-
-        // init vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibrator = vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
-        }
-    }
-
-    private fun startRinging() {
-        Log.d(this, "startRinging()")
-        val ringerMode = (getSystemService(AUDIO_SERVICE) as AudioManager).ringerMode
-        if (ringerMode == AudioManager.RINGER_MODE_SILENT) {
-            return
-        }
-
-        val pattern = longArrayOf(1500, 800, 800, 800)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val vibe = VibrationEffect.createWaveform(pattern, 1)
-            vibrator.vibrate(vibe)
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(pattern, 1)
-        }
-
-        if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
-            return
-        }
-
-        ringtone.play()
-    }
-
-    private fun stopRinging() {
-        Log.d(this, "stopRinging()")
-        vibrator.cancel()
-        ringtone.stop()
-    }
-
     // apply settings to camera
     override fun onCameraChanged() {
         val format = captureQualityController.getSelectedFormat()
@@ -1207,8 +1165,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         try {
             proximitySensor.stop()
 
-            stopRinging()
-
             if (this::currentCall.isInitialized) {
                 currentCall.cleanup()
             }
@@ -1254,7 +1210,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
     private fun finishDelayed() {
         if (activityActive) {
-            stopRinging() // do not wait
             activityActive = false
             Handler(mainLooper).postDelayed({ finish() }, 500)
         }

@@ -1,16 +1,20 @@
 package org.rivchain.cuplink.call
 
+import android.app.PendingIntent
 import android.content.Intent
+import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
-import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.CallActivity
-import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.CallService
 import org.rivchain.cuplink.Crypto
-import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import java.io.IOException
 import java.lang.Integer.max
@@ -23,6 +27,7 @@ import java.net.UnknownHostException
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
+
 
 abstract class RTCPeerConnection(
     protected var binder: MainService.MainBinder,
@@ -110,10 +115,7 @@ abstract class RTCPeerConnection(
         val ownPublicKey = settings.publicKey
         val ownSecretKey = settings.secretKey
 
-        val socket = createCommSocket(contact)
-        if (socket == null) {
-            return
-        }
+        val socket = createCommSocket(contact) ?: return
 
         callActivity?.onRemoteAddressChange(socket.remoteSocketAddress as InetSocketAddress, true)
         commSocket = socket
@@ -307,10 +309,7 @@ abstract class RTCPeerConnection(
         Log.d(this, "continueOnIncomingSocket()")
         Utils.checkIsNotOnMainThread()
 
-        val socket = commSocket
-        if (socket == null) {
-            throw IllegalStateException("commSocket not expected to be null")
-        }
+        val socket = commSocket ?: throw IllegalStateException("commSocket not expected to be null")
 
         val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
         val settings = binder.getSettings()
@@ -377,6 +376,7 @@ abstract class RTCPeerConnection(
             if (action == "dismissed") {
                 Log.d(this, "continueOnIncomingSocket() received dismissed")
                 reportStateChange(CallState.DISMISSED)
+                declineOwnCall()
                 break
             } else if (action == "keep_alive") {
                 // ignore, keeps the socket alive
@@ -402,6 +402,24 @@ abstract class RTCPeerConnection(
         }
 
         Log.d(this, "continueOnIncomingSocket() finished")
+    }
+
+    protected fun declineOwnCall(){
+        // decline own call. call session has been started yet.
+        if(!CallActivity.isCallInProgress) {
+            Log.d(this, "decline() send broadcast to receiver")
+            PendingIntent.getBroadcast(
+                this.binder.getService(),
+                0,
+                Intent().apply {
+                    setAction(CallService.DECLINE_CALL_ACTION)
+                },
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    PendingIntent.FLAG_IMMUTABLE
+                else
+                    0
+            ).send()
+        }
     }
 
     protected fun execute(r: Runnable) {
@@ -727,21 +745,41 @@ abstract class RTCPeerConnection(
                     incomingRTCCall?.cleanup() // just in case
                     incomingRTCCall = RTCCall(binder, contact, socket, offer)
                     try {
-                        val activity = MainActivity.instance
-                        if (activity != null && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                            Log.d(this, "createIncomingCallInternal() start incoming call from stored MainActivity")
-                            val intent = Intent(activity, CallActivity::class.java)
-                            intent.action = "ACTION_INCOMING_CALL"
-                            intent.putExtra("EXTRA_CONTACT", contact)
-                            activity.startActivity(intent)
+                        val service = binder.getService()
+                        // CallActivity accepts calls by default
+                        // CallActivity is being opened from a foreground notification below
+                        if (binder.getSettings().autoAcceptCalls) {
+                            val activity = MainActivity.instance
+                            if (activity != null && activity.lifecycle.currentState.isAtLeast(
+                                    Lifecycle.State.RESUMED
+                                )
+                            ) {
+                                Log.d(
+                                    this,
+                                    "createIncomingCallInternal() start incoming call from stored MainActivity"
+                                )
+                                val intent = Intent(activity, CallActivity::class.java)
+                                intent.action = "ACTION_INCOMING_CALL"
+                                intent.putExtra("EXTRA_CONTACT", contact)
+                                activity.startActivity(intent)
+                            } else {
+                                Log.d(
+                                    this,
+                                    "createIncomingCallInternal() start incoming call from Service"
+                                )
+
+                                val intent = Intent(service, CallActivity::class.java)
+                                intent.action = "ACTION_INCOMING_CALL"
+                                intent.putExtra("EXTRA_CONTACT", contact)
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                service.startActivity(intent)
+                            }
                         } else {
-                            Log.d(this, "createIncomingCallInternal() start incoming call from Service")
-                            val service = binder.getService()
-                            val intent = Intent(service, CallActivity::class.java)
-                            intent.action = "ACTION_INCOMING_CALL"
-                            intent.putExtra("EXTRA_CONTACT", contact)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            service.startActivity(intent)
+                            val intent = Intent(service, CallService::class.java)
+                                .putExtra(CallService.SERVICE_CONTACT_KEY,
+                                    contact)
+                            ContextCompat.startForegroundService(service, intent)
                         }
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()
@@ -781,5 +819,8 @@ abstract class RTCPeerConnection(
                 }
             }
         }
+
+        private const val ID_INCOMING_CALL_NOTIFICATION = 202
+
     }
 }
