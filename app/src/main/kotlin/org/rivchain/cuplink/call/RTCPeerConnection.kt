@@ -982,6 +982,7 @@ abstract class RTCPeerConnection(
                 incomingNotification.bigContentView = customView
                 incomingNotification.headsUpContentView = incomingNotification.bigContentView
             }
+            incomingNotification.flags = incomingNotification.flags or (Notification.FLAG_NO_CLEAR or Notification.FLAG_ONGOING_EVENT)
             service.startForeground(ID_INCOMING_CALL_NOTIFICATION, incomingNotification)
             //startRingtoneAndVibration()
         }
