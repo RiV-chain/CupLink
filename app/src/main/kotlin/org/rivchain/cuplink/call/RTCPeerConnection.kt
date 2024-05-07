@@ -1,16 +1,34 @@
 package org.rivchain.cuplink.call
 
+import android.app.Activity
+import android.app.Notification
+import android.app.Notification.CallStyle
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Person
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.content.SharedPreferences
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.os.Build
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.style.ForegroundColorSpan
+import android.view.View
+import android.widget.RemoteViews
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
-import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.CallActivity
-import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.Crypto
-import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.R
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import java.io.IOException
 import java.lang.Integer.max
@@ -23,6 +41,7 @@ import java.net.UnknownHostException
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
+
 
 abstract class RTCPeerConnection(
     protected var binder: MainService.MainBinder,
@@ -728,21 +747,23 @@ abstract class RTCPeerConnection(
                     incomingRTCCall = RTCCall(binder, contact, socket, offer)
                     try {
                         val activity = MainActivity.instance
+                        val service = binder.getService()
                         if (activity != null && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                             Log.d(this, "createIncomingCallInternal() start incoming call from stored MainActivity")
-                            val intent = Intent(activity, CallActivity::class.java)
-                            intent.action = "ACTION_INCOMING_CALL"
-                            intent.putExtra("EXTRA_CONTACT", contact)
-                            activity.startActivity(intent)
+                            //val intent = Intent(activity, CallActivity::class.java)
+                            //intent.action = "ACTION_INCOMING_CALL"
+                            //intent.putExtra("EXTRA_CONTACT", contact)
+                            //activity.startActivity(intent)
                         } else {
                             Log.d(this, "createIncomingCallInternal() start incoming call from Service")
-                            val service = binder.getService()
-                            val intent = Intent(service, CallActivity::class.java)
-                            intent.action = "ACTION_INCOMING_CALL"
-                            intent.putExtra("EXTRA_CONTACT", contact)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            service.startActivity(intent)
+
+                            //val intent = Intent(service, CallActivity::class.java)
+                            //intent.action = "ACTION_INCOMING_CALL"
+                            //intent.putExtra("EXTRA_CONTACT", contact)
+                            //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            //service.startActivity(intent)
                         }
+                        showIncomingNotification(contact, activity!!, service)
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()
                         incomingRTCCall = null
@@ -781,5 +802,186 @@ abstract class RTCPeerConnection(
                 }
             }
         }
+
+        private fun showIncomingNotification(
+            contact: Contact?,
+            activity: Activity,
+            service: MainService
+        ) {
+            val intent = Intent(service, MainActivity::class.java)
+            intent.setAction("voip")
+
+            val builder: Notification.Builder = Notification.Builder(service)
+                .setContentTitle(
+                    activity.getString(R.string.is_calling)
+                )
+                .setSmallIcon(R.drawable.ic_call_accept)
+                .setContentIntent(
+                    PendingIntent.getActivity(
+                        service,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_MUTABLE
+                    )
+                )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val nprefs: SharedPreferences = activity.application.getSharedPreferences("Notifications", Activity.MODE_PRIVATE)
+                var chanIndex = nprefs.getInt("calls_notification_channel", 0)
+                val nm = activity.getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
+                var oldChannel = nm!!.getNotificationChannel("incoming_calls2$chanIndex")
+                if (oldChannel != null) {
+                    nm.deleteNotificationChannel(oldChannel.id)
+                }
+                oldChannel = nm.getNotificationChannel("incoming_calls3$chanIndex")
+                if (oldChannel != null) {
+                    nm.deleteNotificationChannel(oldChannel.id)
+                }
+                val existingChannel = nm.getNotificationChannel("incoming_calls4$chanIndex")
+                var needCreate = true
+                if (existingChannel != null) {
+                    if (existingChannel.importance < NotificationManager.IMPORTANCE_HIGH || existingChannel.sound != null) {
+
+                        Log.d(this, "User messed up the notification channel; deleting it and creating a proper one")
+
+                        nm.deleteNotificationChannel("incoming_calls4$chanIndex")
+                        chanIndex++
+                        nprefs.edit().putInt("calls_notification_channel", chanIndex).apply()
+                    } else {
+                        needCreate = false
+                    }
+                }
+                if (needCreate) {
+                    val attrs = AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setLegacyStreamType(AudioManager.STREAM_RING)
+                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .build()
+                    val chan = NotificationChannel(
+                        "incoming_calls4$chanIndex",
+                        activity.getString(
+                            R.string.call_ringing
+                        ),
+                        NotificationManager.IMPORTANCE_HIGH
+                    )
+                    try {
+                        chan.setSound(null, attrs)
+                    } catch (e: java.lang.Exception) {
+                        Log.e(this, e.toString())
+                    }
+                    chan.description = activity.getString(
+                        R.string.call_ringing
+                    )
+                    chan.enableVibration(false)
+                    chan.enableLights(false)
+                    chan.setBypassDnd(true)
+                    try {
+                        nm.createNotificationChannel(chan)
+                    } catch (e: java.lang.Exception) {
+                        Log.e(this, e.toString())
+                        //this.stopSelf()
+                        return
+                    }
+                }
+                builder.setChannelId("incoming_calls4$chanIndex")
+            } else
+                builder.setSound(null)
+            val endIntent = Intent(activity, CallActivity::class.java)
+            endIntent.action = "ACTION_INCOMING_CALL"
+            endIntent.putExtra("EXTRA_CONTACT", contact)
+            var endTitle: CharSequence =
+                activity.getString(R.string.call_denied)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                endTitle = SpannableString(endTitle)
+                endTitle.setSpan(ForegroundColorSpan(-0xbbcca), 0, endTitle.length, 0)
+            }
+            val endPendingIntent = PendingIntent.getBroadcast(
+                activity,
+                0,
+                endIntent,
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+            )
+            val answerIntent = Intent(activity, CallActivity::class.java)
+            answerIntent.action = "ACTION_INCOMING_CALL"
+            endIntent.putExtra("EXTRA_CONTACT", contact)
+            var answerTitle: CharSequence =
+                activity.getString(R.string.call_connected)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                answerTitle = SpannableString(answerTitle)
+                answerTitle.setSpan(ForegroundColorSpan(-0xff5600), 0, answerTitle.length, 0)
+            }
+            val answerPendingIntent = PendingIntent.getBroadcast(
+                activity,
+                0,
+                answerIntent,
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+            )
+            builder.setPriority(Notification.PRIORITY_MAX)
+            builder.setShowWhen(false)
+            builder.setColor(-0xd35a20)
+            builder.setVibrate(LongArray(0))
+            builder.setCategory(Notification.CATEGORY_CALL)
+            builder.setFullScreenIntent(
+                PendingIntent.getActivity(
+                    activity,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_MUTABLE
+                ), true
+            )
+            var incomingNotification: Notification
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                //val avatar: Bitmap = getRoundAvatarBitmap(userOrChat)
+                var personName: String = contact!!.name
+                if (TextUtils.isEmpty(personName)) {
+                    //java.lang.IllegalArgumentException: person must have a non-empty a name
+                    personName = "___"
+                }
+                val person: Person.Builder = Person.Builder()
+                    .setName(personName)
+                    //.setIcon(Icon.createWithAdaptiveBitmap(avatar)).build()
+                val notificationStyle =
+                    CallStyle.forIncomingCall(person.build(), endPendingIntent, answerPendingIntent)
+
+                builder.setStyle(notificationStyle)
+                incomingNotification = builder.build()
+            }
+            builder.addAction(R.drawable.checkbox_rounded_corner, endTitle, endPendingIntent)
+            builder.addAction(R.drawable.ic_audio_device_phone, answerTitle, answerPendingIntent)
+            builder.setContentText(contact!!.name)
+
+            val customView: RemoteViews = RemoteViews(
+                activity.packageName,
+                R.layout.call_notification_rtl
+            )
+            customView.setTextViewText(R.id.name, contact.name)
+            customView.setViewVisibility(R.id.subtitle, View.GONE)
+            customView.setTextViewText(
+                R.id.title,
+                contact.name,
+            )
+
+            //val avatar: Bitmap = getRoundAvatarBitmap(userOrChat)
+            customView.setTextViewText(
+                R.id.answer_text,
+                activity.getString(R.string.call_connected)
+            )
+            customView.setTextViewText(
+                R.id.decline_text,
+                activity.getString(R.string.button_abort)
+            )
+            //customView.setImageViewBitmap(R.id.photo, avatar)
+            customView.setOnClickPendingIntent(R.id.answer_btn, answerPendingIntent)
+            customView.setOnClickPendingIntent(R.id.decline_btn, endPendingIntent)
+            //builder.setLargeIcon(avatar)
+
+            incomingNotification = builder.notification
+            incomingNotification.bigContentView = customView
+            incomingNotification.headsUpContentView = incomingNotification.bigContentView
+            service.startForeground(ID_INCOMING_CALL_NOTIFICATION, incomingNotification)
+            //startRingtoneAndVibration()
+        }
+
+        private const val ID_INCOMING_CALL_NOTIFICATION = 202
+
     }
 }
