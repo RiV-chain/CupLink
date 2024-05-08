@@ -778,8 +778,6 @@ abstract class RTCPeerConnection(
                             //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             //service.startActivity(intent)
                         //}
-                        val startIntent = Intent(service, CallService::class.java)
-                        ContextCompat.startForegroundService(service, startIntent)
                         showIncomingNotification(contact, service)
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()
@@ -824,8 +822,8 @@ abstract class RTCPeerConnection(
             contact: Contact?,
             service: MainService
         ) {
-            val intent = Intent(service, MainActivity::class.java)
-            intent.setAction("voip")
+            val intent = Intent(service, CallService::class.java)
+            ContextCompat.startForegroundService(service, intent)
 
             val builder: Notification.Builder = Notification.Builder(service)
                 .setContentTitle(
