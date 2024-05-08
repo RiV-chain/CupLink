@@ -886,36 +886,34 @@ abstract class RTCPeerConnection(
             } else {
                 builder.setSound(null)
             }
-            val endIntent = Intent(service, CallActivity::class.java)
-            endIntent.action = "ACTION_INCOMING_CALL"
-            endIntent.putExtra("EXTRA_CONTACT", contact)
             var endTitle: CharSequence =
                 service.getString(R.string.call_denied)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 endTitle = SpannableString(endTitle)
                 endTitle.setSpan(ForegroundColorSpan(-0xbbcca), 0, endTitle.length, 0)
             }
-            val endPendingIntent = PendingIntent.getBroadcast(
+
+            val endPendingIntent = PendingIntent.getActivity(
                 service,
                 0,
-                endIntent,
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+                Intent(service, CallActivity::class.java).setAction("ACTION_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
+                PendingIntent.FLAG_MUTABLE
             )
-            val answerIntent = Intent(service, CallActivity::class.java)
-            answerIntent.action = "ACTION_INCOMING_CALL"
-            endIntent.putExtra("EXTRA_CONTACT", contact)
+
             var answerTitle: CharSequence =
                 service.getString(R.string.call_connected)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 answerTitle = SpannableString(answerTitle)
                 answerTitle.setSpan(ForegroundColorSpan(-0xff5600), 0, answerTitle.length, 0)
             }
-            val answerPendingIntent = PendingIntent.getBroadcast(
+
+            val answerPendingIntent = PendingIntent.getActivity(
                 service,
                 0,
-                answerIntent,
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+                Intent(service, CallActivity::class.java).setAction("ACTION_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
+                PendingIntent.FLAG_MUTABLE
             )
+
             builder.setPriority(Notification.PRIORITY_MAX)
             builder.setShowWhen(false)
             builder.setColor(-0xd35a20)
