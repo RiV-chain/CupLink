@@ -997,37 +997,6 @@ abstract class RTCPeerConnection(
             service.startForeground(ID_INCOMING_CALL_NOTIFICATION, incomingNotification)
             //startRingtoneAndVibration()
         }
-        fun getRoundAvatarBitmap(context: Context, drawableRes: Int): Bitmap {
-            val drawable = ContextCompat.getDrawable(context, drawableRes)
-            val size = ViewUtil.dpToPx(context, 42)
-
-            // Convert drawable to bitmap
-            val bitmap = if (drawable is BitmapDrawable) {
-                drawable.bitmap
-            } else {
-                Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).apply {
-                    val canvas = Canvas(this)
-                    drawable?.setBounds(0, 0, canvas.width, canvas.height)
-                    drawable?.draw(canvas)
-                }
-            }
-
-            // Prepare output bitmap with circular clip
-            val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(output)
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.BLACK
-            }
-
-            // Draw circle clip
-            canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
-            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-
-            // Draw the bitmap with the circular mask applied
-            canvas.drawBitmap(bitmap, 0f, 0f, paint)
-
-            return output
-        }
 
         private const val ID_INCOMING_CALL_NOTIFICATION = 202
 
