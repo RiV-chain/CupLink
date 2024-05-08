@@ -1,6 +1,8 @@
 package org.rivchain.cuplink
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.Build
@@ -25,7 +27,18 @@ class CallService: Service() {
                     )
                     .setShowWhen(false)
             bldr.setSmallIcon(R.drawable.ic_audio_device_phone)
-            startForeground(ID_ONGOING_CALL_NOTIFICATION, bldr.build())
+
+            val channel = NotificationChannel(
+                OTHER_NOTIFICATIONS_CHANNEL.toString(),
+                "CupLink",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            channel.description = "CupLink calls channel for foreground service notification"
+            val n = bldr.build()
+            val notificationManager =
+                getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+            startForeground(ID_ONGOING_CALL_NOTIFICATION, n)
         }
     }
 
