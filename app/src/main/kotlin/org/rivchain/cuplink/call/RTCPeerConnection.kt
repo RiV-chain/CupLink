@@ -12,9 +12,12 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Icon
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -24,6 +27,8 @@ import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
@@ -48,12 +53,6 @@ import java.net.UnknownHostException
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Path
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
 
 
 abstract class RTCPeerConnection(
@@ -941,7 +940,7 @@ abstract class RTCPeerConnection(
             )
             var incomingNotification: Notification
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val avatar: Bitmap = getRoundAvatarBitmap(service, R.drawable.ic_contacts)
+                val avatar: Bitmap = getBitmapFromVectorDrawable(service, R.drawable.ic_contacts)
                 var personName: String = contact!!.name
                 if (TextUtils.isEmpty(personName)) {
                     //java.lang.IllegalArgumentException: person must have a non-empty a name
@@ -975,7 +974,7 @@ abstract class RTCPeerConnection(
                     contact.name,
                 )
 
-                val avatar: Bitmap = getRoundAvatarBitmap(service, R.drawable.ic_contacts)
+                val avatar: Bitmap = getBitmapFromVectorDrawable(service, R.drawable.ic_contacts)
                 customView.setTextViewText(
                     R.id.answer_text,
                     service.getString(R.string.call_connected)
@@ -1026,6 +1025,20 @@ abstract class RTCPeerConnection(
             canvas.drawBitmap(bitmap, 0f, 0f, paint)
 
             return output
+        }
+
+        fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap {
+            var drawable = ContextCompat.getDrawable(context!!, drawableId)
+
+            val bitmap = Bitmap.createBitmap(
+                drawable!!.intrinsicWidth,
+                drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+
+            return bitmap
         }
 
         private const val ID_INCOMING_CALL_NOTIFICATION = 202
