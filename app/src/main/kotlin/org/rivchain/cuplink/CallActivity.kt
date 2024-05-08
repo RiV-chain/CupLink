@@ -762,7 +762,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     private fun initAnswerIncomingCall() {
-        acceptButton.callOnClick()
+        acceptButton.performClick()
     }
 
     private fun initServiceConnection(){
