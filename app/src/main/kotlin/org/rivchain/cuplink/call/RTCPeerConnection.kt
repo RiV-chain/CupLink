@@ -912,7 +912,7 @@ abstract class RTCPeerConnection(
             val endPendingIntent = PendingIntent.getActivity(
                 service,
                 0,
-                Intent(service, CallActivity::class.java).setAction("ACTION_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
+                Intent(service, CallActivity::class.java).setAction("DECLINE_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
                 PendingIntent.FLAG_MUTABLE
             )
 
@@ -926,7 +926,7 @@ abstract class RTCPeerConnection(
             val answerPendingIntent = PendingIntent.getActivity(
                 service,
                 0,
-                Intent(service, CallActivity::class.java).setAction("ACTION_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
+                Intent(service, CallActivity::class.java).setAction("ANSWER_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
                 PendingIntent.FLAG_MUTABLE
             )
 

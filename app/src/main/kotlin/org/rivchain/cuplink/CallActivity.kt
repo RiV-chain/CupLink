@@ -226,6 +226,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         when (val action = intent.action) {
             "ACTION_OUTGOING_CALL" -> initOutgoingCall()
             "ACTION_INCOMING_CALL" -> initIncomingCall()
+            "ANSWER_INCOMING_CALL" -> initAnswerIncomingCall()
+            "DECLINE_INCOMING_CALL" -> {
+                Log.d(this, "action: $action")
+                finish()
+            }
             else -> {
                 Log.e(this, "invalid action: $action, this should never happen")
                 finish()
@@ -730,6 +735,47 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     private fun initIncomingCall() {
+        initServiceConnection()
+
+        // decline before call starts
+        val declineListener = View.OnClickListener {
+            Log.d(this, "decline call...")
+            declineCall()
+        }
+
+        // accept call
+        val acceptListener = View.OnClickListener {
+            Log.d(this, "accept call...")
+            acceptCall()
+        }
+
+        acceptButton.setOnClickListener(acceptListener)
+        declineButton.setOnClickListener(declineListener)
+
+        acceptButton.visibility = View.VISIBLE
+        declineButton.visibility = View.VISIBLE
+
+        bindService(Intent(this, MainService::class.java), connection, 0)
+    }
+
+    private fun initAnswerIncomingCall() {
+        initServiceConnection()
+
+        // decline before call starts
+        val declineListener = View.OnClickListener {
+            Log.d(this, "decline call...")
+            declineCall()
+        }
+
+        declineButton.setOnClickListener(declineListener)
+
+        bindService(Intent(this, MainService::class.java), connection, 0)
+
+        // accept call
+        acceptCall()
+    }
+
+    private fun initServiceConnection(){
         connection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
                 Log.d(this@CallActivity, "onServiceConnected()")
@@ -756,7 +802,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
                 updateControlDisplay()
                 updateVideoDisplay()
-
                 continueCallSetup()
 
                 if (binder!!.getSettings().autoAcceptCalls) {
@@ -770,45 +815,28 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 // nothing to do
             }
         }
+    }
 
-        // decline before call starts
-        val declineListener = View.OnClickListener {
-            Log.d(this, "decline call...")
-            stopRinging()
-
-            if (callWasStarted) {
-                currentCall.hangup()
-            } else {
-                currentCall.decline()
-            }
+    private fun declineCall(){
+        stopRinging()
+        if (callWasStarted) {
+            currentCall.hangup()
+        } else {
+            currentCall.decline()
         }
+    }
 
-        // accept call
-        val acceptListener = View.OnClickListener {
-            Log.d(this, "accept call...")
-            if (!this::currentCall.isInitialized) {
-                Log.d(this, "currentCall not set")
-                return@OnClickListener
-            }
-
-            stopRinging()
-
-            acceptButton.visibility = View.GONE
-            declineButton.visibility = View.VISIBLE
-
-            currentCall.initVideo()
-            currentCall.initIncoming()
-
-            initCall()
+    private fun acceptCall(){
+        if (!this::currentCall.isInitialized) {
+            Log.d(this, "currentCall not set")
+            return
         }
-
-        acceptButton.setOnClickListener(acceptListener)
-        declineButton.setOnClickListener(declineListener)
-
-        acceptButton.visibility = View.VISIBLE
+        stopRinging()
+        acceptButton.visibility = View.GONE
         declineButton.visibility = View.VISIBLE
-
-        bindService(Intent(this, MainService::class.java), connection, 0)
+        currentCall.initVideo()
+        currentCall.initIncoming()
+        initCall()
     }
 
     @SuppressLint("ClickableViewAccessibility")
