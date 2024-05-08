@@ -27,8 +27,10 @@ import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.RemoteViews
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
@@ -940,7 +942,7 @@ abstract class RTCPeerConnection(
             )
             var incomingNotification: Notification
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val avatar: Bitmap = getBitmapFromVectorDrawable(service, R.drawable.ic_contacts)
+                val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
                 var personName: String = contact!!.name
                 if (TextUtils.isEmpty(personName)) {
                     //java.lang.IllegalArgumentException: person must have a non-empty a name
@@ -974,7 +976,7 @@ abstract class RTCPeerConnection(
                     contact.name,
                 )
 
-                val avatar: Bitmap = getBitmapFromVectorDrawable(service, R.drawable.ic_contacts)
+                val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
                 customView.setTextViewText(
                     R.id.answer_text,
                     service.getString(R.string.call_connected)
@@ -1025,20 +1027,6 @@ abstract class RTCPeerConnection(
             canvas.drawBitmap(bitmap, 0f, 0f, paint)
 
             return output
-        }
-
-        fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap {
-            var drawable = ContextCompat.getDrawable(context!!, drawableId)
-
-            val bitmap = Bitmap.createBitmap(
-                drawable!!.intrinsicWidth,
-                drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-            )
-            val canvas = Canvas(bitmap)
-            drawable.setBounds(0, 0, canvas.width, canvas.height)
-            drawable.draw(canvas)
-
-            return bitmap
         }
 
         private const val ID_INCOMING_CALL_NOTIFICATION = 202
