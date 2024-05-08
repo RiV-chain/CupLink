@@ -226,7 +226,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         when (val action = intent.action) {
             "ACTION_OUTGOING_CALL" -> initOutgoingCall()
             "ACTION_INCOMING_CALL" -> initIncomingCall()
-            "ANSWER_INCOMING_CALL" -> initAnswerIncomingCall()
+            "ANSWER_INCOMING_CALL" -> initIncomingCall()
             "DECLINE_INCOMING_CALL" -> {
                 Log.d(this, "action: $action")
                 finish()
