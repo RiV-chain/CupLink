@@ -7,9 +7,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Person
+import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.drawable.Icon
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.os.Build
@@ -30,6 +36,7 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
+import org.rivchain.cuplink.util.ViewUtil
 import java.io.IOException
 import java.lang.Integer.max
 import java.lang.Integer.min
@@ -41,6 +48,10 @@ import java.net.UnknownHostException
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
+import android.graphics.Canvas
+import android.graphics.Path
+import android.graphics.drawable.Drawable
+import androidx.core.content.ContextCompat
 
 
 abstract class RTCPeerConnection(
@@ -929,17 +940,17 @@ abstract class RTCPeerConnection(
             )
             var incomingNotification: Notification
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                //val avatar: Bitmap = getRoundAvatarBitmap(userOrChat)
+                val avatar: Bitmap = getRoundAvatarBitmap(service, R.drawable.ic_contacts)
                 var personName: String = contact!!.name
                 if (TextUtils.isEmpty(personName)) {
                     //java.lang.IllegalArgumentException: person must have a non-empty a name
                     personName = "___"
                 }
-                val person: Person.Builder = Person.Builder()
+                val person: Person = Person.Builder()
                     .setName(personName)
-                    //.setIcon(Icon.createWithAdaptiveBitmap(avatar)).build()
+                    .setIcon(Icon.createWithAdaptiveBitmap(avatar)).build()
                 val notificationStyle =
-                    CallStyle.forIncomingCall(person.build(), endPendingIntent, answerPendingIntent)
+                    CallStyle.forIncomingCall(person, endPendingIntent, answerPendingIntent)
 
                 builder.setStyle(notificationStyle)
                 incomingNotification = builder.build()
@@ -963,7 +974,7 @@ abstract class RTCPeerConnection(
                     contact.name,
                 )
 
-                //val avatar: Bitmap = getRoundAvatarBitmap(userOrChat)
+                val avatar: Bitmap = getRoundAvatarBitmap(service, R.drawable.ic_contacts)
                 customView.setTextViewText(
                     R.id.answer_text,
                     service.getString(R.string.call_connected)
@@ -972,10 +983,10 @@ abstract class RTCPeerConnection(
                     R.id.decline_text,
                     service.getString(R.string.button_abort)
                 )
-                //customView.setImageViewBitmap(R.id.photo, avatar)
+                customView.setImageViewBitmap(R.id.photo, avatar)
                 customView.setOnClickPendingIntent(R.id.answer_btn, answerPendingIntent)
                 customView.setOnClickPendingIntent(R.id.decline_btn, endPendingIntent)
-                //builder.setLargeIcon(avatar)
+                builder.setLargeIcon(avatar)
                 incomingNotification = builder.getNotification()
                 incomingNotification.bigContentView = customView
                 incomingNotification.headsUpContentView = incomingNotification.bigContentView
@@ -983,6 +994,35 @@ abstract class RTCPeerConnection(
             incomingNotification.flags = incomingNotification.flags or (Notification.FLAG_NO_CLEAR or Notification.FLAG_ONGOING_EVENT)
             service.startForeground(ID_INCOMING_CALL_NOTIFICATION, incomingNotification)
             //startRingtoneAndVibration()
+        }
+
+        fun getRoundAvatarBitmap(context: Context, drawableRes: Int): Bitmap {
+            // Create an empty bitmap in which to draw the avatar
+            val bitmap = Bitmap.createBitmap(ViewUtil.dpToPx(42), ViewUtil.dpToPx(context, 42), Bitmap.Config.ARGB_8888)
+
+            // Get the drawable and set its bounds to match the bitmap's dimensions
+            val placeholder: Drawable? = ContextCompat.getDrawable(context, drawableRes)
+            placeholder?.setBounds(0, 0, bitmap.width, bitmap.height)
+
+            // Draw the drawable onto the bitmap
+            val canvas = Canvas(bitmap)
+            placeholder?.draw(canvas)
+
+            // Create a path that describes a circle
+            val circlePath = Path().apply {
+                addCircle(bitmap.width / 2f, bitmap.height / 2f, bitmap.width / 2f, Path.Direction.CW)
+                toggleInverseFillType()
+            }
+
+            // Set up paint for clearing outside the circle
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            }
+
+            // Draw the path with the paint to create a circular mask
+            canvas.drawPath(circlePath, paint)
+
+            return bitmap
         }
 
         private const val ID_INCOMING_CALL_NOTIFICATION = 202
