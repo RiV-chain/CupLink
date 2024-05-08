@@ -49,7 +49,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Path
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 
@@ -816,7 +818,6 @@ abstract class RTCPeerConnection(
 
         private fun showIncomingNotification(
             contact: Contact?,
-            //activity: Activity,
             service: MainService
         ) {
             val intent = Intent(service, MainActivity::class.java)
@@ -995,27 +996,34 @@ abstract class RTCPeerConnection(
             service.startForeground(ID_INCOMING_CALL_NOTIFICATION, incomingNotification)
             //startRingtoneAndVibration()
         }
-
         fun getRoundAvatarBitmap(context: Context, drawableRes: Int): Bitmap {
-            val size = ViewUtil.dpToPx(42)
-            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
+            val drawable = ContextCompat.getDrawable(context, drawableRes)
+            val size = ViewUtil.dpToPx(context, 42)
 
-            val placeholder: Drawable? = ContextCompat.getDrawable(context, drawableRes)
-            placeholder?.setBounds(0, 0, canvas.width, canvas.height)
-            placeholder?.draw(canvas)
-
-            val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-            val newCanvas = Canvas(output)
-
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-            val circlePath = Path().apply {
-                addCircle(size / 2f, size / 2f, size / 2f, Path.Direction.CW)
+            // Convert drawable to bitmap
+            val bitmap = if (drawable is BitmapDrawable) {
+                drawable.bitmap
+            } else {
+                Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).apply {
+                    val canvas = Canvas(this)
+                    drawable?.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable?.draw(canvas)
+                }
             }
 
-            newCanvas.drawPath(circlePath, paint)
+            // Prepare output bitmap with circular clip
+            val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(output)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.BLACK
+            }
+
+            // Draw circle clip
+            canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
             paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-            newCanvas.drawBitmap(bitmap, 0f, 0f, paint)
+
+            // Draw the bitmap with the circular mask applied
+            canvas.drawBitmap(bitmap, 0f, 0f, paint)
 
             return output
         }
