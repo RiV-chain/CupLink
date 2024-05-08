@@ -997,32 +997,27 @@ abstract class RTCPeerConnection(
         }
 
         fun getRoundAvatarBitmap(context: Context, drawableRes: Int): Bitmap {
-            // Create an empty bitmap in which to draw the avatar
-            val bitmap = Bitmap.createBitmap(ViewUtil.dpToPx(42), ViewUtil.dpToPx(context, 42), Bitmap.Config.ARGB_8888)
-
-            // Get the drawable and set its bounds to match the bitmap's dimensions
-            val placeholder: Drawable? = ContextCompat.getDrawable(context, drawableRes)
-            placeholder?.setBounds(0, 0, bitmap.width, bitmap.height)
-
-            // Draw the drawable onto the bitmap
+            val size = ViewUtil.dpToPx(42)
+            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
+
+            val placeholder: Drawable? = ContextCompat.getDrawable(context, drawableRes)
+            placeholder?.setBounds(0, 0, canvas.width, canvas.height)
             placeholder?.draw(canvas)
 
-            // Create a path that describes a circle
+            val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val newCanvas = Canvas(output)
+
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
             val circlePath = Path().apply {
-                addCircle(bitmap.width / 2f, bitmap.height / 2f, bitmap.width / 2f, Path.Direction.CW)
-                toggleInverseFillType()
+                addCircle(size / 2f, size / 2f, size / 2f, Path.Direction.CW)
             }
 
-            // Set up paint for clearing outside the circle
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-            }
+            newCanvas.drawPath(circlePath, paint)
+            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+            newCanvas.drawBitmap(bitmap, 0f, 0f, paint)
 
-            // Draw the path with the paint to create a circular mask
-            canvas.drawPath(circlePath, paint)
-
-            return bitmap
+            return output
         }
 
         private const val ID_INCOMING_CALL_NOTIFICATION = 202
