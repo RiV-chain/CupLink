@@ -226,7 +226,10 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         when (val action = intent.action) {
             "ACTION_OUTGOING_CALL" -> initOutgoingCall()
             "ACTION_INCOMING_CALL" -> initIncomingCall()
-            "ANSWER_INCOMING_CALL" -> initIncomingCall()
+            "ANSWER_INCOMING_CALL" -> {
+                initIncomingCall()
+                initAnswerIncomingCall()
+            }
             "DECLINE_INCOMING_CALL" -> {
                 Log.d(this, "action: $action")
                 finish()
@@ -759,20 +762,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     private fun initAnswerIncomingCall() {
-        initServiceConnection()
-
-        // decline before call starts
-        val declineListener = View.OnClickListener {
-            Log.d(this, "decline call...")
-            declineCall()
-        }
-
-        declineButton.setOnClickListener(declineListener)
-
-        bindService(Intent(this, MainService::class.java), connection, 0)
-
-        // accept call
-        acceptCall()
+        acceptButton.callOnClick()
     }
 
     private fun initServiceConnection(){
