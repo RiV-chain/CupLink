@@ -228,7 +228,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             "ACTION_INCOMING_CALL" -> initIncomingCall()
             "ANSWER_INCOMING_CALL" -> {
                 initIncomingCall()
-                initAnswerIncomingCall()
             }
             "DECLINE_INCOMING_CALL" -> {
                 Log.d(this, "action: $action")
@@ -761,10 +760,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         bindService(Intent(this, MainService::class.java), connection, 0)
     }
 
-    private fun initAnswerIncomingCall() {
-        acceptButton.performClick()
-    }
-
     private fun initServiceConnection(){
         connection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
@@ -794,11 +789,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 updateVideoDisplay()
                 continueCallSetup()
 
-                if (binder!!.getSettings().autoAcceptCalls) {
-                    acceptButton.performClick()
-                } else {
-                    startRinging()
-                }
+                acceptButton.performClick()
             }
 
             override fun onServiceDisconnected(componentName: ComponentName) {
