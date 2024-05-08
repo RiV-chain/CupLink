@@ -35,6 +35,7 @@ import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.CallActivity
+import org.rivchain.cuplink.CallService
 import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
@@ -760,15 +761,15 @@ abstract class RTCPeerConnection(
                     incomingRTCCall?.cleanup() // just in case
                     incomingRTCCall = RTCCall(binder, contact, socket, offer)
                     try {
-                        val activity = MainActivity.instance
+                        //val activity = MainActivity.instance
                         val service = binder.getService()
-                        if (activity != null && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                            Log.d(this, "createIncomingCallInternal() start incoming call from stored MainActivity")
+                        //if (activity != null && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        //    Log.d(this, "createIncomingCallInternal() start incoming call from stored MainActivity")
                             //val intent = Intent(activity, CallActivity::class.java)
                             //intent.action = "ACTION_INCOMING_CALL"
                             //intent.putExtra("EXTRA_CONTACT", contact)
                             //activity.startActivity(intent)
-                        } else {
+                        //} else {
                             Log.d(this, "createIncomingCallInternal() start incoming call from Service")
 
                             //val intent = Intent(service, CallActivity::class.java)
@@ -776,7 +777,9 @@ abstract class RTCPeerConnection(
                             //intent.putExtra("EXTRA_CONTACT", contact)
                             //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             //service.startActivity(intent)
-                        }
+                        //}
+                        val startIntent = Intent(service, CallService::class.java)
+                        ContextCompat.startForegroundService(service, startIntent)
                         showIncomingNotification(contact, service)
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()

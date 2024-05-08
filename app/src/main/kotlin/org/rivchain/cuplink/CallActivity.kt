@@ -2,7 +2,6 @@ package org.rivchain.cuplink
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Service
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -38,7 +37,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.ServiceCompat.STOP_FOREGROUND_REMOVE
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -58,8 +56,6 @@ import org.rivchain.cuplink.renderer.TextureViewRenderer
 import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.STATE_CALLING
 import org.rivchain.cuplink.rivmesh.STATE_CALL_ENDED
-import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
-import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import org.webrtc.CameraEnumerationAndroid
@@ -70,7 +66,6 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
 import java.util.Date
-
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
@@ -683,12 +678,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 if (!binder!!.getSettings().promptOutgoingCalls) {
                     // start outgoing call immediately
                     acceptButton.performClick()
-                }
-                // Stop calling foreground notification
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    binder!!.getService().stopForeground(Service.STOP_FOREGROUND_REMOVE)
-                } else {
-                    binder!!.getService().stopForeground(true)
                 }
             }
 

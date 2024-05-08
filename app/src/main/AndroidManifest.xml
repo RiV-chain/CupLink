@@ -160,6 +160,11 @@
             </intent-filter>
         </service>
 
+        <!--FIX me and add other foregroundServiceTypes below-->
+        <service android:name=".CallService"
+            android:enabled="true"
+            android:foregroundServiceType="phoneCall"/>
+
         <service
             android:name=".CupLinkCarService"
             android:exported="true">
