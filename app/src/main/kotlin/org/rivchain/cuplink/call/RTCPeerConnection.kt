@@ -948,11 +948,11 @@ abstract class RTCPeerConnection(
                     //java.lang.IllegalArgumentException: person must have a non-empty a name
                     personName = "___"
                 }
-                val person: Person = Person.Builder()
+                val person: Person.Builder = Person.Builder()
                     .setName(personName)
-                    .setIcon(Icon.createWithAdaptiveBitmap(avatar)).build()
+                    //.setIcon(Icon.createWithAdaptiveBitmap(avatar)).build()
                 val notificationStyle =
-                    CallStyle.forIncomingCall(person, endPendingIntent, answerPendingIntent)
+                    CallStyle.forIncomingCall(person.build(), endPendingIntent, answerPendingIntent)
 
                 builder.setStyle(notificationStyle)
                 incomingNotification = builder.build()
@@ -985,10 +985,10 @@ abstract class RTCPeerConnection(
                     R.id.decline_text,
                     service.getString(R.string.button_abort)
                 )
-                customView.setImageViewBitmap(R.id.photo, avatar)
+                //customView.setImageViewBitmap(R.id.photo, avatar)
                 customView.setOnClickPendingIntent(R.id.answer_btn, answerPendingIntent)
                 customView.setOnClickPendingIntent(R.id.decline_btn, endPendingIntent)
-                builder.setLargeIcon(avatar)
+                //builder.setLargeIcon(avatar)
                 incomingNotification = builder.getNotification()
                 incomingNotification.bigContentView = customView
                 incomingNotification.headsUpContentView = incomingNotification.bigContentView
