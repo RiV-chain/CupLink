@@ -786,9 +786,6 @@ abstract class RTCPeerConnection(
                                 .putExtra(CallService.SERVICE_CONTACT_KEY,
                                     contact)
                             ContextCompat.startForegroundService(service, intent)
-                            //PendingIntent.getBroadcast(service, 0, Intent().setAction(CallService.ACTION)
-                            //    .putExtra(CallService.SERVICE_CONTACT_KEY,
-                            //    contact), PendingIntent.FLAG_IMMUTABLE)
                         }
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()

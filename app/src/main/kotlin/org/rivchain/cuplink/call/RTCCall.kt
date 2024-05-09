@@ -1,6 +1,7 @@
 package org.rivchain.cuplink.call
 
 import android.content.Context
+import android.os.Handler
 import org.json.JSONException
 import org.json.JSONObject
 import org.rivchain.cuplink.*
@@ -745,24 +746,22 @@ class RTCCall : RTCPeerConnection {
 
     fun cleanup() {
         Log.d(this, "cleanup()")
-        Utils.checkIsOnMainThread()
+        Handler(binder.getService().mainLooper).post {
+            Utils.checkIsOnMainThread()
+            Log.d(this, "cleanup() executor start")
+            setCallContext(null)
+            setStatsCollector(null)
+            execute {
+                try {
+                    peerConnection?.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
 
-        Log.d(this, "cleanup() executor start")
-        setCallContext(null)
-        setStatsCollector(null)
-
-        execute {
-            try {
-                peerConnection?.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
+                Log.d(this, "cleanup() executor end")
             }
-
-            Log.d(this, "cleanup() executor end")
+            super.cleanupRTCPeerConnection()
         }
-
-        super.cleanupRTCPeerConnection()
-
         Log.d(this, "cleanup() done")
     }
 
