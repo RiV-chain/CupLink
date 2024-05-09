@@ -31,7 +31,6 @@ import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
-import org.rivchain.cuplink.StopCallServiceReceiver
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
@@ -915,7 +914,8 @@ abstract class RTCPeerConnection(
             val endPendingIntent = PendingIntent.getBroadcast(
                 service,
                 0,
-                Intent("close.service"),
+                Intent().setAction(CallService.ACTION).putExtra(CallService.STOP_SERVICE_BROADCAST_KEY,
+                CallService.RQS_STOP_SERVICE),
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
