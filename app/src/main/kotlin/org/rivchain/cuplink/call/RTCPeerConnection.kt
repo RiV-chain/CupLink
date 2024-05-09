@@ -782,11 +782,13 @@ abstract class RTCPeerConnection(
                                 service.startActivity(intent)
                             }
                         } else {
-                            val intent = Intent(service, CallService::class.java)
-                            ContextCompat.startForegroundService(service, intent)
-                            PendingIntent.getBroadcast(service, 0, Intent().setAction(CallService.ACTION)
+                            val intent = Intent(service, CallService::class.java).setAction(CallService.ACTION)
                                 .putExtra(CallService.SERVICE_CONTACT_KEY,
-                                CallService.RQS_START_SERVICE), PendingIntent.FLAG_IMMUTABLE)
+                                    contact)
+                            ContextCompat.startForegroundService(service, intent)
+                            //PendingIntent.getBroadcast(service, 0, Intent().setAction(CallService.ACTION)
+                            //    .putExtra(CallService.SERVICE_CONTACT_KEY,
+                            //    contact), PendingIntent.FLAG_IMMUTABLE)
                         }
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()

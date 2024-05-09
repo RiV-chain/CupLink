@@ -244,6 +244,13 @@ class CallService : Service() {
         intentFilter.addAction(ACTION)
         registerReceiver(notifyServiceReceiver, intentFilter)
 
+        val contact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
+        } else {
+            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY)
+        }
+        showIncomingNotification(intent, contact as Contact, this@CallService)
+
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -259,15 +266,6 @@ class CallService : Service() {
     inner class NotifyServiceReceiver : BroadcastReceiver() {
         override fun onReceive(arg0: Context?, arg1: Intent) {
             val rqs = arg1.getIntExtra(SERVICE_BROADCAST_KEY, 0)
-
-            if (rqs == RQS_START_SERVICE) {
-                val contact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    arg1.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
-                } else {
-                    arg1.getSerializableExtra(SERVICE_CONTACT_KEY)
-                }
-                showIncomingNotification(arg1, contact as Contact, this@CallService)
-            } else
             if (rqs == RQS_STOP_SERVICE) {
                 stopSelf()
                 (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)
