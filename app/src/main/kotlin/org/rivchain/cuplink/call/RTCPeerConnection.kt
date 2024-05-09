@@ -912,11 +912,11 @@ abstract class RTCPeerConnection(
                 endTitle = SpannableString(endTitle)
                 endTitle.setSpan(ForegroundColorSpan(-0xbbcca), 0, endTitle.length, 0)
             }
-            val endPendingIntent = PendingIntent.getActivity(
+            val endPendingIntent = PendingIntent.getBroadcast(
                 service,
                 StopCallServiceReceiver.REQUEST_CODE,
                 Intent(service, StopCallServiceReceiver::class.java),
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT } else { PendingIntent.FLAG_UPDATE_CURRENT }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_UPDATE_CURRENT } else { PendingIntent.FLAG_UPDATE_CURRENT }
             )
 
             var answerTitle: CharSequence =
