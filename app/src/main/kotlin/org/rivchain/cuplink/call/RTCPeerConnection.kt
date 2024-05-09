@@ -7,18 +7,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Person
-import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Icon
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.os.Build
@@ -29,7 +21,6 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
@@ -40,11 +31,11 @@ import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
+import org.rivchain.cuplink.StopCallServiceReceiver
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
-import org.rivchain.cuplink.util.ViewUtil
 import java.io.IOException
 import java.lang.Integer.max
 import java.lang.Integer.min
@@ -761,24 +752,39 @@ abstract class RTCPeerConnection(
                     incomingRTCCall?.cleanup() // just in case
                     incomingRTCCall = RTCCall(binder, contact, socket, offer)
                     try {
-                        //val activity = MainActivity.instance
                         val service = binder.getService()
-                        //if (activity != null && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                        //    Log.d(this, "createIncomingCallInternal() start incoming call from stored MainActivity")
-                            //val intent = Intent(activity, CallActivity::class.java)
-                            //intent.action = "ACTION_INCOMING_CALL"
-                            //intent.putExtra("EXTRA_CONTACT", contact)
-                            //activity.startActivity(intent)
-                        //} else {
-                            Log.d(this, "createIncomingCallInternal() start incoming call from Service")
+                        // CallActivity accepts calls by default
+                        // CallActivity is being opened from a foreground notification below
+                        if (binder.getSettings().autoAcceptCalls) {
+                            val activity = MainActivity.instance
+                            if (activity != null && activity.lifecycle.currentState.isAtLeast(
+                                    Lifecycle.State.RESUMED
+                                )
+                            ) {
+                                Log.d(
+                                    this,
+                                    "createIncomingCallInternal() start incoming call from stored MainActivity"
+                                )
+                                val intent = Intent(activity, CallActivity::class.java)
+                                intent.action = "ACTION_INCOMING_CALL"
+                                intent.putExtra("EXTRA_CONTACT", contact)
+                                activity.startActivity(intent)
+                            } else {
+                                Log.d(
+                                    this,
+                                    "createIncomingCallInternal() start incoming call from Service"
+                                )
 
-                            //val intent = Intent(service, CallActivity::class.java)
-                            //intent.action = "ACTION_INCOMING_CALL"
-                            //intent.putExtra("EXTRA_CONTACT", contact)
-                            //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            //service.startActivity(intent)
-                        //}
-                        showIncomingNotification(contact, service)
+                                val intent = Intent(service, CallActivity::class.java)
+                                intent.action = "ACTION_INCOMING_CALL"
+                                intent.putExtra("EXTRA_CONTACT", contact)
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                service.startActivity(intent)
+                            }
+                        } else {
+                            showIncomingNotification(contact, service)
+                        }
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()
                         incomingRTCCall = null
@@ -906,12 +912,11 @@ abstract class RTCPeerConnection(
                 endTitle = SpannableString(endTitle)
                 endTitle.setSpan(ForegroundColorSpan(-0xbbcca), 0, endTitle.length, 0)
             }
-
             val endPendingIntent = PendingIntent.getActivity(
                 service,
-                0,
-                Intent(service, CallActivity::class.java).setAction("DECLINE_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
-                PendingIntent.FLAG_MUTABLE
+                StopCallServiceReceiver.REQUEST_CODE,
+                Intent(service, StopCallServiceReceiver::class.java),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT } else { PendingIntent.FLAG_UPDATE_CURRENT }
             )
 
             var answerTitle: CharSequence =
