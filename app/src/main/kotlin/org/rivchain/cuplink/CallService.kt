@@ -24,6 +24,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
+import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 
@@ -266,6 +267,7 @@ class CallService : Service() {
         override fun onReceive(arg0: Context?, arg1: Intent) {
             val rqs = arg1.getIntExtra(SERVICE_BROADCAST_KEY, 0)
             if (rqs == RQS_STOP_SERVICE) {
+                RTCPeerConnection.incomingRTCCall!!.decline()
                 stopSelf()
                 (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)
                     ?.cancelAll()
