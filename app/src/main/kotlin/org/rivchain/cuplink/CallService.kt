@@ -29,7 +29,7 @@ import org.rivchain.cuplink.util.Log
 
 class CallService : Service() {
 
-    var notifyServiceReceiver: NotifyServiceReceiver? = null
+    private var notifyServiceReceiver: NotifyServiceReceiver? = null
 
     override fun onCreate() {
         notifyServiceReceiver = NotifyServiceReceiver()
@@ -57,6 +57,21 @@ class CallService : Service() {
             notificationManager.createNotificationChannel(channel)
             startForeground(ID_ONGOING_CALL_NOTIFICATION, n)
         }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(ACTION)
+        registerReceiver(notifyServiceReceiver, intentFilter)
+
+        val contact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
+        } else {
+            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY)
+        }
+        showIncomingNotification(intent, contact as Contact, this@CallService)
+
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private fun showIncomingNotification(
@@ -132,7 +147,7 @@ class CallService : Service() {
                     nm.createNotificationChannel(chan)
                 } catch (e: java.lang.Exception) {
                     Log.e(this, e.toString())
-                    //this.stopSelf()
+                    this.stopSelf()
                     return
                 }
             }
@@ -187,7 +202,7 @@ class CallService : Service() {
             var personName: String = contact!!.name
             if (TextUtils.isEmpty(personName)) {
                 //java.lang.IllegalArgumentException: person must have a non-empty a name
-                personName = "___"
+                personName = "Unknown contact"
             }
             val person: Person.Builder = Person.Builder()
                 .setName(personName)
@@ -238,22 +253,6 @@ class CallService : Service() {
         service.startForeground(ID_ONGOING_CALL_NOTIFICATION, incomingNotification)
         //startRingtoneAndVibration()
     }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(ACTION)
-        registerReceiver(notifyServiceReceiver, intentFilter)
-
-        val contact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
-        } else {
-            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY)
-        }
-        showIncomingNotification(intent, contact as Contact, this@CallService)
-
-        return super.onStartCommand(intent, flags, startId)
-    }
-
     override fun onDestroy() {
         this.unregisterReceiver(notifyServiceReceiver)
         super.onDestroy()
