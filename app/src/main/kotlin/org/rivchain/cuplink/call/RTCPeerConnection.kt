@@ -915,7 +915,7 @@ abstract class RTCPeerConnection(
             val endPendingIntent = PendingIntent.getBroadcast(
                 service,
                 0,
-                Intent(service, StopCallServiceReceiver::class.java),
+                Intent("close.service"),
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
