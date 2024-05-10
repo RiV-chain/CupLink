@@ -1,16 +1,23 @@
 package org.rivchain.cuplink.call
 
+import android.app.PendingIntent
+import android.content.ComponentName
+import android.content.Context
+import android.content.Context.BIND_ALLOW_ACTIVITY_STARTS
 import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
+import android.os.IBinder
 import androidx.lifecycle.Lifecycle
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
-import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.CallActivity
-import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.Crypto
-import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import java.io.IOException
 import java.lang.Integer.max
@@ -23,6 +30,7 @@ import java.net.UnknownHostException
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
+
 
 abstract class RTCPeerConnection(
     protected var binder: MainService.MainBinder,
@@ -741,7 +749,35 @@ abstract class RTCPeerConnection(
                             intent.action = "ACTION_INCOMING_CALL"
                             intent.putExtra("EXTRA_CONTACT", contact)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            service.startActivity(intent)
+                            //service.startActivity(intent)
+
+                            // App B must explicitly opt in to allow its activities to be started from the background.
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                // App A wants to start an activity in App B from the background.
+                                val pendingIntent = PendingIntent.getActivity(
+                                    service,
+                                    0,
+                                    intent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                                )
+                                val connection = object : ServiceConnection {
+                                    override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
+                                    }
+
+                                    override fun onServiceDisconnected(name: ComponentName?) {
+                                    }
+
+                                }
+                                val bindService = activity!!.bindService(
+                                    Intent(service, MainService::class.java),
+                                    connection,
+                                    Context.BIND_AUTO_CREATE or BIND_ALLOW_ACTIVITY_STARTS
+                                )
+                                pendingIntent.send()
+                            } else {
+                                // Once App B has opted in, App A can send the PendingIntent to App B.
+                                service.startActivity(intent)
+                            }
                         }
                     } catch (e: Exception) {
                         incomingRTCCall?.cleanup()

@@ -91,7 +91,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
         preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, true) }
-
+        /*
         if(Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) {
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -99,6 +99,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
             )
             requestDrawOverlaysPermissionLauncher.launch(intent)
         }
+        */
     }
 
     private var requestDrawOverlaysPermissionLauncher = registerForActivityResult(
