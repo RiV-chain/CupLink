@@ -74,13 +74,16 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
         binder = iBinder as MainBinder
-
         try {
             val contact = binder!!.getContactOrOwn(publicKey)!!
             generateQR(contact)
-        } catch (e: Exception) {
+        } catch (e: NullPointerException) {
+            e.printStackTrace()
+            Toast.makeText(this, "NPE", Toast.LENGTH_LONG).show()
+        } catch (e: Exception){
             e.printStackTrace()
             Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+        } finally {
             finish()
         }
     }
