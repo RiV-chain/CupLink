@@ -32,8 +32,6 @@ import androidx.core.graphics.drawable.toBitmap
 import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
-import java.io.Serializable
-
 
 class CallService : Service() {
 

@@ -42,7 +42,6 @@
     <string name="call_error_unresolved_hostname">Error: Cannot resolve address</string>
     <string name="call_no_network">No network - enable Wi-Fi\?</string>
     <string name="call_ringing">Ringing</string>
-    <string name="call_start_or_abort">Start or Abort Call</string>
     <string name="call_waiting">Waiting</string>
     <string name="camera_back">Back</string>
     <string name="camera_front">Front</string>
@@ -116,7 +115,6 @@
     <string name="settings_connect_timeout">Connect Timeout (ms)</string>
     <string name="settings_database_password">Startup Password</string>
     <string name="settings_disable_audio_processing">Disable Audio Processing</string>
-    <string name="settings_disable_call_history">Disable Call History</string>
     <string name="settings_disable_cpu_overuse_detection">Disable CPU Overuse Detection</string>
     <string name="settings_disable_proximity_sensor">Disable Proximity Sensor</string>
     <string name="settings_enable_camera_by_default">Enable Camera By Default</string>
@@ -168,7 +166,6 @@
     <string name="title_activity_peer_list">Select peers</string>
     <string name="node_info_copied">copied</string>
     <string name="peers">Peers</string>
-    <string name="contact_menu_edit">Edit</string>
     <string name="cuplink_call" translatable="false">CupLink call</string>
     <string name="is_calling">Calling</string>
 </resources>
