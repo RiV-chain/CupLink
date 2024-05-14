@@ -1,5 +1,6 @@
 package org.rivchain.cuplink.automotive
 
+import android.graphics.Color
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.car.app.CarContext
@@ -9,6 +10,7 @@ import androidx.core.graphics.drawable.IconCompat
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.model.Contacts
 
+@RequiresApi(Build.VERSION_CODES.M)
 class AutoControlScreen(private val carContext: CarContext, private val contacts: Contacts) : Screen(carContext) {
 
     override fun onGetTemplate(): Template {
@@ -34,10 +36,12 @@ class AutoControlScreen(private val carContext: CarContext, private val contacts
         return listTemplateBuilder.build()
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+
     private fun getCarIconFromDrawable(drawableResId: Int): CarIcon {
         val iconCompat = IconCompat.createWithResource(carContext, drawableResId)
-            .setTint(carContext.resources.getColor(android.R.color.white, null)) // Set the tint color to white
-        return CarIcon.Builder(iconCompat).build()
+        val carColor = CarColor.createCustom(Color.WHITE, Color.BLACK) // Set the tint color to white and dark color to black
+        return CarIcon.Builder(iconCompat)
+            .setTint(carColor)
+            .build()
     }
 }
