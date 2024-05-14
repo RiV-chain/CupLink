@@ -134,9 +134,9 @@ class CallService : Service() {
         filter.addAction(Intent.ACTION_SCREEN_OFF)
         filter.addAction(Intent.ACTION_USER_PRESENT)
         val contact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
+            intent.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
         } else {
-            intent!!.getSerializableExtra(SERVICE_CONTACT_KEY)
+            intent.getSerializableExtra(SERVICE_CONTACT_KEY)
         }
         screenReceiver = ScreenReceiver(contact as Contact)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -282,7 +282,7 @@ class CallService : Service() {
                 PendingIntent.FLAG_IMMUTABLE
             ), true
         )
-        var incomingNotification: Notification
+        val incomingNotification: Notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
             var personName: String = contact!!.name
@@ -368,17 +368,21 @@ class CallService : Service() {
 
     inner class ScreenReceiver(var contact: Contact?) : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
-            if (intent.action.equals(Intent.ACTION_SCREEN_OFF)) {
-                Log.d(this, "In Method:  ACTION_SCREEN_OFF")
-                // onPause() will be called.
-                // Stop ringing when screen switched off
-                stopRinging()
-            } else if (intent.action.equals(Intent.ACTION_SCREEN_ON)) {
-                Log.d(this, "In Method:  ACTION_SCREEN_ON")
-            } else if (intent.action.equals(Intent.ACTION_USER_PRESENT)) {
-                Log.d(this, "In Method:  ACTION_USER_PRESENT")
-                (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancelAll()
-                showIncomingNotification(intent, contact as Contact, this@CallService)
+            when (intent.action) {
+                Intent.ACTION_SCREEN_OFF -> {
+                    Log.d(this, "In Method: ACTION_SCREEN_OFF")
+                    // onPause() will be called.
+                    // Stop ringing when screen switched off
+                    stopRinging()
+                }
+                Intent.ACTION_SCREEN_ON -> {
+                    Log.d(this, "In Method: ACTION_SCREEN_ON")
+                }
+                Intent.ACTION_USER_PRESENT -> {
+                    Log.d(this, "In Method: ACTION_USER_PRESENT")
+                    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancelAll()
+                    showIncomingNotification(intent, contact as Contact, this@CallService)
+                }
             }
         }
     }
