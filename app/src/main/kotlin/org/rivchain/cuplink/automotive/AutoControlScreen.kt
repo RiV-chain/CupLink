@@ -49,6 +49,7 @@ class AutoControlScreen(private val carContext: CarContext, private val contacts
 
     private fun startCall(contact: Contact) {
         val intent = Intent(carContext, CallActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.action = "ACTION_OUTGOING_CALL"
         intent.putExtra("EXTRA_CONTACT", contact)
         carContext.startActivity(intent)
