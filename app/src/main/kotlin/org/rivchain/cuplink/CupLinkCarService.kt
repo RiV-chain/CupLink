@@ -1,4 +1,4 @@
-package org.rivchain.cuplink.automotive
+package org.rivchain.cuplink
 
 import android.content.ComponentName
 import android.content.Context
@@ -16,7 +16,7 @@ import androidx.car.app.Session
 import androidx.car.app.validation.HostValidator
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.automotive.AutoControlScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 class CupLinkCarService : CarAppService() {
