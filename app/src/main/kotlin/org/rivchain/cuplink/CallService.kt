@@ -282,6 +282,7 @@ class CallService : Service() {
                 PendingIntent.FLAG_IMMUTABLE
             ), true
         )
+        .setVisibility(Notification.VISIBILITY_PUBLIC)
         val incomingNotification: Notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
