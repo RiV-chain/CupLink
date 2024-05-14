@@ -166,7 +166,7 @@
             android:foregroundServiceType="phoneCall"/>
 
         <service
-            android:name=".CupLinkCarService"
+            android:name=".automotive.CupLinkCarService"
             android:exported="true">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
