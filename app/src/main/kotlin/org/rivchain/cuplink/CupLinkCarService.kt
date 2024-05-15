@@ -71,7 +71,7 @@ class CupLinkCarService : CarAppService() {
     }
 
 }
-
+@RequiresApi(Build.VERSION_CODES.M)
 class SettingsSession(private var mainServiceBinder: MainService.MainBinder?) : Session(), DefaultLifecycleObserver {
 
     init {
@@ -95,6 +95,7 @@ class SettingsSession(private var mainServiceBinder: MainService.MainBinder?) : 
     }
 
     override fun onCreateScreen(intent: Intent): Screen {
+        // fix NPE below for mainServiceBinder
         return AutoControlScreen(carContext, mainServiceBinder!!.getContacts())
     }
 }

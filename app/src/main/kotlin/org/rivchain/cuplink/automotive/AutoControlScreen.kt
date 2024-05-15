@@ -1,5 +1,6 @@
 package org.rivchain.cuplink.automotive
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -18,6 +19,10 @@ class AutoControlScreen(private val carContext: CarContext, private val contacts
 
     override fun onGetTemplate(): Template {
         val itemListBuilder = ItemList.Builder().apply {
+            /**
+             * Disabled contact list till the AA authentication is done somehow
+             */
+            /*
             for (contact in contacts.contactList) {
                 addItem(
                     Row.Builder()
@@ -29,6 +34,7 @@ class AutoControlScreen(private val carContext: CarContext, private val contacts
                         .build()
                 )
             }
+             */
         }
 
         val listTemplateBuilder = ListTemplate.Builder().apply {
@@ -49,9 +55,8 @@ class AutoControlScreen(private val carContext: CarContext, private val contacts
 
     private fun startCall(contact: Contact) {
         val intent = Intent(carContext, CallActivity::class.java)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.action = "ACTION_OUTGOING_CALL"
         intent.putExtra("EXTRA_CONTACT", contact)
-        carContext.startActivity(intent)
+        PendingIntent.getActivity(carContext,0,intent, PendingIntent.FLAG_IMMUTABLE)
     }
 }
