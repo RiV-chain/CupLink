@@ -63,7 +63,7 @@ internal class EventListAdapter(
     }
 
     override fun getItem(position: Int): List<Event> {
-        return eventGroups[position]
+        return eventGroups[eventGroups.size - position - 1]
     }
 
     override fun getItemId(position: Int): Long {
@@ -80,7 +80,7 @@ internal class EventListAdapter(
         val name = contacts.find { it.publicKey.contentEquals(latestEvent.publicKey) }?.name
 
         val nameTv = view.findViewById<TextView>(R.id.call_name)
-        if (name == null || name.isEmpty()) {
+        if (name.isNullOrEmpty()) {
             nameTv.text = view.context.getString(R.string.unknown_caller)
         } else {
             nameTv.text = name
