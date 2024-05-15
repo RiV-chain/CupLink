@@ -5,7 +5,7 @@ import org.json.JSONObject
 import java.util.Date
 
 class Events {
-    val eventList = mutableListOf<Event>()
+    var eventList = mutableListOf<Event>()
     var eventsMissed = 0
 
     fun destroy() {
@@ -16,11 +16,17 @@ class Events {
         eventList.clear()
     }
 
-    fun deleteEvents(eventDates: List<Date>) {
+    fun deleteEventsByDate(eventDates: List<Date>) {
         for (date in eventDates) {
             eventList.removeAll {
                 it.date in eventDates
             }
+        }
+    }
+
+    fun deleteEventsByPublicKey(publicKey: ByteArray) {
+        eventList.removeAll {
+            it.publicKey.contentEquals(publicKey)
         }
     }
 

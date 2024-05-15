@@ -333,6 +333,21 @@ class Database {
                 newFrom = "4.2.7"
             }
 
+            if (newFrom.startsWith("0.6.5")) {
+                // clean up events from db if there are no
+                // corresponding contacts
+                val events = Events.fromJSON(db.getJSONObject("events")).eventList
+                val contacts: Contacts = Contacts.fromJSON(db.getJSONObject("contacts"))
+                events.removeAll {
+                    contacts.findContact(it.publicKey) < 0
+                }
+                val e = Events()
+                e.eventList = events
+                db.put("events", Events.toJSON(e))
+
+                newFrom = "0.6.6"
+            }
+
             alignSettings(settings)
 
             db.put("version", newFrom)

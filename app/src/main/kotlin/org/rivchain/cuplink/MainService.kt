@@ -711,6 +711,7 @@ class MainService : VpnService() {
 
         fun deleteContact(publicKey: ByteArray) {
             getDatabase().contacts.deleteContact(publicKey)
+            getDatabase().events.deleteEventsByPublicKey(publicKey)
             saveDatabase()
 
             refreshContacts(this@MainService)
@@ -718,7 +719,7 @@ class MainService : VpnService() {
         }
 
         fun deleteEvents(eventDates: List<Date>) {
-            getDatabase().events.deleteEvents(eventDates)
+            getDatabase().events.deleteEventsByDate(eventDates)
             saveDatabase()
 
             refreshContacts(this@MainService)

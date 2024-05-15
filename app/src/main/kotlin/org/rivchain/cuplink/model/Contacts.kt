@@ -29,7 +29,7 @@ class Contacts {
         }
     }
 
-    private fun findContact(publicKey: ByteArray): Int {
+    fun findContact(publicKey: ByteArray): Int {
         for (i in 0 until contactList.size) {
             if (contactList[i].publicKey.contentEquals(publicKey)) {
                 return i
