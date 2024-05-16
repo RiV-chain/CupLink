@@ -1,5 +1,6 @@
 package org.rivchain.cuplink
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.ComponentName
 import android.content.Context
@@ -87,6 +88,17 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
         preferences.edit(commit = true) { putBoolean(PREF_KEY_ENABLED, true) }
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        val tabLayout = findViewById<TabLayout>(R.id.tabs)
+        if (tabLayout.selectedTabPosition == 0) {
+            super.onBackPressedDispatcher.onBackPressed()
+            finish()
+        } else {
+            tabLayout.getTabAt(0)?.select()
+        }
     }
     override fun onDestroy() {
         instance = null
