@@ -22,6 +22,7 @@ import java.lang.Integer.min
 import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.Executors
@@ -315,85 +316,88 @@ abstract class RTCPeerConnection(
         val settings = binder.getSettings()
         val ownPublicKey = settings.publicKey
         val ownSecretKey = settings.secretKey
-        val pr = PacketReader(socket)
 
-        Log.d(this, "continueOnIncomingSocket() expected dismissed/keep_alive")
+        if (!socket.isClosed) {
+            Log.d(this, "continueOnIncomingSocket() expected dismissed/keep_alive")
+            val pr = PacketReader(socket)
 
-        var lastKeepAlive = System.currentTimeMillis()
+            var lastKeepAlive = System.currentTimeMillis()
 
-        // send keep alive to detect a broken connection
-        val writeExecutor = Executors.newSingleThreadExecutor()
-        writeExecutor?.execute {
-            val pw = PacketWriter(socket)
+            // send keep alive to detect a broken connection
+            val writeExecutor = Executors.newSingleThreadExecutor()
+            writeExecutor?.execute {
+                val pw = PacketWriter(socket)
 
-            Log.d(this, "continueOnIncomingSocket() start to send keep_alive")
-            while (!socket.isClosed) {
-                try {
-                    val obj = JSONObject()
-                    obj.put("action", "keep_alive")
-                    val encrypted = Crypto.encryptMessage(
-                        obj.toString(),
-                        contact.publicKey,
-                        ownPublicKey,
-                        ownSecretKey
-                    ) ?: break
-                    pw.writeMessage(encrypted)
-                    Thread.sleep(SOCKET_TIMEOUT_MS / 2)
-                    if ((System.currentTimeMillis() - lastKeepAlive) > SOCKET_TIMEOUT_MS) {
-                        Log.w(this, "continueOnIncomingSocket() keep_alive timeout => close socket")
+                Log.d(this, "continueOnIncomingSocket() start to send keep_alive")
+                while (!socket.isClosed) {
+                    try {
+                        val obj = JSONObject()
+                        obj.put("action", "keep_alive")
+                        val encrypted = Crypto.encryptMessage(
+                            obj.toString(),
+                            contact.publicKey,
+                            ownPublicKey,
+                            ownSecretKey
+                        ) ?: break
+                        pw.writeMessage(encrypted)
+                        Thread.sleep(SOCKET_TIMEOUT_MS / 2)
+                        if ((System.currentTimeMillis() - lastKeepAlive) > SOCKET_TIMEOUT_MS) {
+                            Log.w(this, "continueOnIncomingSocket() keep_alive timeout => close socket")
+                            closeSocket(socket)
+                        }
+                    } catch (e: Exception) {
+                        Log.w(this, "continueOnIncomingSocket() got $e => close socket")
                         closeSocket(socket)
+                        break
                     }
-                } catch (e: Exception) {
-                    Log.w(this, "continueOnIncomingSocket() got $e => close socket")
-                    closeSocket(socket)
+                }
+            }
+
+            while (!socket.isClosed) {
+                val response = pr.readMessage()
+                if (response == null) {
+                    Thread.sleep(SOCKET_TIMEOUT_MS / 10)
+                    Log.d(this, "continueOnIncomingSocket() response is null")
+                    continue
+                }
+
+                val decrypted = Crypto.decryptMessage(
+                    response,
+                    otherPublicKey,
+                    ownPublicKey,
+                    ownSecretKey
+                )
+
+                if (decrypted == null) {
+                    reportStateChange(CallState.ERROR_DECRYPTION)
+                    break
+                }
+
+                val obj = JSONObject(decrypted)
+                val action = obj.optString("action")
+                if (action == "dismissed") {
+                    Log.d(this, "continueOnIncomingSocket() received dismissed")
+                    reportStateChange(CallState.DISMISSED)
+                    declineOwnCall()
+                    break
+                } else if (action == "keep_alive") {
+                    // ignore, keeps the socket alive
+                    lastKeepAlive = System.currentTimeMillis()
+                } else {
+                    Log.e(this, "continueOnIncomingSocket() received unknown action reply: $action")
+                    reportStateChange(CallState.ERROR_COMMUNICATION)
                     break
                 }
             }
+
+
+            Log.d(this, "continueOnIncomingSocket() wait for writeExecutor")
+            writeExecutor.shutdown()
+            writeExecutor.awaitTermination(100L, TimeUnit.MILLISECONDS)
+
+            //Log.d(this, "continueOnIncomingSocket() dataChannel is null: ${dataChannel == null}")
+            closeSocket(socket)
         }
-
-        while (!socket.isClosed) {
-            val response = pr.readMessage()
-            if (response == null) {
-                Thread.sleep(SOCKET_TIMEOUT_MS / 10)
-                Log.d(this, "continueOnIncomingSocket() response is null")
-                continue
-            }
-
-            val decrypted = Crypto.decryptMessage(
-                response,
-                otherPublicKey,
-                ownPublicKey,
-                ownSecretKey
-            )
-
-            if (decrypted == null) {
-                reportStateChange(CallState.ERROR_DECRYPTION)
-                break
-            }
-
-            val obj = JSONObject(decrypted)
-            val action = obj.optString("action")
-            if (action == "dismissed") {
-                Log.d(this, "continueOnIncomingSocket() received dismissed")
-                reportStateChange(CallState.DISMISSED)
-                declineOwnCall()
-                break
-            } else if (action == "keep_alive") {
-                // ignore, keeps the socket alive
-                lastKeepAlive = System.currentTimeMillis()
-            } else {
-                Log.e(this, "continueOnIncomingSocket() received unknown action reply: $action")
-                reportStateChange(CallState.ERROR_COMMUNICATION)
-                break
-            }
-        }
-
-        Log.d(this, "continueOnIncomingSocket() wait for writeExecutor")
-        writeExecutor.shutdown()
-        writeExecutor.awaitTermination(100L, TimeUnit.MILLISECONDS)
-
-        //Log.d(this, "continueOnIncomingSocket() dataChannel is null: ${dataChannel == null}")
-        closeSocket(socket)
 
         // detect broken initial connection
         if (isCallInit(state) && socket.isClosed) {
