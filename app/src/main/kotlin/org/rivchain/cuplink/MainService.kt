@@ -24,8 +24,6 @@ import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
 import org.libsodium.jni.NaCl
-import org.rivchain.cuplink.util.Utils.readInternalFile
-import org.rivchain.cuplink.util.Utils.writeInternalFile
 import org.rivchain.cuplink.call.PacketWriter
 import org.rivchain.cuplink.call.Pinger
 import org.rivchain.cuplink.call.RTCPeerConnection
@@ -34,14 +32,16 @@ import org.rivchain.cuplink.model.Contacts
 import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.model.Events
 import org.rivchain.cuplink.model.Settings
-import org.rivchain.cuplink.rivmesh.ConfigurationProxy
 import org.rivchain.cuplink.rivmesh.AppStateReceiver
+import org.rivchain.cuplink.rivmesh.ConfigurationProxy
 import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
 import org.rivchain.cuplink.rivmesh.STATE_DISABLED
 import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.rivmesh.State
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.util.Utils.readInternalFile
+import org.rivchain.cuplink.util.Utils.writeInternalFile
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

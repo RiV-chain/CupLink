@@ -7,7 +7,11 @@ import org.rivchain.cuplink.rivmesh.models.DNSInfo
 import org.rivchain.cuplink.rivmesh.models.Peer
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import java.lang.reflect.Type
-import java.net.*
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.net.URI
+import java.net.URISyntaxException
 
 
 class Utils {

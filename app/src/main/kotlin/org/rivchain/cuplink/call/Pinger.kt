@@ -2,11 +2,11 @@ package org.rivchain.cuplink.call
 
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
-import org.rivchain.cuplink.util.AddressUtils
-import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.Crypto
-import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import java.lang.Integer.max
 import java.lang.Integer.min
 import java.net.ConnectException

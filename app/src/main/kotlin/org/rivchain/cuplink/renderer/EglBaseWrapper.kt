@@ -3,6 +3,7 @@ package org.rivchain.cuplink.renderer
 import android.opengl.EGL14
 import android.os.Build
 import androidx.annotation.RequiresApi
+import org.rivchain.cuplink.renderer.EglBaseWrapper.Companion.acquireEglBase
 import org.rivchain.cuplink.util.Log
 import org.webrtc.EglBase
 import org.webrtc.EglBase10

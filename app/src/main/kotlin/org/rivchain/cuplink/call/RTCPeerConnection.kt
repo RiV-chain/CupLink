@@ -22,7 +22,6 @@ import java.lang.Integer.min
 import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.Executors

@@ -6,7 +6,11 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.webkit.URLUtil
 import android.widget.Button
 import android.widget.ListView
@@ -24,15 +28,19 @@ import com.hbb20.CountryCodePicker
 import com.vincentbrison.openlibraries.android.dualcache.Builder
 import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer
 import com.vincentbrison.openlibraries.android.dualcache.SizeOf
-import kotlinx.coroutines.*
-import org.rivchain.cuplink.util.Log
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.SettingsActivity
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.deserializeStringList2PeerInfoSet
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.ping
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.models.Status
+import org.rivchain.cuplink.rivmesh.util.Utils.Companion.deserializeStringList2PeerInfoSet
+import org.rivchain.cuplink.rivmesh.util.Utils.Companion.ping
+import org.rivchain.cuplink.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.lang.reflect.Type
@@ -41,7 +49,7 @@ import java.net.URI
 import java.net.URL
 import java.net.UnknownHostException
 import java.nio.charset.Charset
-import java.util.*
+import java.util.Locale
 
 class PeerListActivity : AppCompatActivity(), ServiceConnection {
 

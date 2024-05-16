@@ -10,11 +10,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.size
-import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.Log
 import java.text.DateFormat
 import kotlin.math.abs
 

@@ -1,13 +1,11 @@
 package org.rivchain.cuplink.rivmesh
 
 import android.content.Context
-import android.content.Intent
-import android.net.*
-import android.os.Build
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.util.Log
-import androidx.preference.PreferenceManager
-import org.rivchain.cuplink.MainService
-import org.rivchain.cuplink.PREF_KEY_ENABLED
 
 
 private const val TAG = "Network"

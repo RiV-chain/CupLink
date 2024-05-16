@@ -1,16 +1,19 @@
 package org.rivchain.cuplink.automotive
 
-import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
-import androidx.car.app.model.*
+import androidx.car.app.model.Action
+import androidx.car.app.model.CarColor
+import androidx.car.app.model.CarIcon
+import androidx.car.app.model.ItemList
+import androidx.car.app.model.ListTemplate
+import androidx.car.app.model.Template
 import androidx.core.graphics.drawable.IconCompat
 import org.rivchain.cuplink.CallActivity
-import org.rivchain.cuplink.R
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Contacts
 

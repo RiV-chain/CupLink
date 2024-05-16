@@ -18,10 +18,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
-import org.rivchain.cuplink.util.AddressUtils.AddressType
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.util.AddressUtils
+import org.rivchain.cuplink.util.AddressUtils.AddressType
 import java.util.Locale
 
 class AddressManagementActivity : BaseActivity(), ServiceConnection {
