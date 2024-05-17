@@ -64,7 +64,6 @@ class MainService : VpnService() {
     private val binder = MainBinder()
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
-    private lateinit var database: Database
     var firstStart = false
     private var databasePath = ""
     var databasePassword = ""
@@ -151,19 +150,19 @@ class MainService : VpnService() {
         if (File(databasePath).exists()) {
             // open existing database
             val db = readInternalFile(databasePath)
-            database = Database.fromData(db, databasePassword)
+            binder.database = Database.fromData(db, databasePassword)
             firstStart = false
         } else {
-            // create new database
-            database = Database()
-            database.mesh.invoke()
+            // database instance created in binder
+            // init mesh config
+            binder.database.mesh.invoke()
             firstStart = true
         }
-        return database
+        return binder.database
     }
 
     fun mergeDatabase(new_db: Database) {
-        val oldDatabase = database
+        val oldDatabase = binder.database
 
         oldDatabase.settings = new_db.settings
 
@@ -180,7 +179,7 @@ class MainService : VpnService() {
 
     fun saveDatabase() {
         try {
-            val db = database
+            val db = binder.database
             val dbData = Database.toData(db, databasePassword)
             if (dbData != null) {
                 writeInternalFile(databasePath, dbData)
@@ -231,13 +230,14 @@ class MainService : VpnService() {
 
         stopPacketsStream()
 
-        if (!this::database.isInitialized) {
-            super.onDestroy()
-            return
-        }
+        // db initialized by default
+        //if (!this::database.isInitialized) {
+        //    super.onDestroy()
+        //    return
+        //}
 
         // say goodbye
-        val database = this.database
+        val database = this.binder.database
         if (serverSocket != null && serverSocket!!.isBound && !serverSocket!!.isClosed) {
             try {
                 val ownPublicKey = database.settings.publicKey
@@ -346,7 +346,7 @@ class MainService : VpnService() {
     private fun startPacketsStream() {
         // !this::database.isInitialized means db is encrypted
         // we will re-try to load it after the next db password prompt
-        if (!this::database.isInitialized || !started.compareAndSet(false, true)) {
+        if (!started.compareAndSet(false, true)) {
             return
         }
 
@@ -658,6 +658,8 @@ class MainService : VpnService() {
     * Allows communication between MainService and other objects
     */
     inner class MainBinder : Binder() {
+
+        var database = Database()
         fun getService(): MainService {
             return this@MainService
         }
@@ -666,28 +668,24 @@ class MainService : VpnService() {
             return dbEncrypted
         }
 
-        fun getDatabase(): Database {
-            return this@MainService.database
-        }
-
         fun getSettings(): Settings {
-            return getDatabase().settings
+            return database.settings
         }
 
         fun getContacts(): Contacts {
-            return getDatabase().contacts
+            return database.contacts
         }
 
         fun getEvents(): Events {
-            return getDatabase().events
+            return database.events
         }
 
         fun getMesh(): ConfigurationProxy {
-            return getDatabase().mesh
+            return database.mesh
         }
 
         fun getContactOrOwn(otherPublicKey: ByteArray): Contact? {
-            val db = getDatabase()
+            val db = database
             return if (db.settings.publicKey.contentEquals(otherPublicKey)) {
                 db.settings.getOwnContact()
             } else {
@@ -700,7 +698,7 @@ class MainService : VpnService() {
         }
 
         fun addContact(contact: Contact) {
-            getDatabase().contacts.addContact(contact)
+            database.contacts.addContact(contact)
             saveDatabase()
 
             pingContacts(listOf(contact))
@@ -710,8 +708,8 @@ class MainService : VpnService() {
         }
 
         fun deleteContact(publicKey: ByteArray) {
-            getDatabase().contacts.deleteContact(publicKey)
-            getDatabase().events.deleteEventsByPublicKey(publicKey)
+            database.contacts.deleteContact(publicKey)
+            database.events.deleteEventsByPublicKey(publicKey)
             saveDatabase()
 
             refreshContacts(this@MainService)
@@ -719,7 +717,7 @@ class MainService : VpnService() {
         }
 
         fun deleteEvents(eventDates: List<Date>) {
-            getDatabase().events.deleteEventsByDate(eventDates)
+            database.events.deleteEventsByDate(eventDates)
             saveDatabase()
 
             refreshContacts(this@MainService)
