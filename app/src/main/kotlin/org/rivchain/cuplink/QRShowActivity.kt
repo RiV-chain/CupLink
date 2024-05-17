@@ -83,7 +83,6 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
         } catch (e: Exception){
             e.printStackTrace()
             Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-        } finally {
             finish()
         }
     }
