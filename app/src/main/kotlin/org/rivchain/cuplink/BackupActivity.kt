@@ -114,7 +114,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
     private fun exportDatabase(uri: Uri) {
         val password = passwordEditText.text.toString()
         try {
-            val database = binder!!.database
+            val database = binder!!.getDatabase()
             val dbData = Database.toData(database, password)
 
             if (dbData != null) {
