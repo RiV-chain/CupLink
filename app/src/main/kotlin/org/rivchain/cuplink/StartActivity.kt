@@ -150,7 +150,16 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             5 -> {
-                Log.d(this, "init 5: choose peers")
+                Log.d(this, "init 5: check key pair")
+                if (binder!!.getSettings().publicKey.isEmpty()) {
+                    // generate key pair
+                    initKeyPair()
+                }
+                continueInit()
+            }
+            6 -> {
+                // All persistent settings must be set up prior this step!
+                Log.d(this, "init 6: choose peers")
                 if(preferences?.getString(PEERS, null) == null) {
                     val intent = Intent(this, PeerListActivity::class.java)
                     intent.putStringArrayListExtra(
@@ -163,14 +172,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 } else {
                     continueInit()
                 }
-            }
-            6 -> {
-                Log.d(this, "init 6: check key pair")
-                if (binder!!.getSettings().publicKey.isEmpty()) {
-                    // generate key pair
-                    initKeyPair()
-                }
-                continueInit()
             }
             7 -> {
                 Log.d(this, "init 7: check all permissions")
