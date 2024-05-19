@@ -29,6 +29,8 @@ class Contact(
         PENDING, // temporary state until the contact has been pinged
     }
 
+    constructor() : this("", ByteArray(0), emptyList(), false)
+
     // contact state
     @RLPIgnored
     var state = State.CONTACT_OFFLINE
