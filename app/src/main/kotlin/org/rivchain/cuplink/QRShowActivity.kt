@@ -14,6 +14,7 @@ import com.google.zxing.MultiFormatWriter
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.RlpUtils
 
 class QRShowActivity : BaseActivity(), ServiceConnection {
     private lateinit var publicKey: ByteArray
@@ -61,22 +62,51 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
             .text = contact.name
 
         val data = Contact.toJSON(contact, false).toString()
+        if (contact.addresses.isEmpty()) {
+            Toast.makeText(this, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT).show()
+        }
+        if (contact.name.isEmpty()) {
+            Toast.makeText(this, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+        }
+        if (contact.publicKey.isEmpty()) {
+            Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_SHORT).show()
+        }
         val multiFormatWriter = MultiFormatWriter()
         val bitMatrix = multiFormatWriter.encode(data, BarcodeFormat.QR_CODE, 1080, 1080)
         val barcodeEncoder = BarcodeEncoder()
         val bitmap = barcodeEncoder.createBitmap(bitMatrix)
         findViewById<ImageView>(R.id.QRView).setImageBitmap(bitmap)
+    }
 
+    private fun generateDeepLinkQR(contact: Contact) {
+        findViewById<TextView>(R.id.contact_name_tv)
+            .text = contact.name
+
+        val data = RlpUtils.generateLink(contact)
+        if(data == null){
+            Toast.makeText(this, R.string.contact_is_invalid, Toast.LENGTH_SHORT).show()
+        }
         if (contact.addresses.isEmpty()) {
             Toast.makeText(this, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT).show()
         }
+        if (contact.name.isEmpty()) {
+            Toast.makeText(this, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+        }
+        if (contact.publicKey.isEmpty()) {
+            Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_SHORT).show()
+        }
+        val multiFormatWriter = MultiFormatWriter()
+        val bitMatrix = multiFormatWriter.encode(data, BarcodeFormat.QR_CODE, 1080, 1080)
+        val barcodeEncoder = BarcodeEncoder()
+        val bitmap = barcodeEncoder.createBitmap(bitMatrix)
+        findViewById<ImageView>(R.id.QRView).setImageBitmap(bitmap)
     }
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
         binder = iBinder as MainBinder
         try {
             val contact = binder!!.getContactOrOwn(publicKey)!!
-            generateQR(contact)
+            generateDeepLinkQR(contact)
         } catch (e: NullPointerException) {
             e.printStackTrace()
             Toast.makeText(this, "NPE", Toast.LENGTH_LONG).show()

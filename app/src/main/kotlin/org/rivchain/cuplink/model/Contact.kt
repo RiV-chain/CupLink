@@ -6,6 +6,7 @@ import org.json.JSONObject
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Utils
+import org.tdf.rlp.RLPIgnored
 import java.io.Serializable
 import java.net.InetSocketAddress
 import java.util.Locale
@@ -14,22 +15,26 @@ class Contact(
     var name: String,
     var publicKey: ByteArray,
     var addresses: List<String>,
+
+    @RLPIgnored
     var blocked: Boolean = false
 ) : Serializable {
     enum class State {
         CONTACT_ONLINE,
         CONTACT_OFFLINE,
         NETWORK_UNREACHABLE,
-        APP_NOT_RUNNING, // host is online, but CupLinl does not run
+        APP_NOT_RUNNING, // host is online, but CupLink does not run
         AUTHENTICATION_FAILED, // authentication failed, key might have changed
         COMMUNICATION_FAILED, // something went wrong during communication
         PENDING, // temporary state until the contact has been pinged
     }
 
     // contact state
+    @RLPIgnored
     var state = State.CONTACT_OFFLINE
 
     // last working address (use this address next connection and for unknown contact initialization)
+    @RLPIgnored
     var lastWorkingAddress: InetSocketAddress? = null
 
     companion object {
