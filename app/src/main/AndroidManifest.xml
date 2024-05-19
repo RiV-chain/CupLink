@@ -130,6 +130,10 @@
             android:name=".QRScanActivity"
             android:noHistory="true"/>
 
+        <activity
+            android:name=".AddContactActivity"
+            android:noHistory="true"/>
+
         <activity android:name=".rivmesh.TileServiceActivity" android:theme="@android:style/Theme.NoDisplay"
             android:allowTaskReparenting="true"
             android:alwaysRetainTaskState="false"

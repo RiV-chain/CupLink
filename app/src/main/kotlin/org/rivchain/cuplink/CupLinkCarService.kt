@@ -1,5 +1,6 @@
 package org.rivchain.cuplink
 
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,8 @@ import androidx.car.app.validation.HostValidator
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import org.rivchain.cuplink.automotive.AutoControlScreen
+import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.util.RlpUtils
 
 @RequiresApi(Build.VERSION_CODES.O)
 class CupLinkCarService : CarAppService() {
@@ -48,7 +51,9 @@ class CupLinkCarService : CarAppService() {
     private var mainServiceBinder: MainService.MainBinder? = null
     private var mainServiceConnection: ServiceConnection? = null
     private fun bindToMainService(context: Context) {
+
         mainServiceConnection = object : ServiceConnection {
+
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 mainServiceBinder = service as? MainService.MainBinder
             }
@@ -92,10 +97,41 @@ class SettingsSession(private var mainServiceBinder: MainService.MainBinder?) : 
                 }
             }
         })
+
     }
 
     override fun onCreateScreen(intent: Intent): Screen {
         // fix NPE below for mainServiceBinder
+        Log.d(this, "car action:"+intent.action.toString())
+        if(intent.data != null) {
+            val uri = intent.data.toString()
+            Log.d(this, "uri:" + intent.data)
+            if(uri != "cpl://localhost/#r/decline_call"){
+                var service = mainServiceBinder!!.getService()
+                mainServiceBinder!!.getService().startActivity(
+                    CallActivity.clearTop(service)
+                        .setAction("ANSWER_INCOMING_CALL")
+                        .putExtra("EXTRA_CONTACT", RlpUtils.parseLink(uri))
+                )
+            } else {
+                PendingIntent.getBroadcast(
+                    mainServiceBinder!!.getService(),
+                    0,
+                    Intent().apply {
+                        action = CallService.STOP_CALL_ACTION
+                    },
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        PendingIntent.FLAG_IMMUTABLE
+                    else
+                        0
+                )
+            }
+            carContext.finishCarApp()
+        }
         return AutoControlScreen(carContext, mainServiceBinder!!.getContacts())
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
     }
 }

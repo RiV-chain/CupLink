@@ -5,18 +5,21 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Person
 import android.app.Service
+import android.app.UiModeManager
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.VibrationEffect
@@ -28,10 +31,17 @@ import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.RemoteViews
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.car.app.notification.CarAppExtender
+import androidx.car.app.notification.CarNotificationManager
+import androidx.car.app.notification.CarPendingIntent
+import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
 import androidx.core.graphics.drawable.toBitmap
 import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.util.RlpUtils
+
 
 class CallService : Service() {
 
@@ -161,7 +171,8 @@ class CallService : Service() {
         contact: Contact?,
         service: CallService,
     ) {
-        val builder: Notification.Builder = Notification.Builder(service)
+
+        val builder = NotificationCompat.Builder(service)
             .setContentTitle(
                 service.getString(R.string.is_calling)
             )
@@ -174,6 +185,7 @@ class CallService : Service() {
                     PendingIntent.FLAG_IMMUTABLE
                 )
             )
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nprefs: SharedPreferences = service.application.getSharedPreferences("Notifications", Activity.MODE_PRIVATE)
             var chanIndex = nprefs.getInt("calls_notification_channel", 0)
@@ -254,7 +266,7 @@ class CallService : Service() {
             service,
             0,
             Intent().apply {
-                setAction(CallService.STOP_CALL_ACTION)
+                action = CallService.STOP_CALL_ACTION
             },
             flag
         )
@@ -269,8 +281,10 @@ class CallService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        builder.setPriority(Notification.PRIORITY_MAX)
-        .setShowWhen(false)
+        builder.setPriority(NotificationCompat.PRIORITY_MAX)
+        //.setWhen(0)
+        .setOngoing(true)
+        //.setShowWhen(false)
         .setColor(-0xd35a20)
         .setVibrate(LongArray(0))
         .setCategory(Notification.CATEGORY_CALL)
@@ -282,7 +296,7 @@ class CallService : Service() {
                 PendingIntent.FLAG_IMMUTABLE
             ), true
         )
-        .setVisibility(Notification.VISIBILITY_PUBLIC)
+        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         val incomingNotification: Notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
@@ -292,15 +306,16 @@ class CallService : Service() {
                 personName = "Unknown contact"
             }
             val person: Person.Builder = Person.Builder()
+                .setImportant(true)
                 .setName(personName)
             //.setIcon(Icon.createWithAdaptiveBitmap(avatar)).build()
             val notificationStyle =
-                Notification.CallStyle.forIncomingCall(person.build(), endPendingIntent, answerPendingIntent)
+                NotificationCompat.CallStyle.forIncomingCall(person.build(), endPendingIntent, answerPendingIntent)
 
             builder.setStyle(notificationStyle)
             incomingNotification = builder.build()
         } else {
-            builder.addAction(R.drawable.checkbox_rounded_corner, endTitle, endPendingIntent)
+            builder.addAction(R.drawable.ic_close, endTitle, endPendingIntent)
             builder.addAction(R.drawable.ic_audio_device_phone, answerTitle, answerPendingIntent)
             builder.setContentText(contact!!.name)
 
@@ -333,8 +348,28 @@ class CallService : Service() {
             incomingNotification.headsUpContentView = incomingNotification.bigContentView
         }
         incomingNotification.flags = incomingNotification.flags or (Notification.FLAG_NO_CLEAR or Notification.FLAG_ONGOING_EVENT)
+
+        val answerCarPendingIntent = CarPendingIntent.getCarApp(
+            applicationContext,
+            System.currentTimeMillis().toInt(),
+            Intent(Intent.ACTION_ANSWER)
+                .setComponent(ComponentName(this, CupLinkCarService::class.java))
+                .setData(Uri.parse(RlpUtils.generateLink(contact))),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        builder.extend(CarAppExtender.Builder()
+            .setLargeIcon(AppCompatResources.getDrawable(service, R.drawable.cup_link)!!.toBitmap())
+            .setImportance(NotificationManager.IMPORTANCE_HIGH)
+            .setSmallIcon(R.drawable.ccp_selectable_bg)
+            .addAction(R.drawable.ic_audio_device_phone, answerTitle, answerCarPendingIntent)
+            .addAction(R.drawable.ic_close, endTitle, endPendingIntent)
+            .build())
+
         service.startForeground(ID_ONGOING_CALL_NOTIFICATION, incomingNotification)
+        CarNotificationManager.from(service).notify(ID_ONGOING_CALL_NOTIFICATION, builder)
     }
+
     override fun onDestroy() {
         this.unregisterReceiver(callServiceReceiver)
         this.unregisterReceiver(screenReceiver)

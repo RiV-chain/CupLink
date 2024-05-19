@@ -34,6 +34,7 @@ import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PowerManager
+import org.rivchain.cuplink.util.RlpUtils
 
 // the main view with tabs
 class MainActivity : BaseActivity(), ServiceConnection {
@@ -324,8 +325,34 @@ class MainActivity : BaseActivity(), ServiceConnection {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleDeeplinkIntent(intent)
+    }
+
+
+    private fun handleDeeplinkIntent(intent: Intent) {
+        val data = intent.data
+        if (data != null) {
+            RlpUtils.handlePotentialCupLinkContactUrl(this, data.toString())
+        }
+    }
+
     companion object {
+
         private var addressWarningShown = false
         var instance: MainActivity? = null
+
+        fun clearTop(context: Context): Intent {
+            val intent = Intent(context, MainActivity::class.java)
+
+            intent.setFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
+
+            return intent
+        }
     }
 }

@@ -52,7 +52,6 @@ import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.STATE_CALLING
 import org.rivchain.cuplink.rivmesh.STATE_CALL_ENDED
 import org.rivchain.cuplink.util.Log
-import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.Utils
 import org.webrtc.CameraEnumerationAndroid
 import org.webrtc.EglBase
@@ -62,7 +61,6 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
 import java.util.Date
-
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
@@ -1266,7 +1264,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         var isCallInProgress: Boolean = false
 
         fun clearTop(context: Context): Intent {
-            val intent = Intent(context, MainActivity::class.java)
+            val intent = Intent(context, CallActivity::class.java)
 
             intent.setFlags(
                 Intent.FLAG_ACTIVITY_CLEAR_TOP or
@@ -1276,6 +1274,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
             return intent
         }
+
     }
 
     @SuppressLint("MissingSuperCall")
@@ -1289,16 +1288,4 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         pressedTime = System.currentTimeMillis()
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleDeeplinkIntent(intent)
-    }
-
-
-    private fun handleDeeplinkIntent(intent: Intent) {
-        val data = intent.data
-        if (data != null) {
-            RlpUtils.handlePotentialCupLinkContactUrl(this, data.toString())
-        }
-    }
 }

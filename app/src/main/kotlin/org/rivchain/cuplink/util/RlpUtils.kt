@@ -2,6 +2,7 @@ package org.rivchain.cuplink.util
 
 import android.app.Activity
 import android.content.Intent
+import org.rivchain.cuplink.AddContactActivity
 import org.rivchain.cuplink.CallActivity
 import org.rivchain.cuplink.model.Contact
 import org.tdf.rlp.RLPCodec
@@ -18,8 +19,8 @@ internal object RlpUtils {
         if (contact != null) {
             activity.startActivity(Intent(
                 activity,
-                CallActivity::class.java
-            ).setAction("ANSWER_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact))
+                AddContactActivity::class.java
+            ).setAction("ADD_CONTACT").putExtra("EXTRA_CONTACT", contact))
         }
     }
 

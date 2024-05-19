@@ -55,7 +55,7 @@ import java.util.Date
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-private const val TAG = "VPN service"
+const val TAG = "VPN service"
 const val SERVICE_NOTIFICATION_ID = 1000
 class MainService : VpnService() {
     /**
