@@ -24,6 +24,7 @@ import com.journeyapps.barcodescanner.DefaultDecoderFactory
 import org.json.JSONException
 import org.json.JSONObject
 import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.Utils
 
 class QRScanActivity : BaseActivity(), BarcodeCallback, ServiceConnection {
@@ -65,8 +66,14 @@ class QRScanActivity : BaseActivity(), BarcodeCallback, ServiceConnection {
     }
 
     private fun addContact(data: String) {
-        val obj = JSONObject(data)
-        val newContact = Contact.fromJSON(obj, false)
+        val contact = RlpUtils.parseLink(data)
+        val newContact: Contact?
+        if (contact != null){
+            newContact = contact
+        } else {
+            val obj = JSONObject(data)
+            newContact = Contact.fromJSON(obj, false)
+        }
         if (newContact.addresses.isEmpty()) {
             Toast.makeText(this, R.string.contact_has_no_address_warning, Toast.LENGTH_LONG).show()
         }

@@ -244,6 +244,19 @@
             android:parentActivityName=".AboutActivity"
             android:configChanges="uiMode"/>
 
+        <activity android:name=".DeepLinkEntryActivity"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="cpl"
+                    android:host="localhost" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".BootUpReceiver"
             android:enabled="false"

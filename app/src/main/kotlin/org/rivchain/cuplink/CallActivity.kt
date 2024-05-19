@@ -52,6 +52,7 @@ import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.STATE_CALLING
 import org.rivchain.cuplink.rivmesh.STATE_CALL_ENDED
 import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.Utils
 import org.webrtc.CameraEnumerationAndroid
 import org.webrtc.EglBase
@@ -61,6 +62,7 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
 import java.util.Date
+
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
@@ -993,8 +995,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
 
             override fun onAudioDeviceChanged(
-                        oldDevice: RTCAudioManager.AudioDevice,
-                        newDevice: RTCAudioManager.AudioDevice) {
+                oldDevice: RTCAudioManager.AudioDevice,
+                newDevice: RTCAudioManager.AudioDevice,
+            ) {
                 val nameOld = getAudioDeviceName(oldDevice)
                 val nameNew = getAudioDeviceName(newDevice)
                 if (rtcAudioManager.getSpeakerphoneMode() == RTCAudioManager.SpeakerphoneMode.AUTO) {
@@ -1258,8 +1261,21 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     companion object {
+
         @Volatile
         var isCallInProgress: Boolean = false
+
+        fun clearTop(context: Context): Intent {
+            val intent = Intent(context, MainActivity::class.java)
+
+            intent.setFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
+
+            return intent
+        }
     }
 
     @SuppressLint("MissingSuperCall")
@@ -1271,5 +1287,18 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             Toast.makeText(baseContext, "Press back again will exit this call", Toast.LENGTH_SHORT).show()
         }
         pressedTime = System.currentTimeMillis()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleDeeplinkIntent(intent)
+    }
+
+
+    private fun handleDeeplinkIntent(intent: Intent) {
+        val data = intent.data
+        if (data != null) {
+            RlpUtils.handlePotentialCupLinkContactUrl(this, data.toString())
+        }
     }
 }
