@@ -19,7 +19,8 @@
         android:layout_margin="@dimen/fab_margin"
         android:backgroundTint="@color/selectedColor"
         app:srcCompat="@drawable/ping"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:tint="@color/white"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabScan"
@@ -29,7 +30,8 @@
         android:layout_margin="@dimen/fab_margin"
         android:backgroundTint="@color/selectedColor"
         app:srcCompat="@drawable/qr_glass"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:tint="@color/white"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabGenerate"
@@ -39,7 +41,8 @@
         android:layout_margin="@dimen/fab_margin"
         android:backgroundTint="@color/selectedColor"
         app:srcCompat="@drawable/qr_code"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:tint="@color/white"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -48,6 +51,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:backgroundTint="@color/selectedColor"
-        app:srcCompat="@drawable/qr_glass" />
+        app:srcCompat="@drawable/qr_glass"
+        app:tint="@color/white"/>
 
 </FrameLayout>

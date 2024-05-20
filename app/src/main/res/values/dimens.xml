@@ -11,8 +11,8 @@
     <dimen name="options_text_size">16sp</dimen>
     <dimen name="title_text_size">18sp</dimen>
     <dimen name="headline_text_size">18sp</dimen>
+    <dimen name="autocomplete_textview_padding">30dp</dimen>
 
     <!-- Calls -->
-
     <dimen name="cardview_corner_radius">5dp</dimen>
 </resources>

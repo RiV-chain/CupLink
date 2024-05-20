@@ -13,7 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Button
-import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.ListView
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -219,7 +219,7 @@ class EventListFragment : Fragment() {
 
         val activity = requireActivity() as MainActivity
         val binder = activity.binder ?: return
-        val builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(activity, R.style.PPTCDialog)
         builder.setTitle(R.string.clear_events)
         builder.setMessage(R.string.remove_all_events)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
@@ -251,7 +251,7 @@ class EventListFragment : Fragment() {
 
         val dialog = Dialog(activity)
         dialog.setContentView(R.layout.dialog_add_contact)
-        val nameEditText = dialog.findViewById<EditText>(R.id.NameEditText)
+        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.NameEditText)
         val exitButton = dialog.findViewById<Button>(R.id.CancelButton)
         val okButton = dialog.findViewById<Button>(R.id.OkButton)
         okButton.setOnClickListener {

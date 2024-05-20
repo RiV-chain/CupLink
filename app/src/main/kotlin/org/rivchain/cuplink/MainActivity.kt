@@ -18,7 +18,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -251,7 +251,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
         dialog.setCancelable(false)
         dialog.setCanceledOnTouchOutside(false)
 
-        val passwordEditText = dialog.findViewById<EditText>(R.id.change_password_edit_textview)
+        val passwordEditText = dialog.findViewById<TextInputEditText>(R.id.change_password_edit_textview)
         val exitButton = dialog.findViewById<Button>(R.id.change_password_cancel_button)
         val okButton = dialog.findViewById<Button>(R.id.change_password_ok_button)
         okButton.setOnClickListener {
@@ -334,7 +334,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
     private fun handleDeeplinkIntent(intent: Intent) {
         val data = intent.data
         if (data != null) {
-            RlpUtils.handlePotentialCupLinkContactUrl(this, data.toString())
+            AddContactActivity.handlePotentialCupLinkContactUrl(this, data.toString())
         }
     }
 

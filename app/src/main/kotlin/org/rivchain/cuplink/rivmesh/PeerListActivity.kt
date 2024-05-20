@@ -230,7 +230,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
 
     private fun editPeerListUrl() {
         val view: View = LayoutInflater.from(this).inflate(R.layout.edit_peer_list_url_dialog, null)
-        val ab: AlertDialog.Builder = AlertDialog.Builder(this)
+        val ab: AlertDialog.Builder = AlertDialog.Builder(this, R.style.PPTCDialog)
         ab.setCancelable(true).setView(view)
         val ad = ab.show()
         val saveButton = view.findViewById<Button>(R.id.save)
@@ -253,7 +253,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun addNewPeer() {
-        val view: View = LayoutInflater.from(this).inflate(R.layout.new_peer_dialog, null)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_add_peer, null)
         val countryCode: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             this.resources.configuration.locales[0].country
         } else {
@@ -277,7 +277,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
             schemaInput
         );
         view.findViewById<CountryCodePicker>(R.id.ccp).setCountryForNameCode(countryCode)
-        val ab: AlertDialog.Builder = AlertDialog.Builder(this)
+        val ab: AlertDialog.Builder = AlertDialog.Builder(this, R.style.PPTCDialog)
         ab.setCancelable(true).setView(view)
         val ad = ab.show()
         val addButton = view.findViewById<Button>(R.id.add)

@@ -1,9 +1,5 @@
 package org.rivchain.cuplink.util
 
-import android.app.Activity
-import android.content.Intent
-import org.rivchain.cuplink.AddContactActivity
-import org.rivchain.cuplink.CallActivity
 import org.rivchain.cuplink.model.Contact
 import org.tdf.rlp.RLPCodec
 
@@ -12,27 +8,6 @@ internal object RlpUtils {
     private val URL_REGEX = """(cpl://)localhost/#c/([a-zA-Z0-9]+$)""".toRegex()
 
     private val BASE_URL = """cpl://localhost/#c/"""
-
-    fun handlePotentialCupLinkContactUrl(activity: Activity, potentialUrl: String) {
-        val contact = parseLink(potentialUrl)
-
-        if (contact != null) {
-            activity.startActivity(Intent(
-                activity,
-                AddContactActivity::class.java
-            ).setAction("ADD_CONTACT").putExtra("EXTRA_CONTACT", contact))
-        }
-    }
-
-    fun String.toBytes(): ByteArray {
-        check(length % 2 == 0) { "Must have an even length" }
-
-        return chunked(2)
-            .map { it.toInt(16).toByte() }
-            .toByteArray()
-    }
-
-    fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
 
     @JvmStatic
     fun parseLink(url: String): Contact? {
@@ -58,5 +33,15 @@ internal object RlpUtils {
         }
         return BASE_URL + RLPCodec.encode(contact).toHexString()
     }
+
+    fun String.toBytes(): ByteArray {
+        check(length % 2 == 0) { "Must have an even length" }
+
+        return chunked(2)
+            .map { it.toInt(16).toByte() }
+            .toByteArray()
+    }
+
+    fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
 
 }

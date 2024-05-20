@@ -1,5 +1,6 @@
 package org.rivchain.cuplink
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ComponentName
@@ -10,6 +11,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.widget.Button
 import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
 import android.widget.Toast
 import org.json.JSONException
@@ -133,7 +135,7 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
 
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_add_contact_name_conflict)
-        val nameEditText = dialog.findViewById<EditText>(R.id.conflict_contact_edit_textview)
+        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.conflict_contact_edit_textview)
         val abortButton = dialog.findViewById<Button>(R.id.conflict_contact_abort_button)
         val replaceButton = dialog.findViewById<Button>(R.id.conflict_contact_replace_button)
         val renameButton = dialog.findViewById<Button>(R.id.conflict_contact_rename_button)
@@ -177,7 +179,7 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
 
     protected open fun startManualInput() {
         pause()
-        val b = AlertDialog.Builder(this)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
         val et = EditText(this)
         b.setTitle(R.string.paste_qr_code_data)
             .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
@@ -197,4 +199,16 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
         b.show()
     }
 
+    companion object {
+        fun handlePotentialCupLinkContactUrl(activity: Activity, potentialUrl: String) {
+            val contact = RlpUtils.parseLink(potentialUrl)
+
+            if (contact != null) {
+                activity.startActivity(Intent(
+                    activity,
+                    AddContactActivity::class.java
+                ).setAction("ADD_CONTACT").putExtra("EXTRA_CONTACT", contact))
+            }
+        }
+    }
 }

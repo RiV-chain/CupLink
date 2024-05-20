@@ -35,7 +35,10 @@
         android:gravity="center"
         android:textColor="@color/light_grey" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
+        android:background="@drawable/next_button_background"
+        app:backgroundTint="@null"
+        android:textAllCaps="false"
         android:id="@+id/public_key_conflict_abort_button"
         android:layout_width="0dp"
         android:layout_height="@dimen/padding_50"
@@ -44,14 +47,15 @@
         app:layout_constraintTop_toBottomOf="@+id/public_key_conflicting_contact_textview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/public_key_conflict_replace_button"
-        android:background="@drawable/next_button_background"
         android:fontFamily="@font/lato_bold"
         android:textSize="18sp"
         android:text="@string/button_abort"
-        android:textAllCaps="false"
         android:textColor="@color/white" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
+        android:background="@drawable/next_button_background"
+        app:backgroundTint="@null"
+        android:textAllCaps="false"
         android:id="@+id/public_key_conflict_replace_button"
         android:layout_width="0dp"
         android:layout_height="@dimen/padding_50"
@@ -61,11 +65,9 @@
         app:layout_constraintTop_toBottomOf="@+id/public_key_conflicting_contact_textview"
         app:layout_constraintStart_toEndOf="@+id/public_key_conflict_abort_button"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@drawable/next_button_background"
         android:fontFamily="@font/lato_bold"
         android:textSize="18sp"
         android:text="@string/button_replace"
-        android:textAllCaps="false"
         android:textColor="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -276,7 +277,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private fun showMissingAddressDialog() {
         val defaultAddress = getDefaultAddress()
         if (defaultAddress == null) {
-            val builder = AlertDialog.Builder(this)
+            val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
             builder.setTitle(getString(R.string.setup_address))
             builder.setMessage(getString(R.string.setup_no_address_found))
             builder.setPositiveButton(R.string.button_ok) { dialog: DialogInterface, _: Int ->
@@ -305,27 +306,20 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
     // initial dialog to set the username
     private fun showMissingUsernameDialog() {
-        val tw = TextView(this)
-        tw.setText(R.string.startup_prompt_name)
-        //tw.setTextColor(Color.BLACK);
-        tw.textSize = 20f
-        tw.gravity = Gravity.CENTER_HORIZONTAL
-        val layout = LinearLayout(this)
-        layout.orientation = LinearLayout.VERTICAL
-        layout.addView(tw)
-        val et = EditText(this)
-        et.layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        et.filters = arrayOf(getEditTextFilter())
-        et.isSingleLine = true
-        layout.addView(et)
-        layout.setPadding(40, 80, 40, 40)
+        // Inflate the custom layout
+        val dialogView = layoutInflater.inflate(R.layout.dialog_custom_username, null)
 
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle(R.string.startup_hello)
-        builder.setView(layout)
+        // Get references to the UI components
+        val tvPromptName: TextView = dialogView.findViewById(R.id.tv_prompt_name)
+        val etUsername: EditText = dialogView.findViewById(R.id.et_username)
+
+        // Apply filters and other properties to EditText if needed
+        etUsername.filters = arrayOf(getEditTextFilter())
+
+        // Build the dialog
+        val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
+        builder.setTitle(R.string.app_name)
+        builder.setView(dialogView)
         builder.setNegativeButton(R.string.button_skip) { dialog: DialogInterface?, _: Int ->
             val username = generateRandomUserName()
             if (Utils.isValidName(username)) {
@@ -339,7 +333,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
         }
         builder.setPositiveButton(R.string.button_next) { dialog: DialogInterface?, _: Int ->
-            val username = et.text.toString()
+            val username = etUsername.text.toString()
             if (Utils.isValidName(username)) {
                 binder!!.getSettings().username = username
                 binder!!.saveDatabase()
@@ -352,23 +346,12 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         }
 
         val adialog = builder.create()
-        adialog.setOnShowListener {
-            adialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(resources.getColor(R.color.white))
-            adialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.white))
-        }
         adialog.setCancelable(false)
         adialog.setCanceledOnTouchOutside(false)
         adialog.setOnShowListener { dialog: DialogInterface ->
-            val okButton = (dialog as AlertDialog).getButton(
-                AlertDialog.BUTTON_POSITIVE
-            )
-            et.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    charSequence: CharSequence,
-                    i: Int,
-                    i1: Int,
-                    i2: Int,
-                ) {
+            val okButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            etUsername.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
                     // nothing to do
                 }
 
@@ -435,7 +418,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         ddialog.setCancelable(false)
         ddialog.setCanceledOnTouchOutside(false)
 
-        val passwordEditText = ddialog.findViewById<EditText>(R.id.change_password_edit_textview)
+        val passwordEditText = ddialog.findViewById<TextInputEditText>(R.id.change_password_edit_textview)
         val exitButton = ddialog.findViewById<Button>(R.id.change_password_cancel_button)
         val okButton = ddialog.findViewById<Button>(R.id.change_password_ok_button)
         okButton.setOnClickListener {

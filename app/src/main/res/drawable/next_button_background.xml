@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <corners android:radius="3dp" /> <!-- Rounded corners with 3px radius -->
+    <corners android:radius="@dimen/cardview_corner_radius" /> <!-- Rounded corners with 3px radius -->
     <gradient
         android:startColor="@color/selectedColor"
         android:endColor="@color/selectedColor" />

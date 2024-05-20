@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:padding="10dp"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimaryDark"
+    >
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/schema"
@@ -15,8 +16,7 @@
         android:layout_margin="10dp"
         app:boxBackgroundMode="none"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/light_grey"
-        style="@style/EditText.OutlinedBox">
+        android:textColorHint="@color/light_grey">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/schemaInput"
             android:layout_width="match_parent"
@@ -24,7 +24,8 @@
             android:hint="Schema"
             android:textColor="@color/light_grey"
             android:inputType="textNoSuggestions"
-            android:textCursorDrawable="@null"/>
+            android:textCursorDrawable="@null"
+            style="@style/EditText.OutlinedBox"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -36,8 +37,7 @@
         android:layout_margin="10dp"
         app:boxBackgroundMode="none"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/light_grey"
-        style="@style/EditText.OutlinedBox">
+        android:textColorHint="@color/light_grey">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/ipInput"
@@ -48,7 +48,8 @@
             android:inputType="textNoSuggestions"
             android:textColor="@color/light_grey"
             android:textCursorDrawable="@null"
-            android:focusedByDefault="true"/>
+            android:focusedByDefault="true"
+            style="@style/EditText.OutlinedBox"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -60,8 +61,7 @@
         android:layout_margin="10dp"
         app:boxBackgroundMode="none"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/light_grey"
-        style="@style/EditText.OutlinedBox">
+        android:textColorHint="@color/light_grey">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/portInput"
@@ -71,7 +71,8 @@
             android:hint="Port"
             android:textColor="@color/light_grey"
             android:inputType="number"
-            android:textCursorDrawable="@null"/>
+            android:textCursorDrawable="@null"
+            style="@style/EditText.OutlinedBox"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.hbb20.CountryCodePicker
@@ -90,7 +91,7 @@
         app:layout_constraintTop_toBottomOf="@+id/port"
         android:background="@drawable/edit_text_rounded_corner"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/add"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -98,11 +99,11 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:text="ADD"
         app:layout_constraintEnd_toEndOf="@+id/schema"
         app:layout_constraintTop_toBottomOf="@+id/ccp"
         android:background="@drawable/next_button_background"
         app:backgroundTint="@null"
-        android:text="ADD"
         android:textColor="@color/white"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

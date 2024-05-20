@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
-import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -35,7 +35,7 @@ class ContactDetailsActivity : BaseActivity(), ServiceConnection {
     private lateinit var contactNameEdit: TextView
     private lateinit var contactPublicKeyEdit: TextView
     private lateinit var contactBlockedSwitch : SwitchMaterial
-    private lateinit var addressEditText: EditText
+    private lateinit var addressEditText: TextInputEditText
 
     private lateinit var addressListView: ListView
     private lateinit var addressListViewAdapter: AddressListAdapter
@@ -179,7 +179,7 @@ class ContactDetailsActivity : BaseActivity(), ServiceConnection {
 
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_contact_change_public_key)
-        val publicKeyInput = dialog.findViewById<EditText>(R.id.PublicKeyEditText)
+        val publicKeyInput = dialog.findViewById<TextInputEditText>(R.id.PublicKeyEditText)
         val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
         val okButton = dialog.findViewById<Button>(R.id.OkButton)
 
@@ -212,7 +212,7 @@ class ContactDetailsActivity : BaseActivity(), ServiceConnection {
 
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_contact_change_name)
-        val nameEditText = dialog.findViewById<EditText>(R.id.NameEditText)
+        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.NameEditText)
         val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
         val okButton = dialog.findViewById<Button>(R.id.OkButton)
 

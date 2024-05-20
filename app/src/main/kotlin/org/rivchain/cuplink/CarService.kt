@@ -20,9 +20,8 @@ import androidx.lifecycle.LifecycleOwner
 import org.rivchain.cuplink.automotive.AutoControlScreen
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.RlpUtils
-
 @RequiresApi(Build.VERSION_CODES.O)
-class CupLinkCarService : CarAppService() {
+class CarService : CarAppService() {
 
     override fun createHostValidator(): HostValidator {
         return if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {

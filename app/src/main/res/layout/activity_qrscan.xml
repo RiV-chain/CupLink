@@ -22,7 +22,8 @@
         android:layout_above="@id/fabScan"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_menu_edit"
-        android:background="@color/colorPrimary"/>
+        android:background="@color/colorPrimary"
+        app:tint="@color/white"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabScan"
@@ -32,6 +33,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/qr_code"
-        android:background="@color/colorPrimary" />
+        android:background="@color/colorPrimary"
+        app:tint="@color/white"/>
 
 </RelativeLayout>

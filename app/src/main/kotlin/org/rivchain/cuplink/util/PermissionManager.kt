@@ -53,7 +53,7 @@ object PermissionManager {
         onAccept: (() -> Unit),
         onDecline: (() -> Unit)
     ): AlertDialog {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context, R.style.PPTCDialog)
         builder.setMessage(R.string.permission_notification_text)
             .setPositiveButton(R.string.button_yes) { dialog, _ ->
                 dialog.dismiss()

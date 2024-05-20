@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -15,9 +16,10 @@ import android.provider.Settings
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.CompoundButton
-import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -26,7 +28,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
-import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PeerListActivity
 import org.rivchain.cuplink.rivmesh.PeerListActivity.Companion.PEER_LIST
@@ -388,7 +390,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         val settings = binder.getSettings()
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_change_name)
-        val nameEditText = dialog.findViewById<EditText>(R.id.NameEditText)
+        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.NameEditText)
         val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
         val okButton = dialog.findViewById<Button>(R.id.OkButton)
 
@@ -608,34 +610,28 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
 
     private fun setupSpinner(
         currentValue: String,
-        spinnerId: Int,
+        autoCompleteTextViewId: Int,
         arrayId: Int,
         arrayValuesId: Int,
-        callback: SpinnerItemSelected,
+        callback: SpinnerItemSelected
     ) {
         val arrayValues = resources.getStringArray(arrayValuesId)
-        val spinner = findViewById<Spinner>(spinnerId)
-        val spinnerAdapter = ArrayAdapter.createFromResource(this, arrayId, R.layout.spinner_item_settings)
-        spinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_settings)
+        val autoCompleteTextView = findViewById<AutoCompleteTextView>(autoCompleteTextViewId)
+        val dropdownAdapter = ArrayAdapter.createFromResource(this, arrayId, R.layout.spinner_item_settings)
 
-        spinner.adapter = spinnerAdapter
-        spinner.setSelection(arrayValues.indexOf(currentValue))
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            var check = 0
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                if (pos >= arrayValues.size) {
-                    Toast.makeText(this@SettingsActivity,
-                        "pos out of bounds: $arrayValues", Toast.LENGTH_SHORT).show()
-                    return
-                }
-                if (check++ > 0) {
-                    callback.call(arrayValues[pos])
-                }
-            }
+        autoCompleteTextView.setAdapter(dropdownAdapter)
+        autoCompleteTextView.setText(currentValue, false)
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // ignore
+        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            if (position >= arrayValues.size) {
+                Toast.makeText(
+                    this@SettingsActivity,
+                    "pos out of bounds: $arrayValues",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnItemClickListener
             }
+            callback.call(arrayValues[position])
         }
     }
 }

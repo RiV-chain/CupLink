@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
-import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -27,7 +27,7 @@ import java.util.Locale
 class AddressManagementActivity : BaseActivity(), ServiceConnection {
     private var binder: MainBinder? = null
     private lateinit var addressListView: ListView
-    private lateinit var customAddressTextEdit: EditText
+    private lateinit var customAddressTextEdit: TextInputEditText
     private lateinit var addressListViewAdapter: AddressListAdapter
     private var systemAddresses = mutableListOf<AddressEntry>()
 

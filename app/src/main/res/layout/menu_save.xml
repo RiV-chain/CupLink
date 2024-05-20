@@ -8,6 +8,8 @@
         android:id="@+id/saveButton"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:text="SAVE"
-        android:background="@android:color/transparent"/>
+        android:text="Save"
+        android:textAllCaps="false"
+        android:background="@android:color/transparent"
+        android:textColor="@color/light_light_grey"/>
 </RelativeLayout>

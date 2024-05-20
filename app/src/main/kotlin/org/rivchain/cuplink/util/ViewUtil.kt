@@ -16,7 +16,7 @@ import android.view.ViewTreeObserver.OnWindowFocusChangeListener
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
+import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -37,8 +37,8 @@ object ViewUtil {
         }
     }
 
-    fun focusAndMoveCursorToEndAndOpenKeyboard(input: EditText) {
-        val numberLength = input.getText().length
+    fun focusAndMoveCursorToEndAndOpenKeyboard(input: TextInputEditText) {
+        val numberLength = input.getText()!!.length
         input.setSelection(numberLength, numberLength)
         focusAndShowKeyboard(input)
     }

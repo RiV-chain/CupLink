@@ -11,5 +11,5 @@
         android:bottom="1dp"
         android:top="1dp" />
 
-    <corners android:radius="3dp" />
+    <corners android:radius="@dimen/cardview_corner_radius" />
 </shape>
