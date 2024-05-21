@@ -179,9 +179,15 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
 
     protected open fun startManualInput() {
         pause()
+
+        // Inflate the custom layout/view
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_manual_contact_input, null)
+        val et = dialogView.findViewById<EditText>(R.id.editTextInput)
+
         val b = AlertDialog.Builder(this, R.style.PPTCDialog)
-        val et = EditText(this)
         b.setTitle(R.string.paste_qr_code_data)
+            .setView(dialogView) // Set the custom view to the dialog
             .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
                 try {
                     val data = et.text.toString()
@@ -195,8 +201,13 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
                 dialog.cancel()
                 resume()
             }
-            .setView(et)
-        b.show()
+        val adialog = b.create()
+        adialog.setOnShowListener {
+            adialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.white))
+            adialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.white))
+        }
+        adialog.show()
+
     }
 
     companion object {

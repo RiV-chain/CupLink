@@ -22,14 +22,11 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import com.google.android.material.textfield.TextInputEditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -310,7 +307,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val dialogView = layoutInflater.inflate(R.layout.dialog_custom_username, null)
 
         // Get references to the UI components
-        val tvPromptName: TextView = dialogView.findViewById(R.id.tv_prompt_name)
         val etUsername: EditText = dialogView.findViewById(R.id.et_username)
 
         // Apply filters and other properties to EditText if needed
@@ -318,9 +314,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
         // Build the dialog
         val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
-        builder.setTitle(R.string.app_name)
-        builder.setView(dialogView)
-        builder.setNegativeButton(R.string.button_skip) { dialog: DialogInterface?, _: Int ->
+        .setTitle(R.string.startup_prompt_name)
+        .setView(dialogView)
+        .setNegativeButton(R.string.button_skip) { dialog: DialogInterface?, _: Int ->
             val username = generateRandomUserName()
             if (Utils.isValidName(username)) {
                 binder!!.getSettings().username = username
@@ -332,7 +328,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 Toast.makeText(this, R.string.invalid_name, Toast.LENGTH_SHORT).show()
             }
         }
-        builder.setPositiveButton(R.string.button_next) { dialog: DialogInterface?, _: Int ->
+        .setPositiveButton(R.string.button_next) { dialog: DialogInterface?, _: Int ->
             val username = etUsername.text.toString()
             if (Utils.isValidName(username)) {
                 binder!!.getSettings().username = username

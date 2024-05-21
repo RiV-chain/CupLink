@@ -7,19 +7,10 @@
     android:padding="16dp"
     android:background="@color/colorBackgroundDark">
 
-    <TextView
-        android:id="@+id/tv_prompt_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/startup_prompt_name"
-        android:textSize="20sp"
-        android:gravity="center_horizontal"/>
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/NameEditLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginStart="@dimen/padding_20"
         android:layout_marginEnd="@dimen/padding_20"
         app:layout_constraintStart_toStartOf="parent"

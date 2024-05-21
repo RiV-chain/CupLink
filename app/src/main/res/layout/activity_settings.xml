@@ -130,7 +130,7 @@
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
-                            android:inputType="none"/>
+                            android:enabled="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -304,7 +304,7 @@
                         android:textSize="@dimen/options_text_size"
                         android:paddingEnd="@dimen/autocomplete_textview_padding"
                         android:textAlignment="viewEnd"
-                        android:inputType="none"/>
+                        android:enabled="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -500,7 +500,7 @@
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
-                            android:inputType="none"/>
+                            android:enabled="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -553,7 +553,7 @@
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
-                            android:inputType="none"/>
+                            android:enabled="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -606,7 +606,7 @@
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
-                            android:inputType="none"/>
+                            android:enabled="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -791,7 +791,7 @@
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
-                            android:inputType="none"/>
+                            android:enabled="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

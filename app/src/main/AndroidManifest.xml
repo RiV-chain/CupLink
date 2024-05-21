@@ -285,9 +285,6 @@
         <meta-data
             android:name="com.samsung.android.keepalive.density"
             android:value="true"/>
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc"/>
         <!-- Android auto -->
         <meta-data
             android:name="com.google.android.gms.car.application"

@@ -2,4 +2,5 @@
 <resources>
     <string name="is_calling">Calling</string>
     <string name="contact_is_invalid">Contact is invalid</string>
+    <string name="add_contact_link_or_json">Enter contact link or contact JSON manually</string>
 </resources>
