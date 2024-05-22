@@ -28,7 +28,7 @@
             android:gravity="center_horizontal"
             android:inputType="textNoSuggestions"
             android:layout_weight="1"
-            android:textSize="18sp"
+            android:textSize="@dimen/name_text_size"
             android:textColor="@color/light_grey"
             android:textCursorDrawable="@null"
             style="@style/EditText.OutlinedBox"/>

@@ -30,7 +30,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="@dimen/padding_20"
         android:layout_marginEnd="@dimen/padding_20"
-        android:textSize="23sp"
+        android:textSize="@dimen/name_text_size"
         android:text="TestUser"
         android:gravity="center"
         android:textColor="@color/light_grey" />

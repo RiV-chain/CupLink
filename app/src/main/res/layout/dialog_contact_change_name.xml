@@ -41,6 +41,7 @@
             android:hint="Name"
             android:inputType="text"
             android:text=""
+            android:textSize="@dimen/name_text_size"
             android:textColor="@color/light_grey"
             android:textCursorDrawable="@null" />
     </com.google.android.material.textfield.TextInputLayout>

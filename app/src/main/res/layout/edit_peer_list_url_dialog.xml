@@ -14,6 +14,7 @@
         android:background="@drawable/edit_text_rounded_corner"
         android:textColorHint="@color/white"
         app:boxBackgroundMode="none"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="@+id/save"
         app:layout_constraintStart_toStartOf="@+id/save"
         app:layout_constraintTop_toTopOf="parent">

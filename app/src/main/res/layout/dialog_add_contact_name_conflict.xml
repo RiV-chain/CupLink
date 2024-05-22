@@ -40,6 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Name"
+            android:textSize="@dimen/name_text_size"
             android:textColor="@color/light_grey"
             android:textCursorDrawable="@null" />
     </com.google.android.material.textfield.TextInputLayout>

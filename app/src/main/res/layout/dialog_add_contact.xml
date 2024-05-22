@@ -40,11 +40,11 @@
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:hint="@string/contact_name"
+            android:textSize="@dimen/name_text_size"
             android:importantForAutofill="no"
             android:inputType="textNoSuggestions"
             android:textColor="@color/light_grey"
-            android:textCursorDrawable="@null"
-            android:textSize="16sp" />
+            android:textCursorDrawable="@null"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton

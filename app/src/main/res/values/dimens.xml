@@ -15,4 +15,6 @@
 
     <!-- Calls -->
     <dimen name="cardview_corner_radius">5dp</dimen>
+    <dimen name="password_text_size">25sp</dimen>
+    <dimen name="name_text_size">20sp</dimen>
 </resources>
