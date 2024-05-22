@@ -64,12 +64,6 @@ abstract class RTCPeerConnection(
         }
 
         mediaPlayer = MediaPlayer.create(binder.getService(), toneResId)
-        mediaPlayer?.setOnPreparedListener {
-            val audioManager = binder.getService().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            audioManager.mode = AudioManager.MODE_NORMAL
-            audioManager.isSpeakerphoneOn = true
-            it.start()
-        }
         mediaPlayer?.isLooping = state == CallState.RINGING
         mediaPlayer?.start()
     }
