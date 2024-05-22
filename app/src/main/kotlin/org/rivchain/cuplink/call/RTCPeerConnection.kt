@@ -2,6 +2,7 @@ package org.rivchain.cuplink.call
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -12,6 +13,7 @@ import org.rivchain.cuplink.CallService
 import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.R
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
@@ -28,7 +30,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 
-
 abstract class RTCPeerConnection(
     protected var binder: MainService.MainBinder,
     protected var contact: Contact,
@@ -37,6 +38,40 @@ abstract class RTCPeerConnection(
     protected var state = CallState.WAITING
     protected var callActivity: RTCCall.CallContext? = null
     private val executor = Executors.newSingleThreadExecutor()
+
+    private var mediaPlayer: MediaPlayer? = null
+
+    protected fun playTone(state: CallState) {
+        stopTone() // Stop any currently playing tone
+
+        val toneResId: Int = when (state) {
+            CallState.WAITING -> R.raw.waiting
+            CallState.CONNECTING -> R.raw.waiting
+            CallState.RINGING -> R.raw.ringing
+            CallState.DISMISSED -> R.raw.stop
+            CallState.ENDED -> R.raw.ended
+            CallState.CONNECTED -> R.raw.connected
+            CallState.ERROR_COMMUNICATION -> R.raw.stop
+            CallState.ERROR_AUTHENTICATION -> R.raw.stop
+            CallState.ERROR_DECRYPTION -> R.raw.stop
+            CallState.ERROR_CONNECT_PORT -> R.raw.stop
+            CallState.ERROR_UNKNOWN_HOST -> R.raw.stop
+            CallState.ERROR_NO_CONNECTION -> R.raw.stop
+            CallState.ERROR_NO_ADDRESSES -> R.raw.stop
+            CallState.ERROR_NO_NETWORK -> R.raw.stop
+        }
+
+        mediaPlayer = MediaPlayer.create(callActivity!!.getContext(), toneResId)
+
+        mediaPlayer?.isLooping = state == CallState.RINGING
+        mediaPlayer?.start()
+    }
+
+    private fun stopTone() {
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
 
     abstract fun reportStateChange(state: CallState)
     abstract fun handleAnswer(remoteDesc: String)
@@ -51,6 +86,7 @@ abstract class RTCPeerConnection(
                 e.printStackTrace()
             }
             Log.d(this, "cleanup() executor end")
+            stopTone()
         }
 
         // wait for tasks to finish
@@ -126,6 +162,7 @@ abstract class RTCPeerConnection(
 
         val pr = PacketReader(socket)
         reportStateChange(CallState.CONNECTING)
+        playTone(CallState.CONNECTING)
         run {
             Log.d(this, "createOutgoingCallInternal() outgoing call: send call")
             val obj = JSONObject()
@@ -140,6 +177,7 @@ abstract class RTCPeerConnection(
 
             if (encrypted == null) {
                 reportStateChange(CallState.ERROR_COMMUNICATION)
+                playTone(CallState.ERROR_COMMUNICATION)
                 return
             }
 
@@ -152,6 +190,7 @@ abstract class RTCPeerConnection(
             val response = pr.readMessage()
             if (response == null) {
                 reportStateChange(CallState.ERROR_COMMUNICATION)
+                playTone(CallState.ERROR_COMMUNICATION)
                 return
             }
 
@@ -164,11 +203,13 @@ abstract class RTCPeerConnection(
 
             if (decrypted == null) {
                 reportStateChange(CallState.ERROR_DECRYPTION)
+                playTone(CallState.ERROR_DECRYPTION)
                 return
             }
 
             if (!contact.publicKey.contentEquals(otherPublicKey)) {
                 reportStateChange(CallState.ERROR_AUTHENTICATION)
+                playTone(CallState.ERROR_AUTHENTICATION)
                 return
             }
 
@@ -177,13 +218,16 @@ abstract class RTCPeerConnection(
             if (action == "ringing") {
                 Log.d(this, "createOutgoingCallInternal() got ringing")
                 reportStateChange(CallState.RINGING)
+                playTone(CallState.RINGING)
             } else if (action == "dismissed") {
                 Log.d(this, "createOutgoingCallInternal() got dismissed")
                 reportStateChange(CallState.DISMISSED)
+                playTone(CallState.DISMISSED)
                 return
             } else {
                 Log.d(this, "createOutgoingCallInternal() unexpected action: $action")
                 reportStateChange(CallState.ERROR_COMMUNICATION)
+                playTone(CallState.ERROR_COMMUNICATION)
                 return
             }
         }
@@ -416,6 +460,7 @@ abstract class RTCPeerConnection(
                 0,
                 Intent().apply {
                     setAction(CallService.DECLINE_CALL_ACTION)
+                    playTone(CallState.ENDED)
                 },
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                     PendingIntent.FLAG_IMMUTABLE
@@ -822,8 +867,5 @@ abstract class RTCPeerConnection(
                 }
             }
         }
-
-        private const val ID_INCOMING_CALL_NOTIFICATION = 202
-
     }
 }
