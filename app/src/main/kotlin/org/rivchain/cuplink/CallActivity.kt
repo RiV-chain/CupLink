@@ -241,7 +241,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             this,
             0,
             Intent().apply {
-                setAction(CallService.START_CALL_ACTION)
+                action = CallService.START_CALL_ACTION
                 putExtra("EXTRA_CONTACT", contact)
             },
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)

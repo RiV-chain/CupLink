@@ -1,7 +1,9 @@
 package org.rivchain.cuplink.call
 
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.core.content.ContextCompat
@@ -61,8 +63,13 @@ abstract class RTCPeerConnection(
             CallState.ERROR_NO_NETWORK -> R.raw.stop
         }
 
-        mediaPlayer = MediaPlayer.create(callActivity!!.getContext(), toneResId)
-
+        mediaPlayer = MediaPlayer.create(binder.getService(), toneResId)
+        mediaPlayer?.setOnPreparedListener {
+            val audioManager = binder.getService().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.mode = AudioManager.MODE_NORMAL
+            audioManager.isSpeakerphoneOn = true
+            it.start()
+        }
         mediaPlayer?.isLooping = state == CallState.RINGING
         mediaPlayer?.start()
     }

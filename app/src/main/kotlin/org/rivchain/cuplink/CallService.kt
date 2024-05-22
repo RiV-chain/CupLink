@@ -40,7 +40,6 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.RlpUtils
 
-
 class CallService : Service() {
 
     private var callServiceReceiver: CallServiceReceiver? = null
@@ -346,7 +345,10 @@ class CallService : Service() {
             incomingNotification.headsUpContentView = incomingNotification.bigContentView
         }
         incomingNotification.flags = incomingNotification.flags or (Notification.FLAG_NO_CLEAR or Notification.FLAG_ONGOING_EVENT)
-
+        if(contact.name.isEmpty()){
+            contact.name = "Unknown caller"
+            contact.addresses = arrayListOf(contact.lastWorkingAddress!!.address.toString())
+        }
         val answerCarPendingIntent = CarPendingIntent.getCarApp(
             applicationContext,
             System.currentTimeMillis().toInt(),
