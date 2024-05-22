@@ -315,6 +315,7 @@ abstract class RTCPeerConnection(
             if (action == "connected") {
                 Log.d(this, "createOutgoingCallInternal() connected")
                 reportStateChange(CallState.CONNECTED)
+                playTone(CallState.CONNECTED)
                 val answer = obj.optString("answer")
                 if (answer.isNotEmpty()) {
                     handleAnswer(answer)
