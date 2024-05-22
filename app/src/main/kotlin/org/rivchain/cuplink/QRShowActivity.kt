@@ -38,7 +38,7 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
         findViewById<View>(R.id.fabShare).setOnClickListener {
             try {
                 val contact = binder!!.getContactOrOwn(publicKey)!!
-                val data = Contact.toJSON(contact, false).toString()
+                val data = RlpUtils.generateLink(contact)
                 val i = Intent(Intent.ACTION_SEND)
                 i.putExtra(Intent.EXTRA_TEXT, data)
                 i.type = "text/plain"
