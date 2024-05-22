@@ -39,7 +39,9 @@
             style="@style/EditText.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
+            android:hint="Enter contact name"
+            android:paddingBottom="@dimen/padding_10"
+            android:gravity="center_horizontal"
             android:textSize="@dimen/name_text_size"
             android:textColor="@color/light_grey"
             android:textCursorDrawable="@null" />
