@@ -22,32 +22,30 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/NameEditLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="@dimen/padding_20"
-        android:layout_marginEnd="@dimen/padding_20"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ChangeNameTextView"
-        app:layout_constraintBottom_toTopOf="@+id/CancelButton"
-        app:boxBackgroundMode="none"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/light_grey">
+        android:textColorHint="@color/light_grey"
+        app:boxBackgroundMode="none"
+        app:layout_constraintBottom_toTopOf="@+id/CancelButton"
+        app:layout_constraintEnd_toEndOf="@+id/OkButton"
+        app:layout_constraintStart_toStartOf="@+id/CancelButton"
+        app:layout_constraintTop_toBottomOf="@+id/ChangeNameTextView">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/NameEditText"
+            style="@style/EditText.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
             android:hint="@string/contact_name"
             android:importantForAutofill="no"
-            android:gravity="center_horizontal"
             android:inputType="textNoSuggestions"
-            android:layout_weight="1"
-            android:textSize="16sp"
             android:textColor="@color/light_grey"
             android:textCursorDrawable="@null"
-            style="@style/EditText.OutlinedBox"/>
+            android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton

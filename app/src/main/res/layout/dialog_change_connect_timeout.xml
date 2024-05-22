@@ -22,25 +22,27 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/ConnectTimeoutEditTextLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/ConnectTimeoutTextView"
-        app:layout_constraintBottom_toTopOf="@+id/CancelButton"
-        android:layout_margin="10dp"
-        app:boxBackgroundMode="none"
+        android:layout_marginTop="10dp"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/light_grey">
+        android:textColorHint="@color/light_grey"
+        app:boxBackgroundMode="none"
+        app:layout_constraintBottom_toTopOf="@+id/CancelButton"
+        app:layout_constraintEnd_toEndOf="@+id/OkButton"
+        app:layout_constraintStart_toStartOf="@+id/CancelButton"
+        app:layout_constraintTop_toBottomOf="@+id/ConnectTimeoutTextView">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/ConnectTimeoutEditText"
+            style="@style/EditText.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:digits="0123456789"
             android:hint="Timeout(ms)"
-            android:textColor="@color/light_grey"
             android:inputType="number"
-            android:textCursorDrawable="@null"
-            style="@style/EditText.OutlinedBox"/>
+            android:textColor="@color/light_grey"
+            android:textCursorDrawable="@null" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton

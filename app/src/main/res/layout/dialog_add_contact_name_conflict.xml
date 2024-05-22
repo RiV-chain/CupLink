@@ -23,25 +23,25 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/conflict_contact_edit_textview_layout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/conflict_contact_textview"
-        app:layout_constraintBottom_toTopOf="@+id/conflict_contact_replace_button"
-        android:layout_margin="10dp"
-        app:boxBackgroundMode="none"
+        android:layout_marginTop="10dp"
         android:background="@drawable/edit_text_rounded_corner"
-        android:textColorHint="@color/light_grey">
+        android:textColorHint="@color/light_grey"
+        app:boxBackgroundMode="none"
+        app:layout_constraintBottom_toTopOf="@+id/conflict_contact_replace_button"
+        app:layout_constraintEnd_toEndOf="@+id/conflict_contact_rename_button"
+        app:layout_constraintStart_toStartOf="@+id/conflict_contact_abort_button"
+        app:layout_constraintTop_toBottomOf="@+id/conflict_contact_textview">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/conflict_contact_edit_textview"
+            style="@style/EditText.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Name"
             android:textColor="@color/light_grey"
-            android:textCursorDrawable="@null"
-            style="@style/EditText.OutlinedBox"/>
+            android:textCursorDrawable="@null" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
