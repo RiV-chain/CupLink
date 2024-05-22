@@ -359,7 +359,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                     Log.w(this, "setContactState() binder is null")
                 }
             }
-
+            if(!isIncoming || state != CallState.RINGING) {
+                currentCall.playTone(state)
+            }
             when (state) {
                 CallState.WAITING -> {
                     callStatus.text = getString(R.string.call_waiting)

@@ -760,7 +760,6 @@ class RTCCall : RTCPeerConnection {
 
         if (sendOnDataChannel(o.toString())) {
             reportStateChange(CallState.ENDED)
-            playTone(CallState.ENDED)
         } else {
             reportStateChange(CallState.ERROR_COMMUNICATION)
         }
