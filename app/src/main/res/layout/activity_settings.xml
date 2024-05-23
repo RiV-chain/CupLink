@@ -66,7 +66,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_name"
                         android:textSize="@dimen/title_text_size" />
 
@@ -82,15 +82,10 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -98,7 +93,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/textInputLayoutNightMode"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_nightmode"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -126,7 +121,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentEnd="true"
-                            android:fontFamily="@font/lato_bold"
+                            android:fontFamily="@font/poppins_regular"
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
@@ -135,11 +130,6 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    app:dividerColor="@color/light_grey" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -151,7 +141,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/blockUnknownSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_block_unknown"
                         android:textSize="@dimen/title_text_size" />
 
@@ -169,14 +159,6 @@
 
                 </RelativeLayout>
 
-
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="visible"
-                    app:dividerColor="@color/light_grey"
-                    android:layout_marginBottom="5dp"/>
-
                 <LinearLayout
                     android:id="@+id/peerLayout"
                     android:layout_width="match_parent"
@@ -192,7 +174,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:text="@string/peers"
@@ -207,7 +189,7 @@
                         android:layout_width="110dp"
                         android:text="Edit"
                         android:textAllCaps="false"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
@@ -220,17 +202,9 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:visibility="visible"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    >
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -238,7 +212,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/startOnBootupSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_start_on_bootup"
                         android:textSize="@dimen/title_text_size" />
 
@@ -256,12 +230,6 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="visible"
-                    app:dividerColor="@color/light_grey" />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -272,7 +240,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/textInputLayoutSettingsModes"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_settings_mode"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -300,7 +268,7 @@
                         android:layout_alignParentEnd="true"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
                         android:paddingEnd="@dimen/autocomplete_textview_padding"
                         android:textAlignment="viewEnd"
@@ -320,16 +288,11 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <com.google.android.material.divider.MaterialDivider
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -337,7 +300,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/automaticStatusUpdatesSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_automatic_status_updates"
                         android:textSize="@dimen/title_text_size" />
 
@@ -352,17 +315,12 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -370,7 +328,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/enableMicrophoneByDefaultSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_enable_microphone_by_default"
                         android:textSize="@dimen/title_text_size" />
 
@@ -385,17 +343,11 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -403,7 +355,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/enableCameraByDefaultSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_enable_camera_by_default"
                         android:textSize="@dimen/title_text_size" />
 
@@ -418,17 +370,11 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -436,7 +382,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/selectFrontCameraByDefaultSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_select_front_camera_by_default"
                         android:textSize="@dimen/title_text_size" />
 
@@ -451,15 +397,10 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp">
 
                     <TextView
                         android:id="@+id/videoDegradationModeText"
@@ -468,7 +409,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/textInputLayoutVideoDegradationModes"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_video_degradation_mode"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -496,7 +437,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/lato_bold"
+                            android:fontFamily="@font/poppins_regular"
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
@@ -504,11 +445,6 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:dividerColor="@color/light_grey" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -521,7 +457,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/textInputLayoutCameraResolution"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_camera_resolution"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -549,7 +485,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/lato_bold"
+                            android:fontFamily="@font/poppins_regular"
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
@@ -557,11 +493,6 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:dividerColor="@color/light_grey" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -574,7 +505,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/textInputLayoutCameraFramerate"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_camera_framerate"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -602,7 +533,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/lato_bold"
+                            android:fontFamily="@font/poppins_regular"
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
@@ -611,16 +542,11 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -628,7 +554,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/promptOutgoingCallsSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_prompt_outgoing_calls"
                         android:textSize="@dimen/title_text_size" />
 
@@ -643,17 +569,11 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -661,7 +581,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/showUsernameAsLogoSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_show_username_as_logo"
                         android:textSize="@dimen/title_text_size" />
 
@@ -676,17 +596,11 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -694,7 +608,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/pushToTalkSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_push_to_talk"
                         android:textSize="@dimen/title_text_size" />
 
@@ -709,25 +623,18 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    android:layout_marginBottom="15dp"
-                    android:visibility="visible"
-                    app:dividerColor="@color/light_grey" />
-
                 <LinearLayout
                     android:id="@+id/addressLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="visible"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_addresses"
                         android:textSize="@dimen/title_text_size" />
 
@@ -743,15 +650,10 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -759,7 +661,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/textInputLayoutSpeakerphoneModes"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_speakerphone_mode"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -787,7 +689,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/lato_bold"
+                            android:fontFamily="@font/poppins_regular"
                             android:textSize="@dimen/options_text_size"
                             android:paddingEnd="@dimen/autocomplete_textview_padding"
                             android:textAlignment="viewEnd"
@@ -796,22 +698,17 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <LinearLayout
                     android:id="@+id/databasePasswordLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_database_password"
                         android:textSize="@dimen/title_text_size" />
 
@@ -827,23 +724,18 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <LinearLayout
                     android:id="@+id/menuPasswordLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_menu_password"
                         android:textSize="@dimen/title_text_size" />
 
@@ -859,13 +751,6 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <!--RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -876,7 +761,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/disableCallHistorySwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_disable_call_history"
                         android:textColor="?android:textColorPrimary"
                         android:textSize="@dimen/title_text_size" />
@@ -902,7 +787,8 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -910,7 +796,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/disableProximitySensorSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_disable_proximity_sensor"
                         android:textSize="@dimen/title_text_size" />
 
@@ -936,17 +822,11 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -954,7 +834,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/autoAcceptCallsSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_auto_accept_calls"
                         android:textSize="@dimen/title_text_size" />
 
@@ -969,17 +849,11 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -987,7 +861,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/disableCpuOveruseDetectionSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_disable_cpu_overuse_detection"
                         android:textSize="@dimen/title_text_size" />
 
@@ -1002,23 +876,18 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <LinearLayout
                     android:id="@+id/publicKeyLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_public_key"
                         android:textSize="@dimen/title_text_size" />
 
@@ -1036,16 +905,10 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -1053,7 +916,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/disableAudioProcessingSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_disable_audio_processing"
                         android:textSize="@dimen/title_text_size" />
 
@@ -1069,15 +932,9 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    >
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -1085,7 +942,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/videoHardwareAccelerationSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_video_hardware_acceleration"
                         android:textSize="@dimen/title_text_size" />
 
@@ -1101,22 +958,17 @@
 
                 </RelativeLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <LinearLayout
                     android:id="@+id/connectTimeoutLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_connect_timeout"
                         android:textSize="@dimen/title_text_size" />
 
@@ -1132,23 +984,18 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <LinearLayout
                     android:id="@+id/connectRetriesLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_connect_retries"
                         android:textSize="@dimen/title_text_size" />
 
@@ -1164,16 +1011,10 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    app:dividerColor="@color/light_grey" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginTop="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -1181,7 +1022,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerInParent="true"
                         android:layout_toStartOf="@+id/useNeighborTableSwitch"
-                        android:fontFamily="@font/lato_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_use_neighbor_table"
                         android:textSize="@dimen/title_text_size" />
 
