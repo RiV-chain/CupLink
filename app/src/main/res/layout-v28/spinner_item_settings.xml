@@ -7,4 +7,5 @@
     android:textColor="@color/light_grey"
     android:background="@color/colorPrimaryDark"
     android:padding="@dimen/padding_5"
-    android:fontFamily="@font/poppins_regular"/>
+    android:fontFamily="@font/poppins_regular"
+    android:textFontWeight="500"/>
