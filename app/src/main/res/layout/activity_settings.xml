@@ -89,7 +89,7 @@
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/settingsName"
-                    android:layout_marginTop="@dimen/padding_30"/>
+                    android:layout_marginTop="@dimen/padding_40"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayoutNightMode"
@@ -156,7 +156,7 @@
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/blockUnknownSwitch"
-                    android:layout_marginTop="@dimen/padding_25"/>
+                    android:layout_marginTop="@dimen/padding_40"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/editPeers"
@@ -189,7 +189,7 @@
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/editPeers"
-                    android:layout_marginTop="@dimen/padding_20"/>
+                    android:layout_marginTop="@dimen/padding_25"/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/startOnBootupSwitch"
@@ -837,7 +837,8 @@
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/connectRetriesTv"
-                        android:layout_marginTop="@dimen/padding_40"/>
+                        android:layout_marginTop="@dimen/padding_40"
+                        android:layout_marginBottom="@dimen/padding_40"/>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/useNeighborTableSwitch"
