@@ -104,7 +104,7 @@
                     app:layout_constraintTop_toTopOf="@id/settingsNightModes"
                     app:layout_constraintBottom_toBottomOf="@id/settingsNightModes"
                     app:endIconTint="@color/white"
-                    android:paddingBottom="@dimen/padding_5">
+                    android:paddingBottom="@dimen/padding_3">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerNightModes"
@@ -215,7 +215,7 @@
                     app:layout_constraintEnd_toEndOf="@id/settingsModes"
                     app:layout_constraintTop_toTopOf="@id/settingsModes"
                     app:layout_constraintBottom_toBottomOf="@id/settingsModes"
-                    android:paddingBottom="@dimen/padding_5">
+                    android:paddingBottom="@dimen/padding_3">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerSettingsModes"
@@ -344,7 +344,7 @@
                         app:layout_constraintEnd_toEndOf="@id/videoDegradationModeText"
                         app:layout_constraintTop_toTopOf="@id/videoDegradationModeText"
                         app:layout_constraintBottom_toBottomOf="@id/videoDegradationModeText"
-                        android:paddingBottom="@dimen/padding_5">
+                        android:paddingBottom="@dimen/padding_3">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerVideoDegradationModes"
@@ -383,7 +383,7 @@
                         app:layout_constraintTop_toTopOf="@id/cameraResolutionText"
                         app:layout_constraintBottom_toBottomOf="@id/cameraResolutionText"
                         app:endIconTint="@color/white"
-                        android:paddingBottom="@dimen/padding_5">
+                        android:paddingBottom="@dimen/padding_3">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerCameraResolution"
@@ -422,7 +422,7 @@
                         app:layout_constraintTop_toTopOf="@id/cameraFramerateText"
                         app:layout_constraintBottom_toBottomOf="@id/cameraFramerateText"
                         app:endIconTint="@color/white"
-                        android:paddingBottom="@dimen/padding_5">
+                        android:paddingBottom="@dimen/padding_3">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerCameraFramerate"
@@ -546,7 +546,7 @@
                         app:layout_constraintTop_toTopOf="@id/textSpeakerphoneModes"
                         app:layout_constraintBottom_toBottomOf="@id/textSpeakerphoneModes"
                         app:endIconTint="@color/white"
-                        android:paddingBottom="@dimen/padding_5">
+                        android:paddingBottom="@dimen/padding_3">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerSpeakerphoneModes"
