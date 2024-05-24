@@ -18,13 +18,15 @@
         android:fontFamily="@font/poppins_regular"
         android:paddingBottom="16dp" />
 
-    <RadioGroup
-        android:id="@+id/radioGroupNightModes"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <!-- RadioButtons will be added dynamically in Kotlin code -->
-
-    </RadioGroup>
+        <RadioGroup
+            android:id="@+id/radioGroupNightModes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- RadioButtons will be added dynamically in Kotlin code -->
+        </RadioGroup>
+    </ScrollView>
 
 </LinearLayout>
