@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/colorBackgroundDark">
+    android:background="@drawable/dialog_rounded_corner">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/NameEditLayout"

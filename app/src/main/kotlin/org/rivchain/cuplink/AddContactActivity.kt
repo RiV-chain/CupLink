@@ -2,13 +2,14 @@ package org.rivchain.cuplink
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.ComponentName
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import com.google.android.material.textfield.TextInputEditText
@@ -106,13 +107,13 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
 
     protected open fun showPubkeyConflictDialog(newContact: Contact, other_contact: Contact) {
         pause()
-
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_add_contact_pubkey_conflict)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_add_contact_pubkey_conflict, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
         val nameTextView =
-            dialog.findViewById<TextView>(R.id.public_key_conflicting_contact_textview)
-        val abortButton = dialog.findViewById<Button>(R.id.public_key_conflict_abort_button)
-        val replaceButton = dialog.findViewById<Button>(R.id.public_key_conflict_replace_button)
+            view.findViewById<TextView>(R.id.public_key_conflicting_contact_textview)
+        val abortButton = view.findViewById<Button>(R.id.public_key_conflict_abort_button)
+        val replaceButton = view.findViewById<Button>(R.id.public_key_conflict_replace_button)
         nameTextView.text = other_contact.name
         replaceButton.setOnClickListener {
             binder!!.deleteContact(other_contact.publicKey)
@@ -132,13 +133,13 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
 
     protected open fun showNameConflictDialog(newContact: Contact, other_contact: Contact) {
         pause()
-
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_add_contact_name_conflict)
-        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.conflict_contact_edit_textview)
-        val abortButton = dialog.findViewById<Button>(R.id.conflict_contact_abort_button)
-        val replaceButton = dialog.findViewById<Button>(R.id.conflict_contact_replace_button)
-        val renameButton = dialog.findViewById<Button>(R.id.conflict_contact_rename_button)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_add_contact_name_conflict, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
+        val nameEditText = view.findViewById<TextInputEditText>(R.id.conflict_contact_edit_textview)
+        val abortButton = view.findViewById<Button>(R.id.conflict_contact_abort_button)
+        val replaceButton = view.findViewById<Button>(R.id.conflict_contact_replace_button)
+        val renameButton = view.findViewById<Button>(R.id.conflict_contact_rename_button)
         nameEditText.setText(other_contact.name)
         replaceButton.setOnClickListener {
             binder!!.deleteContact(other_contact.publicKey)

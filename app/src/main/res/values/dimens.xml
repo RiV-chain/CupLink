@@ -18,7 +18,9 @@
     <dimen name="autocomplete_textview_padding">30dp</dimen>
 
     <!-- Calls -->
-    <dimen name="cardview_corner_radius">5dp</dimen>
+    <dimen name="cardview_corner_radius">8dp</dimen>
     <dimen name="password_text_size">25sp</dimen>
     <dimen name="name_text_size">20sp</dimen>
+
+    <dimen name="radio_button_margin_bottom">10dp</dimen>
 </resources>

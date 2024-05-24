@@ -44,7 +44,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appbar">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -91,31 +91,16 @@
                     app:layout_constraintTop_toBottomOf="@+id/settingsName"
                     android:layout_marginTop="@dimen/padding_40"/>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayoutNightMode"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColorHint="@color/light_light_grey"
-                    android:paddingEnd="-15dp"
-                    app:boxStrokeWidth="0dp"
-                    app:boxStrokeWidthFocused="0dp"
-                    app:layout_constraintEnd_toEndOf="@id/settingsNightModes"
-                    app:layout_constraintTop_toTopOf="@id/settingsNightModes"
-                    app:layout_constraintBottom_toBottomOf="@id/settingsNightModes"
-                    app:endIconTint="@color/white"
-                    android:paddingBottom="@dimen/padding_4">
-
-                    <AutoCompleteTextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/spinnerNightModes"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
-                        android:paddingEnd="@dimen/autocomplete_textview_padding"
                         android:textAlignment="viewEnd"
-                        android:enabled="false"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        app:layout_constraintEnd_toEndOf="@id/settingsNightModes"
+                        app:layout_constraintTop_toTopOf="@id/settingsNightModes"
+                        app:layout_constraintBottom_toBottomOf="@id/settingsNightModes"/>
 
                 <TextView
                     android:id="@+id/blockUnknown"
@@ -126,8 +111,8 @@
                     android:text="@string/settings_block_unknown"
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNightMode"
-                    android:layout_marginTop="@dimen/padding_20"/>
+                    app:layout_constraintTop_toBottomOf="@+id/spinnerNightModes"
+                    android:layout_marginTop="@dimen/padding_40"/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/blockUnknownSwitch"
@@ -183,31 +168,16 @@
                     app:layout_constraintTop_toBottomOf="@+id/startOnBootupSwitch"
                     android:layout_marginTop="@dimen/padding_40"/>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayoutSettingsModes"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingEnd="-15dp"
-                    android:textColorHint="@color/light_light_grey"
-                    app:boxStrokeWidth="0dp"
-                    app:boxStrokeWidthFocused="0dp"
-                    app:endIconTint="@color/white"
-                    app:layout_constraintEnd_toEndOf="@id/settingsModes"
-                    app:layout_constraintTop_toTopOf="@id/settingsModes"
-                    app:layout_constraintBottom_toBottomOf="@id/settingsModes"
-                    android:paddingBottom="@dimen/padding_4">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/spinnerSettingsModes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textSize="@dimen/options_text_size"
-                        android:paddingEnd="@dimen/autocomplete_textview_padding"
-                        android:textAlignment="viewEnd"
-                        android:enabled="false"/>
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/spinnerSettingsModes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="@dimen/options_text_size"
+                android:textAlignment="viewEnd"
+                app:layout_constraintEnd_toEndOf="@id/settingsModes"
+                app:layout_constraintTop_toTopOf="@id/settingsModes"
+                app:layout_constraintBottom_toBottomOf="@id/settingsModes"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -230,7 +200,7 @@
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        android:layout_marginTop="@dimen/padding_20" />
+                        android:layout_marginTop="@dimen/padding_40" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/automaticStatusUpdatesSwitch"
@@ -312,33 +282,16 @@
                         app:layout_constraintTop_toBottomOf="@+id/selectFrontCameraByDefaultSwitch"
                         android:layout_marginTop="@dimen/padding_40"/>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textInputLayoutVideoDegradationModes"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/spinnerVideoDegradationModes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingEnd="-15dp"
-                        android:textColorHint="@color/light_light_grey"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
-                        app:endIconTint="@color/white"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textSize="@dimen/options_text_size"
+                        android:textAlignment="viewEnd"
                         app:layout_constraintEnd_toEndOf="@id/videoDegradationModeText"
                         app:layout_constraintTop_toTopOf="@id/videoDegradationModeText"
-                        app:layout_constraintBottom_toBottomOf="@id/videoDegradationModeText"
-                        android:paddingBottom="@dimen/padding_4">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinnerVideoDegradationModes"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textSize="@dimen/options_text_size"
-                            android:paddingEnd="@dimen/autocomplete_textview_padding"
-                            android:textAlignment="viewEnd"
-                            android:enabled="false"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                        app:layout_constraintBottom_toBottomOf="@id/videoDegradationModeText"/>
 
                     <TextView
                         android:id="@+id/cameraResolutionText"
@@ -348,36 +301,19 @@
                         android:text="@string/settings_camera_resolution"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutVideoDegradationModes"
-                        android:layout_marginTop="@dimen/padding_25"/>
+                        app:layout_constraintTop_toBottomOf="@+id/spinnerVideoDegradationModes"
+                        android:layout_marginTop="@dimen/padding_40"/>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textInputLayoutCameraResolution"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/spinnerCameraResolution"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingEnd="-15dp"
-                        android:textColorHint="@color/light_light_grey"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textSize="@dimen/options_text_size"
+                        android:textAlignment="viewEnd"
                         app:layout_constraintEnd_toEndOf="@id/cameraResolutionText"
                         app:layout_constraintTop_toTopOf="@id/cameraResolutionText"
-                        app:layout_constraintBottom_toBottomOf="@id/cameraResolutionText"
-                        app:endIconTint="@color/white"
-                        android:paddingBottom="@dimen/padding_4">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinnerCameraResolution"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textSize="@dimen/options_text_size"
-                            android:paddingEnd="@dimen/autocomplete_textview_padding"
-                            android:textAlignment="viewEnd"
-                            android:enabled="false"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                        app:layout_constraintBottom_toBottomOf="@id/cameraResolutionText"/>
 
                     <TextView
                         android:id="@+id/cameraFramerateText"
@@ -387,34 +323,19 @@
                         android:text="@string/settings_camera_framerate"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutCameraResolution"
-                        android:layout_marginTop="@dimen/padding_25"/>
+                        app:layout_constraintTop_toBottomOf="@+id/cameraResolutionText"
+                        android:layout_marginTop="@dimen/padding_40"/>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textInputLayoutCameraFramerate"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/spinnerCameraFramerate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingEnd="-15dp"
-                        android:textColorHint="@color/light_light_grey"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textSize="@dimen/options_text_size"
+                        android:textAlignment="viewEnd"
                         app:layout_constraintEnd_toEndOf="@id/cameraFramerateText"
                         app:layout_constraintTop_toTopOf="@id/cameraFramerateText"
-                        app:layout_constraintBottom_toBottomOf="@id/cameraFramerateText"
-                        app:endIconTint="@color/white"
-                        android:paddingBottom="@dimen/padding_4">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinnerCameraFramerate"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textSize="@dimen/options_text_size"
-                            android:paddingEnd="@dimen/autocomplete_textview_padding"
-                            android:textAlignment="viewEnd"
-                            android:enabled="false"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                        app:layout_constraintBottom_toBottomOf="@id/cameraFramerateText"/>
 
                     <TextView
                         android:id="@+id/promptOutgoingCalls"
@@ -424,8 +345,8 @@
                         android:text="@string/settings_prompt_outgoing_calls"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutCameraFramerate"
-                        android:layout_marginTop="@dimen/padding_20"/>
+                        app:layout_constraintTop_toBottomOf="@+id/cameraFramerateText"
+                        android:layout_marginTop="@dimen/padding_40"/>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/promptOutgoingCallsSwitch"
@@ -514,33 +435,16 @@
                         app:layout_constraintTop_toBottomOf="@+id/addressTv"
                         android:layout_marginTop="@dimen/padding_40"/>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textInputLayoutSpeakerphoneModes"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingEnd="-15dp"
-                        android:textColorHint="@color/light_light_grey"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
-                        app:layout_constraintEnd_toEndOf="@id/textSpeakerphoneModes"
-                        app:layout_constraintTop_toTopOf="@id/textSpeakerphoneModes"
-                        app:layout_constraintBottom_toBottomOf="@id/textSpeakerphoneModes"
-                        app:endIconTint="@color/white"
-                        android:paddingBottom="@dimen/padding_4">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinnerSpeakerphoneModes"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textSize="@dimen/options_text_size"
-                            android:paddingEnd="@dimen/autocomplete_textview_padding"
-                            android:textAlignment="viewEnd"
-                            android:enabled="false"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/spinnerSpeakerphoneModes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textSize="@dimen/options_text_size"
+                    android:textAlignment="viewEnd"
+                    app:layout_constraintEnd_toEndOf="@id/textSpeakerphoneModes"
+                    app:layout_constraintTop_toTopOf="@id/textSpeakerphoneModes"
+                    app:layout_constraintBottom_toBottomOf="@id/textSpeakerphoneModes"/>
 
                     <TextView
                         android:id="@+id/databasePasswordLayout"
@@ -550,8 +454,8 @@
                         android:text="@string/settings_database_password"
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutSpeakerphoneModes"
-                        android:layout_marginTop="@dimen/padding_20"/>
+                        app:layout_constraintTop_toBottomOf="@+id/spinnerSpeakerphoneModes"
+                        android:layout_marginTop="@dimen/padding_40"/>
 
                     <TextView
                         android:id="@+id/databasePasswordTv"
@@ -796,7 +700,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </ScrollView>
 

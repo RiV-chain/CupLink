@@ -409,14 +409,17 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
     // ask for database password
     private fun showDatabasePasswordDialog() {
-        val ddialog = Dialog(this)
-        ddialog.setContentView(R.layout.dialog_enter_database_password)
-        ddialog.setCancelable(false)
-        ddialog.setCanceledOnTouchOutside(false)
 
-        val passwordEditText = ddialog.findViewById<TextInputEditText>(R.id.change_password_edit_textview)
-        val exitButton = ddialog.findViewById<Button>(R.id.change_password_cancel_button)
-        val okButton = ddialog.findViewById<Button>(R.id.change_password_ok_button)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_enter_database_password, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        b.setView(view)
+        val dialog = b.create()
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+
+        val passwordEditText = view.findViewById<TextInputEditText>(R.id.change_password_edit_textview)
+        val exitButton = view.findViewById<Button>(R.id.change_password_cancel_button)
+        val okButton = view.findViewById<Button>(R.id.change_password_ok_button)
         okButton.setOnClickListener {
             val password = passwordEditText.text.toString()
             binder!!.getService().databasePassword = password
@@ -425,7 +428,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 //MainService first run wasn't success due to db encryption
                 MainService.startPacketsStream(this)
                 // close dialog
-                ddialog.dismiss()
+                dialog.dismiss()
                 // continue
                 continueInit()
             } catch (e: Database.WrongPasswordException) {
@@ -436,15 +439,15 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         }
         exitButton.setOnClickListener {
             // shutdown app
-            ddialog.dismiss()
+            dialog.dismiss()
             binder!!.shutdown()
             finish()
         }
 
         this.dialog?.dismiss()
-        this.dialog = ddialog
+        this.dialog = dialog
 
-        ddialog.show()
+        dialog.show()
     }
 
     companion object {

@@ -13,12 +13,15 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.CompoundButton
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.Spinner
 import android.widget.TextView
@@ -26,9 +29,11 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textview.MaterialTextView
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PeerListActivity
 import org.rivchain.cuplink.rivmesh.PeerListActivity.Companion.PEER_LIST
@@ -135,7 +140,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
             }
         }
 
-        setupSpinner(settings.nightMode,
+        setupRadioDialog(settings.nightMode,
+            R.id.settingsNightModes,
             R.id.spinnerNightModes,
             R.array.nightModeLabels,
             R.array.nightModeValues,
@@ -152,7 +158,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 }
             })
 
-        setupSpinner(settings.speakerphoneMode,
+        setupRadioDialog(settings.speakerphoneMode,
+            R.id.textSpeakerphoneModes,
             R.id.spinnerSpeakerphoneModes,
             R.array.speakerphoneModeLabels,
             R.array.speakerphoneModeValues,
@@ -220,7 +227,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
             }
         }
 
-        setupSpinner(settings.videoDegradationMode,
+        setupRadioDialog(settings.videoDegradationMode,
+            R.id.videoDegradationModeText,
             R.id.spinnerVideoDegradationModes,
             R.array.videoDegradationModeLabels,
             R.array.videoDegradationModeValues,
@@ -233,7 +241,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 }
             })
 
-        setupSpinner(settings.cameraResolution,
+        setupRadioDialog(settings.cameraResolution,
+            R.id.cameraResolutionText,
             R.id.spinnerCameraResolution,
             R.array.cameraResolutionLabels,
             R.array.cameraResolutionValues,
@@ -245,7 +254,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 }
             })
 
-        setupSpinner(settings.cameraFramerate,
+        setupRadioDialog(settings.cameraFramerate,
+            R.id.cameraFramerateText,
             R.id.spinnerCameraFramerate,
             R.array.cameraFramerateLabels,
             R.array.cameraFramerateValues,
@@ -257,7 +267,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 }
             })
 
-        setupSpinner(settingsMode,
+        setupRadioDialog(settingsMode,
+            R.id.settingsModes,
             R.id.spinnerSettingsModes,
             R.array.settingsModeLabels,
             R.array.settingsModeValues,
@@ -389,11 +400,12 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
 
         val binder = binder ?: return
         val settings = binder.getSettings()
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_change_name)
-        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.NameEditText)
-        val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_name, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
+        val nameEditText = view.findViewById<TextInputEditText>(R.id.NameEditText)
+        val cancelButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
 
         nameEditText.setText(settings.username, TextView.BufferType.EDITABLE)
 
@@ -420,11 +432,12 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     private fun showChangeConnectRetriesDialog() {
         val binder = binder ?: return
         val settings = binder.getSettings()
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_change_connect_retries)
-        val connectRetriesEditText = dialog.findViewById<TextView>(R.id.ConnectRetriesEditText)
-        val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_connect_retries, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
+        val connectRetriesEditText = view.findViewById<TextView>(R.id.ConnectRetriesEditText)
+        val cancelButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
         connectRetriesEditText.text = "${settings.connectRetries}"
         okButton.setOnClickListener {
             val minValue = 0
@@ -456,11 +469,13 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     private fun showChangeConnectTimeoutDialog() {
         val binder = binder ?: return
         val settings = binder.getSettings()
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_change_connect_timeout)
-        val connectTimeoutEditText = dialog.findViewById<TextView>(R.id.ConnectTimeoutEditText)
-        val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_connect_timeout, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        b.setView(view)
+        val dialog = b.create()
+        val connectTimeoutEditText = view.findViewById<TextView>(R.id.ConnectTimeoutEditText)
+        val cancelButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
         connectTimeoutEditText.text = "${settings.connectTimeout}"
         okButton.setOnClickListener {
             val minValue = 20
@@ -493,11 +508,12 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         val binder = binder ?: return
         val databasePassword = binder.getService().databasePassword
 
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_change_database_password)
-        val passwordEditText = dialog.findViewById<TextInputEditText>(R.id.DatabasePasswordEditText)
-        val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_database_password, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
+        val passwordEditText = view.findViewById<TextInputEditText>(R.id.DatabasePasswordEditText)
+        val cancelButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
 
         passwordEditText.setText(databasePassword)
         okButton.setOnClickListener {
@@ -515,13 +531,13 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     private fun showMenuPasswordDialog() {
         val binder = binder ?: return
         val menuPassword = binder.getSettings().menuPassword
-
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_change_menu_password)
-        val passwordEditText = dialog.findViewById<TextInputEditText>(R.id.MenuPasswordEditText)
-        val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
-
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_menu_password, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        b.setView(view)
+        val passwordEditText = view.findViewById<TextInputEditText>(R.id.MenuPasswordEditText)
+        val cancelButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
+        val dialog = b.create()
         passwordEditText.setText(menuPassword)
         okButton.setOnClickListener {
             val newPassword = passwordEditText.text.toString()
@@ -580,13 +596,13 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         when (settingsMode) {
             "basic" -> {
                 basicSettingsLayout.visibility = View.VISIBLE
-                advancedSettingsLayout.visibility = View.INVISIBLE
-                expertSettingsLayout.visibility = View.INVISIBLE
+                advancedSettingsLayout.visibility = View.GONE
+                expertSettingsLayout.visibility = View.GONE
             }
             "advanced" -> {
                 basicSettingsLayout.visibility = View.VISIBLE
                 advancedSettingsLayout.visibility = View.VISIBLE
-                expertSettingsLayout.visibility = View.INVISIBLE
+                expertSettingsLayout.visibility = View.GONE
             }
             "expert" -> {
                 basicSettingsLayout.visibility = View.VISIBLE
@@ -609,30 +625,54 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         fun call(newValue: String?)
     }
 
-    private fun setupSpinner(
+    private fun setupRadioDialog(
         currentValue: String,
-        autoCompleteTextViewId: Int,
+        titleTextViewId: Int,
+        inputTextViewId: Int,
         arrayId: Int,
         arrayValuesId: Int,
         callback: SpinnerItemSelected
     ) {
         val arrayValues = resources.getStringArray(arrayValuesId)
-        val autoCompleteTextView = findViewById<AutoCompleteTextView>(autoCompleteTextViewId)
-        val dropdownAdapter = ArrayAdapter.createFromResource(this, arrayId, R.layout.spinner_item_settings)
+        val arrayLabels = resources.getStringArray(arrayId)
 
-        autoCompleteTextView.setAdapter(dropdownAdapter)
-        autoCompleteTextView.setText(currentValue, false)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_select_one_radio, null)
+        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.radioGroupNightModes)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.selectDialogTitle)
+        titleTextView.text = findViewById<TextView>(titleTextViewId).text
+        val autoCompleteTextView = findViewById<MaterialTextView>(inputTextViewId)
+        autoCompleteTextView.text = currentValue
 
-        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
-            if (position >= arrayValues.size) {
-                Toast.makeText(
-                    this@SettingsActivity,
-                    "pos out of bounds: $arrayValues",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnItemClickListener
+        arrayLabels.forEachIndexed { index, label ->
+            val radioButton = RadioButton(this).apply {
+                text = label
+                id = index
+                layoutParams = RadioGroup.LayoutParams(
+                    RadioGroup.LayoutParams.MATCH_PARENT,
+                    RadioGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.radio_button_margin_bottom)
+                }
+                if (arrayValues[index] == currentValue) {
+                    isChecked = true
+                }
             }
-            callback.call(arrayValues[position])
+            radioGroup.addView(radioButton)
+        }
+
+        val builder = AlertDialog.Builder(this, R.style.PPTCDialog).setView(dialogView)
+        val dialog = builder.create()
+        dialog.setOnDismissListener {
+            val selectedId = radioGroup.checkedRadioButtonId
+            if (selectedId >= 0 && selectedId < arrayValues.size) {
+                val selectedValue = arrayValues[selectedId]
+                callback.call(selectedValue)
+                autoCompleteTextView.text = selectedValue
+            }
+        }
+        autoCompleteTextView.setOnClickListener {
+            dialog.show()
         }
     }
+
 }

@@ -50,7 +50,7 @@
     </style>
 
     <style name="PPTCDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
-        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:textColor">@color/light_light_grey</item>
         <item name="buttonBarPositiveButtonStyle">@style/CustomAlertDialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/CustomAlertDialogButton</item>

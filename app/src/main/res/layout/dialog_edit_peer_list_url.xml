@@ -3,7 +3,7 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:padding="10dp"
-    android:background="@color/colorPrimaryDark">
+    android:background="@drawable/dialog_rounded_corner">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/url"

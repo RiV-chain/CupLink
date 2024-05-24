@@ -6,7 +6,7 @@
     android:paddingRight="15dp"
     android:paddingTop="12dp"
     android:paddingBottom="12dp"
-    android:background="@color/colorPrimaryDark">
+    android:background="@drawable/dialog_rounded_corner">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

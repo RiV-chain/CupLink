@@ -1,12 +1,13 @@
 package org.rivchain.cuplink
 
 import android.app.Activity
-import android.app.Dialog
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -176,12 +177,12 @@ class ContactDetailsActivity : BaseActivity(), ServiceConnection {
 
     private fun showChangePublicKeyDialog() {
         Log.d(this, "showChangePublicKeyDialog()")
-
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_contact_change_public_key)
-        val publicKeyInput = dialog.findViewById<TextInputEditText>(R.id.PublicKeyEditText)
-        val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_contact_change_public_key, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
+        val publicKeyInput = view.findViewById<TextInputEditText>(R.id.PublicKeyEditText)
+        val cancelButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
 
         publicKeyInput.setText(contactPublicKeyEdit.text, TextView.BufferType.EDITABLE)
 
@@ -209,12 +210,12 @@ class ContactDetailsActivity : BaseActivity(), ServiceConnection {
 
     private fun showChangeNameDialog() {
         Log.d(this, "showChangeNameDialog()")
-
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_contact_change_name)
-        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.NameEditText)
-        val cancelButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_contact_change_name, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
+        val nameEditText = view.findViewById<TextInputEditText>(R.id.NameEditText)
+        val cancelButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
 
         nameEditText.setText(contactNameEdit.text, TextView.BufferType.EDITABLE)
 

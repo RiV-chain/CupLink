@@ -1,7 +1,7 @@
 package org.rivchain.cuplink
 
 import android.annotation.SuppressLint
-import android.app.Dialog
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -246,14 +247,16 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
     // request password for setting activity
     private fun showMenuPasswordDialog(itemId: Int, menuPassword: String) {
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_enter_database_password)
-        dialog.setCancelable(false)
+        val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_enter_database_password, null)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
+        b.setView(view)
+        b.setCancelable(false)
+        val dialog = b.create()
         dialog.setCanceledOnTouchOutside(false)
 
-        val passwordEditText = dialog.findViewById<TextInputEditText>(R.id.change_password_edit_textview)
-        val exitButton = dialog.findViewById<Button>(R.id.change_password_cancel_button)
-        val okButton = dialog.findViewById<Button>(R.id.change_password_ok_button)
+        val passwordEditText = view.findViewById<TextInputEditText>(R.id.change_password_edit_textview)
+        val exitButton = view.findViewById<Button>(R.id.change_password_cancel_button)
+        val okButton = view.findViewById<Button>(R.id.change_password_ok_button)
         okButton.setOnClickListener {
             val password = passwordEditText.text.toString()
             if (menuPassword == password) {
@@ -271,7 +274,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
             // close dialog
             dialog.dismiss()
         }
-
         dialog.show()
     }
 
