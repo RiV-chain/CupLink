@@ -141,7 +141,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/blockUnknown"/>
 
                 <TextView
-                    android:id="@+id/editPeersText"
+                    android:id="@+id/editPeers"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
@@ -150,25 +150,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/blockUnknownSwitch"
                     android:layout_marginTop="@dimen/padding_40"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/editPeers"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:layout_width="110dp"
-                    android:text="Edit"
-                    android:textAllCaps="false"
-                    android:fontFamily="@font/poppins_regular"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/next_button_background"
-                    app:backgroundTint="@null"
-                    android:textColor="@color/white"
-                    app:layout_constraintEnd_toEndOf="@id/editPeersText"
-                    app:layout_constraintTop_toTopOf="@id/editPeersText"
-                    app:layout_constraintBottom_toBottomOf="@id/editPeersText"/>
 
                 <TextView
                     android:id="@+id/startOnBootup"
