@@ -66,7 +66,7 @@ internal object Utils {
         }
 
         return bytes.joinToString(separator = "") {
-            eachByte -> "%02X".format(eachByte)
+            eachByte -> "%02x".format(eachByte)
         }
     }
 

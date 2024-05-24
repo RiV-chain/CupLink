@@ -35,6 +35,7 @@ import org.rivchain.cuplink.rivmesh.PeerListActivity.Companion.PEER_LIST
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
 import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.Utils
 import java.lang.Integer.parseInt
 
@@ -98,7 +99,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
 
         findViewById<TextView>(R.id.nameTv)
             .text = settings.username.ifEmpty { getString(R.string.no_value) }
-        findViewById<View>(R.id.nameLayout)
+        findViewById<View>(R.id.settingsName)
             .setOnClickListener { showChangeUsernameDialog() }
 
         findViewById<TextView>(R.id.addressTv)

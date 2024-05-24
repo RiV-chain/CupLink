@@ -14,7 +14,7 @@ internal object RlpUtils {
         val match: MatchResult = URL_REGEX.find(url) ?: return null
         val path: String = match.groups[2]?.value ?: return null
 
-        val contact = RLPCodec.decode(path.toBytes(), Contact::class.java)
+        val contact = RLPCodec.decode(Utils.hexStringToByteArray(path), Contact::class.java)
 
         if (contact.name.isEmpty() ||
             contact.publicKey.isEmpty() ||
@@ -31,17 +31,7 @@ internal object RlpUtils {
             contact.addresses.isEmpty()){
             return null
         }
-        return BASE_URL + RLPCodec.encode(contact).toHexString()
+        return BASE_URL + Utils.byteArrayToHexString(RLPCodec.encode(contact))
     }
-
-    fun String.toBytes(): ByteArray {
-        check(length % 2 == 0) { "Must have an even length" }
-
-        return chunked(2)
-            .map { it.toInt(16).toByte() }
-            .toByteArray()
-    }
-
-    fun ByteArray.toHexString() = joinToString("") { "%02x".format(it) }
 
 }
