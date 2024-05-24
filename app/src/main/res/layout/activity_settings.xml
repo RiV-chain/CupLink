@@ -74,7 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="end"
-                    android:fontFamily="@font/lato_regular"
+                    android:fontFamily="@font/poppins_regular"
                     android:textSize="@dimen/options_text_size"
                     app:layout_constraintEnd_toEndOf="@id/settingsName"
                     app:layout_constraintTop_toTopOf="@id/settingsName"
@@ -89,7 +89,7 @@
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/settingsName"
-                    android:layout_marginTop="@dimen/padding_30"/>
+                    android:layout_marginTop="@dimen/padding_40"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayoutNightMode"
@@ -103,14 +103,13 @@
                     app:layout_constraintEnd_toEndOf="@id/settingsNightModes"
                     app:layout_constraintTop_toTopOf="@id/settingsNightModes"
                     app:layout_constraintBottom_toBottomOf="@id/settingsNightModes"
-                    app:endIconTint="@color/white">
+                    app:endIconTint="@color/white"
+                    android:paddingBottom="@dimen/padding_4">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerNightModes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
                         android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
                         android:paddingEnd="@dimen/autocomplete_textview_padding"
@@ -122,8 +121,6 @@
                     android:id="@+id/blockUnknown"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
                     android:layout_toStartOf="@+id/blockUnknownSwitch"
                     android:fontFamily="@font/poppins_regular"
                     android:text="@string/settings_block_unknown"
@@ -136,8 +133,6 @@
                     android:id="@+id/blockUnknownSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
                     android:minWidth="48dp"
                     android:theme="@style/SwitchTheme"
                     android:contentDescription="@string/settings_block_unknown"
@@ -146,57 +141,31 @@
                     app:layout_constraintBottom_toBottomOf="@id/blockUnknown"/>
 
                 <TextView
-                    android:id="@+id/editPeersText"
+                    android:id="@+id/editPeers"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
                     android:text="@string/peers"
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/blockUnknownSwitch"
-                    android:layout_marginTop="@dimen/padding_25"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/editPeers"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:layout_width="110dp"
-                    android:text="Edit"
-                    android:textAllCaps="false"
-                    android:fontFamily="@font/poppins_regular"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/next_button_background"
-                    app:backgroundTint="@null"
-                    android:textColor="@color/white"
-                    app:layout_constraintEnd_toEndOf="@id/editPeersText"
-                    app:layout_constraintTop_toTopOf="@id/editPeersText"
-                    app:layout_constraintBottom_toBottomOf="@id/editPeersText"/>
+                    android:layout_marginTop="@dimen/padding_40"/>
 
                 <TextView
                     android:id="@+id/startOnBootup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
-                    android:layout_toStartOf="@+id/startOnBootupSwitch"
                     android:fontFamily="@font/poppins_regular"
                     android:text="@string/settings_start_on_bootup"
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/editPeers"
-                    android:layout_marginTop="@dimen/padding_20"/>
+                    android:layout_marginTop="@dimen/padding_40"/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/startOnBootupSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
                     android:minWidth="48dp"
                     android:theme="@style/SwitchTheme"
                     app:layout_constraintEnd_toEndOf="@id/startOnBootup"
@@ -207,9 +176,6 @@
                     android:id="@+id/settingsModes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
-                    android:layout_toStartOf="@+id/textInputLayoutSettingsModes"
                     android:fontFamily="@font/poppins_regular"
                     android:text="@string/settings_settings_mode"
                     android:textSize="@dimen/title_text_size"
@@ -226,15 +192,14 @@
                     android:textColorHint="@color/light_light_grey"
                     app:boxStrokeWidth="0dp"
                     app:boxStrokeWidthFocused="0dp"
+                    app:endIconTint="@color/white"
                     app:layout_constraintEnd_toEndOf="@id/settingsModes"
                     app:layout_constraintTop_toTopOf="@id/settingsModes"
                     app:layout_constraintBottom_toBottomOf="@id/settingsModes"
-                    app:endIconTint="@color/white">
+                    android:paddingBottom="@dimen/padding_4">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerSettingsModes"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_regular"
@@ -271,8 +236,6 @@
                         android:id="@+id/automaticStatusUpdatesSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
                         android:theme="@style/SwitchTheme"
                         app:layout_constraintEnd_toEndOf="@id/automaticStatusUpdates"
                         app:layout_constraintTop_toTopOf="@id/automaticStatusUpdates"
@@ -282,8 +245,6 @@
                         android:id="@+id/enableMicrophoneByDefault"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerInParent="true"
                         android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_enable_microphone_by_default"
                         android:textSize="@dimen/title_text_size"
@@ -295,8 +256,6 @@
                         android:id="@+id/enableMicrophoneByDefaultSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
                         android:theme="@style/SwitchTheme"
                         app:layout_constraintEnd_toEndOf="@id/enableMicrophoneByDefault"
                         app:layout_constraintTop_toTopOf="@id/enableMicrophoneByDefault"
@@ -306,8 +265,6 @@
                         android:id="@+id/enableCameraByDefault"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerInParent="true"
                         android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_enable_camera_by_default"
                         android:textSize="@dimen/title_text_size"
@@ -319,8 +276,6 @@
                         android:id="@+id/enableCameraByDefaultSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
                         android:theme="@style/SwitchTheme"
                         app:layout_constraintEnd_toEndOf="@id/enableCameraByDefault"
                         app:layout_constraintTop_toTopOf="@id/enableCameraByDefault"
@@ -330,8 +285,6 @@
                         android:id="@+id/selectFrontCameraByDefault"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerInParent="true"
                         android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_select_front_camera_by_default"
                         android:textSize="@dimen/title_text_size"
@@ -343,8 +296,6 @@
                         android:id="@+id/selectFrontCameraByDefaultSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
                         android:theme="@style/SwitchTheme"
                         app:layout_constraintEnd_toEndOf="@id/selectFrontCameraByDefault"
                         app:layout_constraintTop_toTopOf="@id/selectFrontCameraByDefault"
@@ -354,9 +305,6 @@
                         android:id="@+id/videoDegradationModeText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerInParent="true"
-                        android:layout_toStartOf="@+id/textInputLayoutVideoDegradationModes"
                         android:fontFamily="@font/poppins_regular"
                         android:text="@string/settings_video_degradation_mode"
                         android:textSize="@dimen/title_text_size"
@@ -369,8 +317,6 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
                         android:paddingEnd="-15dp"
                         android:textColorHint="@color/light_light_grey"
                         app:boxStrokeWidth="0dp"
@@ -378,7 +324,8 @@
                         app:endIconTint="@color/white"
                         app:layout_constraintEnd_toEndOf="@id/videoDegradationModeText"
                         app:layout_constraintTop_toTopOf="@id/videoDegradationModeText"
-                        app:layout_constraintBottom_toBottomOf="@id/videoDegradationModeText">
+                        app:layout_constraintBottom_toBottomOf="@id/videoDegradationModeText"
+                        android:paddingBottom="@dimen/padding_4">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerVideoDegradationModes"
@@ -416,7 +363,8 @@
                         app:layout_constraintEnd_toEndOf="@id/cameraResolutionText"
                         app:layout_constraintTop_toTopOf="@id/cameraResolutionText"
                         app:layout_constraintBottom_toBottomOf="@id/cameraResolutionText"
-                        app:endIconTint="@color/white">
+                        app:endIconTint="@color/white"
+                        android:paddingBottom="@dimen/padding_4">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerCameraResolution"
@@ -454,12 +402,11 @@
                         app:layout_constraintEnd_toEndOf="@id/cameraFramerateText"
                         app:layout_constraintTop_toTopOf="@id/cameraFramerateText"
                         app:layout_constraintBottom_toBottomOf="@id/cameraFramerateText"
-                        app:endIconTint="@color/white">
+                        app:endIconTint="@color/white"
+                        android:paddingBottom="@dimen/padding_4">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerCameraFramerate"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_regular"
@@ -548,7 +495,7 @@
                         android:singleLine="true"
                         android:paddingEnd="10dp"
                         android:paddingStart="10dp"
-                        android:fontFamily="@font/lato_regular"
+                        android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
                         android:ellipsize="middle"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -579,7 +526,8 @@
                         app:layout_constraintEnd_toEndOf="@id/textSpeakerphoneModes"
                         app:layout_constraintTop_toTopOf="@id/textSpeakerphoneModes"
                         app:layout_constraintBottom_toBottomOf="@id/textSpeakerphoneModes"
-                        app:endIconTint="@color/white">
+                        app:endIconTint="@color/white"
+                        android:paddingBottom="@dimen/padding_4">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinnerSpeakerphoneModes"
@@ -612,7 +560,7 @@
                         android:gravity="end"
                         android:paddingEnd="10dp"
                         android:paddingStart="10dp"
-                        android:fontFamily="@font/lato_regular"
+                        android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
                         app:layout_constraintEnd_toEndOf="@id/databasePasswordLayout"
                         app:layout_constraintTop_toTopOf="@id/databasePasswordLayout"
@@ -636,7 +584,7 @@
                         android:gravity="end"
                         android:paddingEnd="10dp"
                         android:paddingStart="10dp"
-                        android:fontFamily="@font/lato_regular"
+                        android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
                         app:layout_constraintEnd_toEndOf="@id/menuPasswordLayout"
                         app:layout_constraintTop_toTopOf="@id/menuPasswordLayout"
@@ -657,8 +605,6 @@
                         android:id="@+id/disableProximitySensorSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
                         android:theme="@style/SwitchTheme"
                         app:layout_constraintEnd_toEndOf="@id/disableProximitySensor"
                         app:layout_constraintTop_toTopOf="@id/disableProximitySensor"
@@ -731,8 +677,7 @@
                         android:id="@+id/publicKeyTv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="@font/lato_regular"
+                        android:fontFamily="@font/poppins_regular"
                         android:textIsSelectable="true"
                         android:text=""
                         android:textSize="@dimen/options_text_size"
@@ -798,7 +743,7 @@
                         android:gravity="end"
                         android:paddingEnd="10dp"
                         android:paddingStart="10dp"
-                        android:fontFamily="@font/lato_regular"
+                        android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
                         app:layout_constraintEnd_toEndOf="@id/connectTimeoutLayout"
                         app:layout_constraintTop_toTopOf="@id/connectTimeoutLayout"
@@ -822,7 +767,7 @@
                         android:gravity="end"
                         android:paddingEnd="10dp"
                         android:paddingStart="10dp"
-                        android:fontFamily="@font/lato_regular"
+                        android:fontFamily="@font/poppins_regular"
                         android:textSize="@dimen/options_text_size"
                         app:layout_constraintEnd_toEndOf="@id/connectRetriesLayout"
                         app:layout_constraintTop_toTopOf="@id/connectRetriesLayout"
@@ -837,7 +782,8 @@
                         android:textSize="@dimen/title_text_size"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/connectRetriesTv"
-                        android:layout_marginTop="@dimen/padding_40"/>
+                        android:layout_marginTop="@dimen/padding_40"
+                        android:layout_marginBottom="@dimen/padding_40"/>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/useNeighborTableSwitch"
