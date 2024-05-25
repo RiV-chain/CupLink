@@ -1,7 +1,6 @@
 package org.rivchain.cuplink
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.DialogInterface
 import android.content.Intent
@@ -15,6 +14,7 @@ import android.widget.EditText
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import org.json.JSONException
 import org.json.JSONObject
 import org.rivchain.cuplink.model.Contact

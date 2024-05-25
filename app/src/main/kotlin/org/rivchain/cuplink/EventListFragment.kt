@@ -1,6 +1,5 @@
 package org.rivchain.cuplink
 
-import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.DialogInterface
@@ -248,12 +247,12 @@ class EventListFragment : Fragment() {
         val binder = activity.binder ?: return
         // prefer latest event that has an address
         val latestEvent = eventGroup.lastOrNull { it.address != null } ?: eventGroup.last()
-
-        val dialog = Dialog(activity)
-        dialog.setContentView(R.layout.dialog_add_contact)
-        val nameEditText = dialog.findViewById<TextInputEditText>(R.id.NameEditText)
-        val exitButton = dialog.findViewById<Button>(R.id.CancelButton)
-        val okButton = dialog.findViewById<Button>(R.id.OkButton)
+        val view: View = LayoutInflater.from(activity).inflate(R.layout.dialog_add_contact, null)
+        val b = AlertDialog.Builder(activity, R.style.PPTCDialog)
+        val dialog = b.setView(view).create()
+        val nameEditText = view.findViewById<TextInputEditText>(R.id.NameEditText)
+        val exitButton = view.findViewById<Button>(R.id.CancelButton)
+        val okButton = view.findViewById<Button>(R.id.OkButton)
         okButton.setOnClickListener {
             val name = nameEditText.text.toString()
             if (!Utils.isValidName(name)) {

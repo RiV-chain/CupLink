@@ -1,7 +1,6 @@
 package org.rivchain.cuplink
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -22,6 +21,7 @@ import android.widget.Button
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -35,7 +35,6 @@ import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PowerManager
-import org.rivchain.cuplink.util.RlpUtils
 
 // the main view with tabs
 class MainActivity : BaseActivity(), ServiceConnection {

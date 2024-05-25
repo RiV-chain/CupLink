@@ -1,11 +1,9 @@
 package org.rivchain.cuplink
 
 import android.app.Activity
-import android.app.Dialog
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -15,15 +13,11 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import com.google.android.material.textfield.TextInputEditText
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -32,7 +26,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
-import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PeerListActivity
@@ -40,7 +33,6 @@ import org.rivchain.cuplink.rivmesh.PeerListActivity.Companion.PEER_LIST
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
 import org.rivchain.cuplink.util.Log
-import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.Utils
 import java.lang.Integer.parseInt
 
