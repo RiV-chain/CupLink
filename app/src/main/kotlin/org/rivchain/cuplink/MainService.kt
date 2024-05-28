@@ -23,6 +23,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
+import org.json.JSONObject
 import org.libsodium.jni.NaCl
 import org.rivchain.cuplink.call.PacketWriter
 import org.rivchain.cuplink.call.Pinger
@@ -38,6 +39,7 @@ import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
 import org.rivchain.cuplink.rivmesh.STATE_DISABLED
 import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.rivmesh.State
+import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils.readInternalFile
@@ -47,6 +49,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.ConnectException
+import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
@@ -54,6 +57,7 @@ import java.net.UnknownHostException
 import java.util.Date
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.random.Random
 
 const val TAG = "VPN service"
 const val SERVICE_NOTIFICATION_ID = 1000
@@ -149,33 +153,47 @@ class MainService : VpnService() {
 
     fun loadDatabase(): Database {
         if (File(databasePath).exists()) {
-            // open existing database
+            // Open an existing database
             val db = readInternalFile(databasePath)
             database = Database.fromData(db, databasePassword)
             firstStart = false
         } else {
-            // create new database
+            // Create a new database
             database = Database()
             database.mesh.invoke()
+            // Generate random port from allowed range
+            val port = generateRandomPort()
+            val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
+            database.mesh.setListen(setOf(localPeer))
+            database.mesh.setMulticasting(".*", false, false, "")
             firstStart = true
         }
         return database
     }
 
-    fun mergeDatabase(new_db: Database) {
+    private fun generateRandomPort(): Int {
+        // Define the range for allowed ports
+        val minPort = 49152
+        val maxPort = 65535
+
+        // Generate a random port within the range
+        return Random.nextInt(minPort, maxPort + 1)
+    }
+
+    fun mergeDatabase(newDb: Database) {
         val oldDatabase = database
 
-        oldDatabase.settings = new_db.settings
+        oldDatabase.settings = newDb.settings
 
-        for (contact in new_db.contacts.contactList) {
+        for (contact in newDb.contacts.contactList) {
             oldDatabase.contacts.addContact(contact)
         }
 
-        for (event in new_db.events.eventList) {
+        for (event in newDb.events.eventList) {
             oldDatabase.events.addEvent(event)
         }
 
-        oldDatabase.mesh = new_db.mesh
+        oldDatabase.mesh = newDb.mesh
     }
 
     fun saveDatabase() {
@@ -365,7 +383,7 @@ class MainService : VpnService() {
 
         Log.d(TAG, "getting Mesh configuration")
         mesh.startJSON(binder.getMesh().getJSONByteArray())
-
+        Log.d(TAG, binder.getMesh().getJSONByteArray().decodeToString())
         val address = mesh.addressString
         val builder = Builder()
             .addAddress(address, 7)

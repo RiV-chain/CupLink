@@ -146,7 +146,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
 
         val contactCount = newDatabase.contacts.contactList.size
         val eventCount = newDatabase.events.eventList.size
-        val peersCount = newDatabase.mesh.peers.length()
+        val peersCount = newDatabase.mesh.getPeers().length()
         val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
         builder.setTitle(R.string.dialog_title_import_backup)
         builder.setMessage(String.format(getString(R.string.import_dialog), contactCount, eventCount, peersCount))

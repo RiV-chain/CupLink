@@ -11,7 +11,7 @@ class PeerInfo {
 
     constructor(schema: String, address: InetAddress, port: Int, countryCode: String?, isMeshPeer: Boolean){
         this.schema = schema
-        var a = address.toString();
+        val a = address.toString();
         if(a.lastIndexOf('/')>0){
             this.hostName = a.split("/")[0]
         } else {
@@ -30,10 +30,10 @@ class PeerInfo {
     var isMeshPeer = false
 
     override fun toString(): String {
-        if(this.hostName.contains(":")) {
-            return this.schema + "://[" + this.hostName + "]:" + port
+        return if(this.hostName.contains(":")) {
+            this.schema + "://[" + this.hostName + "]:" + port
         } else {
-            return this.schema + "://" + this.hostName + ":" + port
+            this.schema + "://" + this.hostName + ":" + port
         }
     }
 
@@ -46,10 +46,10 @@ class PeerInfo {
     }
 
     fun getCountry(context: Context): CCPCountry? {
-        if(countryCode==null){
-            return null
+        return if(countryCode == null){
+            null
         } else {
-            return CCPCountry.getCountryForNameCodeFromLibraryMasterList(
+            CCPCountry.getCountryForNameCodeFromLibraryMasterList(
                 context,
                 CountryCodePicker.Language.ENGLISH,
                 countryCode

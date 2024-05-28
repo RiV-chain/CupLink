@@ -30,17 +30,17 @@ class Database {
     class WrongPasswordException() : Exception()
 
     companion object {
-        fun fromData(db_data: ByteArray, password: String?): Database {
+        fun fromData(dbData: ByteArray, password: String?): Database {
             // encrypt database
             val stringData = if (!password.isNullOrEmpty()) {
                 Log.d(this, "Decrypt database")
-                val encrypted = decryptDatabase(db_data, password.toByteArray()) ?: throw WrongPasswordException()
+                val encrypted = decryptDatabase(dbData, password.toByteArray()) ?: throw WrongPasswordException()
                 encrypted
             } else {
-                if (db_data.isNotEmpty() && db_data[0] != '{'.code.toByte()) {
+                if (dbData.isNotEmpty() && dbData[0] != '{'.code.toByte()) {
                     throw WrongPasswordException()
                 }
-                db_data
+                dbData
             }
 
             val obj = JSONObject(
@@ -52,7 +52,7 @@ class Database {
             val db = fromJSON(obj)
             Log.d(this, "Loaded ${db.contacts.contactList.size} contacts")
             Log.d(this, "Loaded ${db.events.eventList.size} events")
-            Log.d(this, "Loaded ${db.mesh.peers.length()} peers")
+            Log.d(this, "Loaded ${db.mesh.getPeers().length()} peers")
             return db
         }
 
@@ -67,7 +67,7 @@ class Database {
             }
             Log.d(this, "Stored ${db.contacts.contactList.size} contacts")
             Log.d(this, "Stored ${db.events.eventList.size} events")
-            Log.d(this, "Stored ${db.mesh.peers.length()} peers")
+            Log.d(this, "Stored ${db.mesh.getPeers().length()} peers")
             return dbdata
         }
 

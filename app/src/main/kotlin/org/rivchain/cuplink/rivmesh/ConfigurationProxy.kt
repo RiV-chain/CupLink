@@ -54,8 +54,8 @@ class ConfigurationProxy() {
                 ar.put(0, JSONObject("""
                     {
                         "Regex": ".*",
-                        "Beacon": true,
-                        "Listen": true,
+                        "Beacon": false,
+                        "Listen": false,
                         "Password": ""
                     }
                 """.trimIndent()))
@@ -73,23 +73,9 @@ class ConfigurationProxy() {
         return json.toString().toByteArray(Charsets.UTF_8)
     }
 
-    var peers: JSONArray
-        get() = json.getJSONArray("Peers")
-        set(value) {
-            updateJSON { json ->
-                val a = json.getJSONArray("Peers")
-                val l = a.length()
-                var i = 0
-                while (i < l) {
-                    a.remove(0)
-                    i++
-                }
-                for (i in 0 until value.length()) {
-                    a.put(value.getJSONObject(i).toString())
-                }
-            }
-            this.byteArray = json.toString().toByteArray(charset("UTF-8"))
-        }
+    fun getPeers(): JSONArray {
+        return json.getJSONArray("Peers")
+    }
 
     fun setPeers(peers: Set<PeerInfo>){
         updateJSON { json ->
@@ -103,6 +89,45 @@ class ConfigurationProxy() {
             for (peer in peers){
                 a.put(peer.toString())
             }
+        }
+        this.byteArray = json.toString().toByteArray(charset("UTF-8"))
+    }
+
+    fun setListen(peers: Set<PeerInfo>){
+        updateJSON { json ->
+            val a = json.getJSONArray("Listen")
+            val l = a.length()
+            var i = 0
+            while (i < l) {
+                a.remove(0)
+                i++
+            }
+            for (peer in peers){
+                a.put(peer.toString())
+            }
+        }
+        this.byteArray = json.toString().toByteArray(charset("UTF-8"))
+    }
+
+    fun setMulticasting(regex: String, beacon: Boolean, listen: Boolean, password: String){
+        updateJSON { json ->
+            val a = json.getJSONArray("MulticastInterfaces")
+            val l = a.length()
+            var i = 0
+            while (i < l) {
+                a.remove(0)
+                i++
+            }
+            val ar = JSONArray()
+            ar.put(JSONObject("""
+                    {
+                        "Regex": "$regex",
+                        "Beacon": $beacon,
+                        "Listen": $listen,
+                        "Password": "$password"
+                    }
+                """.trimIndent()))
+            json.put("MulticastInterfaces", ar)
         }
         this.byteArray = json.toString().toByteArray(charset("UTF-8"))
     }
