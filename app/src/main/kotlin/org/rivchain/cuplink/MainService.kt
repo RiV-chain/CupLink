@@ -165,7 +165,10 @@ class MainService : VpnService() {
             val port = generateRandomPort()
             val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
             database.mesh.setListen(setOf(localPeer))
-            database.mesh.setMulticasting(".*", false, false, "")
+            database.mesh.multicastRegex = ".*"
+            database.mesh.multicastListen = false
+            database.mesh.multicastBeacon = false
+            database.mesh.multicastPassword = ""
             firstStart = true
         }
         return database

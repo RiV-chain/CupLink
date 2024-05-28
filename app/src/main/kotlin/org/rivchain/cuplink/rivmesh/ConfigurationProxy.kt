@@ -93,6 +93,10 @@ class ConfigurationProxy() {
         this.byteArray = json.toString().toByteArray(charset("UTF-8"))
     }
 
+    fun getListen(): JSONArray {
+        return json.getJSONArray("Listen")
+    }
+
     fun setListen(peers: Set<PeerInfo>){
         updateJSON { json ->
             val a = json.getJSONArray("Listen")
@@ -109,28 +113,13 @@ class ConfigurationProxy() {
         this.byteArray = json.toString().toByteArray(charset("UTF-8"))
     }
 
-    fun setMulticasting(regex: String, beacon: Boolean, listen: Boolean, password: String){
-        updateJSON { json ->
-            val a = json.getJSONArray("MulticastInterfaces")
-            val l = a.length()
-            var i = 0
-            while (i < l) {
-                a.remove(0)
-                i++
+    var multicastRegex: String
+        get() = (json.getJSONArray("MulticastInterfaces").get(0) as JSONObject).optString("Regex")
+        set(value) {
+            updateJSON { json ->
+                (json.getJSONArray("MulticastInterfaces").get(0) as JSONObject).put("Regex", value)
             }
-            val ar = JSONArray()
-            ar.put(JSONObject("""
-                    {
-                        "Regex": "$regex",
-                        "Beacon": $beacon,
-                        "Listen": $listen,
-                        "Password": "$password"
-                    }
-                """.trimIndent()))
-            json.put("MulticastInterfaces", ar)
         }
-        this.byteArray = json.toString().toByteArray(charset("UTF-8"))
-    }
 
     var multicastListen: Boolean
         get() = (json.getJSONArray("MulticastInterfaces").get(0) as JSONObject).getBoolean("Listen")
