@@ -1,5 +1,5 @@
 package org.rivchain.cuplink.rivmesh.models
 
 class Status {
-    var up: Boolean = false
+    var up: Boolean = true
 }
