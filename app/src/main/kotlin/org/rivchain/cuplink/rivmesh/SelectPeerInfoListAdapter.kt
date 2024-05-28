@@ -17,17 +17,13 @@ import org.rivchain.cuplink.R
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 
 class SelectPeerInfoListAdapter(
-    context: Context,
-    allPeers: List<PeerInfo>,
-    currentPeers: MutableSet<PeerInfo>
-) : ArrayAdapter<PeerInfo?> (context, 0, allPeers) {
+    private val mContext: Context,
+    private var allPeers: MutableList<PeerInfo>,
+    private var currentPeers: MutableSet<PeerInfo>
+) : ArrayAdapter<PeerInfo?> (mContext, 0, allPeers as List<PeerInfo?>) {
 
-    private val mContext: Context = context
-    private var allPeers: MutableList<PeerInfo> = allPeers as MutableList<PeerInfo>
-    private var currentPeers: MutableSet<PeerInfo> = currentPeers
-
-    override fun getItem(position: Int): PeerInfo? {
-        return allPeers.get(position)
+    override fun getItem(position: Int): PeerInfo {
+        return allPeers[position]
     }
 
     override fun getCount(): Int {
@@ -39,10 +35,10 @@ class SelectPeerInfoListAdapter(
         var listItem: View? = convertView
         if (listItem == null) {
             listItem = LayoutInflater.from(mContext).inflate(R.layout.host_list_item_edit, parent, false)
-            peerInfoHolder.checkbox = listItem?.findViewById<CheckBox>(R.id.checkbox)!!
-            peerInfoHolder.countryFlag = listItem.findViewById(R.id.countryFlag) as ImageView
-            peerInfoHolder.peerInfoText = listItem.findViewById(R.id.hostInfoText) as TextView
-            peerInfoHolder.ping = listItem.findViewById(R.id.ping) as TextView
+            peerInfoHolder.checkbox = listItem?.findViewById(R.id.checkbox)!!
+            peerInfoHolder.countryFlag = listItem.findViewById(R.id.countryFlag)!!
+            peerInfoHolder.peerInfoText = listItem.findViewById(R.id.hostInfoText)!!
+            peerInfoHolder.ping = listItem.findViewById(R.id.ping)!!
             listItem.tag = peerInfoHolder
         } else {
             peerInfoHolder = listItem.tag as PeerInfoHolder
@@ -78,7 +74,7 @@ class SelectPeerInfoListAdapter(
             showToast(peerId + " " + context.getString(R.string.node_info_copied))
         }
         peerInfoHolder.checkbox.isChecked = this.currentPeers.contains(currentPeer)
-        return listItem!!
+        return listItem
     }
 
     fun getSelectedPeers(): Set<PeerInfo> {

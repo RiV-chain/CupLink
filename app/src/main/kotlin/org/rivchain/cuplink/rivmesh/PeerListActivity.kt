@@ -50,7 +50,6 @@ import java.net.URL
 import java.net.UnknownHostException
 import java.nio.charset.Charset
 import java.util.Locale
-
 class PeerListActivity : AppCompatActivity(), ServiceConnection {
 
     internal var binder: MainService.MainBinder? = null
@@ -66,7 +65,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
         const val DISK_MAX_SIZE = 100000
     }
 
-    fun downloadJson(link: String): String {
+    private fun downloadJson(link: String): String {
         URL(link).openStream().use { input ->
             val outStream = ByteArrayOutputStream()
             outStream.use { output ->
@@ -113,14 +112,14 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
                 JsonSerializer(ArrayList<PeerInfo>().javaClass), baseContext
             ).build();
 
-        GlobalScope.launch() {
+        GlobalScope.launch {
             try {
                 for (pi in alreadySelectedPeers) {
                     val ping = ping(pi.hostName, pi.port)
                     pi.ping = ping
                 }
                 try {
-                    var peerInfoCache = peerInfoListCache.get(ONLINE_PEERINFO_LIST)
+                    val peerInfoCache = peerInfoListCache.get(ONLINE_PEERINFO_LIST)
                     if (peerInfoCache != null && peerInfoCache.isNotEmpty()) {
                         for (peerInfo in peerInfoCache) {
                             val ping = ping(peerInfo.hostName, peerInfo.port)
@@ -426,12 +425,8 @@ class SizeOfPeerList: SizeOf<List<PeerInfo>> {
     override fun sizeOf(obj: List<PeerInfo>): Int{
         var size = 0
         for (o in obj) {
-            if (o.hostName != null) {
-                size += o.hostName.length * 2
-            }
-            if (o.schema != null) {
-                size += o.schema.length * 2
-            }
+            size += o.hostName.length * 2
+            size += o.schema.length * 2
             if (o.countryCode != null) {
                 size += o.countryCode!!.length * 2
             }
