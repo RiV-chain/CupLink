@@ -38,6 +38,7 @@ import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.rivmesh.PeerListActivity
+import org.rivchain.cuplink.rivmesh.SelectPeerActivity
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
@@ -161,7 +162,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 if(preferences?.getString(PEERS, null) == null) {
                     val intent = Intent(this, PeerListActivity::class.java)
                     intent.putStringArrayListExtra(
-                        PeerListActivity.PEER_LIST,
+                        SelectPeerActivity.PEER_LIST,
                         org.rivchain.cuplink.rivmesh.util.Utils.serializePeerInfoSet2StringList(
                             setOf()
                         )

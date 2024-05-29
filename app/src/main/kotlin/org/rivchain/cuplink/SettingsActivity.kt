@@ -29,7 +29,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PeerListActivity
-import org.rivchain.cuplink.rivmesh.PeerListActivity.Companion.PEER_LIST
+import org.rivchain.cuplink.rivmesh.SelectPeerActivity.Companion.PEER_LIST
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
 import org.rivchain.cuplink.util.Log
