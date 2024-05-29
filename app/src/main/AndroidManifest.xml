@@ -148,6 +148,10 @@
         </activity>
 
         <activity
+            android:name=".rivmesh.SelectPeerActivity"
+            android:noHistory="true" />
+
+        <activity
             android:name=".rivmesh.PeerListActivity"
             android:label="@string/title_activity_peer_list"
             android:parentActivityName=".MainActivity"

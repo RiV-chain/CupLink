@@ -1,11 +1,8 @@
 package org.rivchain.cuplink.rivmesh
 
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -17,17 +14,9 @@ import android.widget.ListView
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.hbb20.BuildConfig
-import com.hbb20.CCPCountry
 import com.hbb20.CountryCodePicker
-import com.vincentbrison.openlibraries.android.dualcache.Builder
-import com.vincentbrison.openlibraries.android.dualcache.JsonSerializer
-import com.vincentbrison.openlibraries.android.dualcache.SizeOf
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,193 +26,36 @@ import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.SettingsActivity
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
-import org.rivchain.cuplink.rivmesh.models.Status
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.deserializeStringList2PeerInfoSet
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.ping
-import org.rivchain.cuplink.util.Log
-import java.io.ByteArrayOutputStream
-import java.io.FileNotFoundException
-import java.lang.reflect.Type
 import java.net.InetAddress
-import java.net.URI
-import java.net.URL
-import java.net.UnknownHostException
-import java.nio.charset.Charset
 import java.util.Locale
-class PeerListActivity : AppCompatActivity(), ServiceConnection {
+class PeerListActivity : SelectPeerActivity() {
 
-    internal var binder: MainService.MainBinder? = null
-
-    companion object {
-        const val PEER_LIST = "PEER_LIST"
-        const val PEER_LIST_URL = "https://map.rivchain.org/rest/peers.json"
-        const val CACHE_NAME = "PEER_LIST_CACHE"
-        const val ONLINE_PEERINFO_LIST = "online_peer_info_list"
-        const val OFFLINE_PEERINFO_LIST = "offline_peer_info_list"
-        const val TEST_APP_VERSION = BuildConfig.VERSION_CODE
-        const val RAM_MAX_SIZE = 100000
-        const val DISK_MAX_SIZE = 100000
+    private var popup: PopupWindow? = null
+    private lateinit var adapter: SelectPeerInfoListAdapter
+    override fun setAlreadySelectedPeers(alreadySelectedPeers: MutableSet<PeerInfo>) {
+        adapter = SelectPeerInfoListAdapter(this, arrayListOf(), alreadySelectedPeers)
+        val peerList = findViewById<ListView>(R.id.peerList)
+        peerList.adapter = adapter
     }
-
-    private fun downloadJson(link: String): String {
-        URL(link).openStream().use { input ->
-            val outStream = ByteArrayOutputStream()
-            outStream.use { output ->
-                input.copyTo(output)
-            }
-            return String(outStream.toByteArray(), Charset.forName("UTF-8"))
+    override fun addPeer(peerInfo: PeerInfo){
+        adapter.addItem(peerInfo)
+        if (adapter.count % 5 == 0) {
+            adapter.sort()
         }
     }
 
-    private var peerListUrl = PEER_LIST_URL
-    private var peerListPing = true
-    var popup: PopupWindow? = null
-    var adapter: DropDownAdapter? = null
+    override fun addAllPeers(currentPeers: ArrayList<PeerInfo>){
+        adapter.addAll(0, currentPeers)
+    }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_peer_list)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        bindService(Intent(this, MainService::class.java), this, 0)
-
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { _ ->
             addNewPeer()
-        }
-        val preferences =
-            PreferenceManager.getDefaultSharedPreferences(this.baseContext)
-        val peerListUrl: String =
-            preferences.getString(PEER_LIST, "")!!
-        if(peerListUrl.isNotBlank()){
-            this@PeerListActivity.peerListUrl = peerListUrl
-        }
-        val extras = intent.extras
-        val peerList = findViewById<ListView>(R.id.peerList)
-
-        val alreadySelectedPeers = deserializeStringList2PeerInfoSet(extras!!.getStringArrayList(PEER_LIST)!!)
-        val adapter = SelectPeerInfoListAdapter(this, arrayListOf(), alreadySelectedPeers)
-        peerList.adapter = adapter
-        val peerInfoListCache = Builder<List<PeerInfo>>(CACHE_NAME, TEST_APP_VERSION)
-            .enableLog()
-            .useReferenceInRam(RAM_MAX_SIZE, SizeOfPeerList())
-            .useSerializerInDisk(
-                DISK_MAX_SIZE, true,
-                JsonSerializer(ArrayList<PeerInfo>().javaClass), baseContext
-            ).build();
-
-        GlobalScope.launch {
-            try {
-                for (pi in alreadySelectedPeers) {
-                    val ping = ping(pi.hostName, pi.port)
-                    pi.ping = ping
-                }
-                try {
-                    val peerInfoCache = peerInfoListCache.get(ONLINE_PEERINFO_LIST)
-                    if (peerInfoCache != null && peerInfoCache.isNotEmpty()) {
-                        for (peerInfo in peerInfoCache) {
-                            val ping = ping(peerInfo.hostName, peerInfo.port)
-                            peerInfo.ping = ping
-                            if (alreadySelectedPeers.contains(peerInfo)) {
-                                continue
-                            }
-                            withContext(Dispatchers.Main) {
-                                adapter.addItem(peerInfo)
-                                if (adapter.count % 5 == 0) {
-                                    adapter.sort()
-                                }
-                            }
-                        }
-                    }
-                    val json = downloadJson(this@PeerListActivity.peerListUrl)
-                    val countries = CCPCountry.getLibraryMasterCountriesEnglish()
-                    val mapType: Type = object :
-                        TypeToken<Map<String?, Map<String, Status>>>() {}.type
-                    val peersMap: Map<String, Map<String, Status>> = Gson().fromJson(json, mapType)
-                    val cachePeerInfoList = mutableListOf<PeerInfo>()
-                    for ((country, peers) in peersMap.entries) {
-                        for ((peer, status) in peers) {
-                            if (status.up) {
-                                for (ccp in countries) {
-                                    if (ccp.name.lowercase(Locale.getDefault())
-                                            .contains(country.replace(".md", "").replace("-", " "))
-                                    ) {
-                                        if(!peerListPing){
-                                            return@launch
-                                        }
-                                        val url = URI(peer)
-                                        try {
-                                            val address =
-                                                withContext(Dispatchers.IO) {
-                                                    InetAddress.getByName(url.host)
-                                                }
-                                            val peerInfo =
-                                                PeerInfo(
-                                                    url.scheme,
-                                                    address,
-                                                    url.port,
-                                                    ccp.nameCode,
-                                                    false
-                                                )
-                                            val ping = ping(url.host, url.port)
-                                            peerInfo.ping = ping
-                                            if (alreadySelectedPeers.contains(peerInfo)) {
-                                                continue
-                                            }
-                                            if (peerInfo.ping < Int.MAX_VALUE) {
-                                                cachePeerInfoList.add(peerInfo)
-                                            }
-                                            withContext(Dispatchers.Main) {
-                                                adapter.addItem(peerInfo)
-                                                if (adapter.count % 5 == 0) {
-                                                    adapter.sort()
-                                                    if (cachePeerInfoList.size > 0) {
-                                                        peerInfoListCache.put(
-                                                            ONLINE_PEERINFO_LIST,
-                                                            cachePeerInfoList.toList()
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        } catch (e: Throwable) {
-                                            e.printStackTrace()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    when (e) {
-                        is FileNotFoundException, is UnknownHostException -> {
-                            val onlinePeerInfoList = peerInfoListCache.get(ONLINE_PEERINFO_LIST)
-                            if (onlinePeerInfoList != null) {
-                                for (peerInfo in onlinePeerInfoList) {
-                                    val ping = ping(peerInfo.hostName, peerInfo.port)
-                                    peerInfo.ping = ping
-                                    if (alreadySelectedPeers.contains(peerInfo)) {
-                                        continue
-                                    }
-                                    withContext(Dispatchers.Main) {
-                                        adapter.addItem(peerInfo)
-                                        if (adapter.count % 5 == 0) {
-                                            adapter.sort()
-                                        }
-                                    }
-                                }
-                            }
-                            e.printStackTrace()
-                        }
-                        else -> e.printStackTrace()
-                    }
-                }
-                val currentPeers = ArrayList(alreadySelectedPeers.sortedWith(compareBy { it.ping }))
-                withContext(Dispatchers.Main) {
-                    adapter.addAll(0, currentPeers)
-                }
-            } catch (e: Throwable) {
-                e.printStackTrace()
-            }
         }
     }
 
@@ -348,7 +180,7 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
         val listView = ListView(this)
         listView.dividerHeight = 0
         // set our adapter and pass our pop up window contents
-        adapter = DropDownAdapter(this, textViewResourceId, objects, popupWindow, editText)
+        val adapter = DropDownAdapter(this, textViewResourceId, objects, popupWindow, editText)
         listView.adapter = adapter
         // set the item click listener
         listView.onItemClickListener = adapter
@@ -399,41 +231,5 @@ class PeerListActivity : AppCompatActivity(), ServiceConnection {
             editPeerListUrl()
         }
         return true
-    }
-
-    private fun cancelPeerListPing() {
-        peerListPing = false
-    }
-
-    override fun onStop() {
-        super.onStop()
-        cancelPeerListPing()
-    }
-
-    override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
-        Log.d(this, "onServiceConnected()")
-        binder = iBinder as MainService.MainBinder
-    }
-
-    override fun onServiceDisconnected(name: ComponentName?) {
-        //nothing_todo
-    }
-}
-
-class SizeOfPeerList: SizeOf<List<PeerInfo>> {
-
-    override fun sizeOf(obj: List<PeerInfo>): Int{
-        var size = 0
-        for (o in obj) {
-            size += o.hostName.length * 2
-            size += o.schema.length * 2
-            if (o.countryCode != null) {
-                size += o.countryCode!!.length * 2
-            }
-            size += 4
-            size += 4
-            size += 1
-        }
-        return size
     }
 }
