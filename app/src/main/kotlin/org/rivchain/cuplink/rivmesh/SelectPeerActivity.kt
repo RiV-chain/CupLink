@@ -36,7 +36,9 @@ import java.nio.charset.Charset
 import java.util.Locale
 open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
 
-    internal var binder: MainService.MainBinder? = null
+    private var binder: MainService.MainBinder? = null
+    var peerListUrl = PEER_LIST_URL
+    private var peerListPing = true
 
     companion object {
         const val PEER_LIST = "PEER_LIST"
@@ -59,10 +61,11 @@ open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
         }
     }
 
-    var peerListUrl = PEER_LIST_URL
-    private var peerListPing = true
-
     protected open fun setAlreadySelectedPeers(alreadySelectedPeers: MutableSet<PeerInfo>){
+
+    }
+
+    protected open fun peersMap(peersMap: Map<String, Map<String, Status>>){
 
     }
 
@@ -72,6 +75,26 @@ open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
 
     protected open fun addAllPeers(currentPeers: ArrayList<PeerInfo>){
 
+    }
+
+    protected open fun saveSelectedPeers(selectedPeers: Set<PeerInfo>){
+        binder!!.getMesh().setPeers(selectedPeers)
+        binder!!.saveDatabase()
+    }
+
+    protected open fun restartService(){
+        // Restart service
+        val intentStop = Intent(this, MainService::class.java)
+        intentStop.action = MainService.ACTION_STOP
+        startService(intentStop)
+
+        Thread {
+            Thread.sleep(1000)
+            val intentStart = Intent(this, MainService::class.java)
+            intentStart.action = MainService.ACTION_START
+            startService(intentStart)
+            finish()
+        }.start()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -124,6 +147,7 @@ open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
                     val mapType: Type = object :
                         TypeToken<Map<String?, Map<String, Status>>>() {}.type
                     val peersMap: Map<String, Map<String, Status>> = Gson().fromJson(json, mapType)
+                    peersMap(peersMap)
                     val cachePeerInfoList = mutableListOf<PeerInfo>()
                     for ((country, peers) in peersMap.entries) {
                         for ((peer, status) in peers) {

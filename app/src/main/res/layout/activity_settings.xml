@@ -211,6 +211,30 @@
                     app:layout_constraintBottom_toBottomOf="@id/automaticStatusUpdates"/>
 
                 <TextView
+                    android:id="@+id/listenLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="@string/settings_listen"
+                    android:textSize="@dimen/title_text_size"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/automaticStatusUpdatesSwitch"
+                    android:layout_marginTop="@dimen/padding_40"/>
+
+                <TextView
+                    android:id="@+id/listen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textIsSelectable="true"
+                    android:text=""
+                    android:textSize="@dimen/options_text_size"
+                    android:textAllCaps="false"
+                    app:layout_constraintEnd_toEndOf="@+id/listenLayout"
+                    app:layout_constraintTop_toTopOf="@+id/listenLayout"
+                    app:layout_constraintBottom_toBottomOf="@+id/listenLayout"/>
+
+                <TextView
                     android:id="@+id/enableMicrophoneByDefault"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -218,7 +242,7 @@
                     android:text="@string/settings_enable_microphone_by_default"
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/automaticStatusUpdates"
+                    app:layout_constraintTop_toBottomOf="@+id/listen"
                     android:layout_marginTop="@dimen/padding_40"/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial

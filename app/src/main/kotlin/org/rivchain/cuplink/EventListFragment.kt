@@ -218,7 +218,7 @@ class EventListFragment : Fragment() {
 
         val activity = requireActivity() as MainActivity
         val binder = activity.binder ?: return
-        val builder = AlertDialog.Builder(activity, R.style.PPTCDialog)
+        val builder = AlertDialog.Builder(activity, R.style.FullPPTCDialog)
         builder.setTitle(R.string.clear_events)
         builder.setMessage(R.string.remove_all_events)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog

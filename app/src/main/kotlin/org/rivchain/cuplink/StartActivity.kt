@@ -37,7 +37,8 @@ import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.AddressEntry
-import org.rivchain.cuplink.rivmesh.PeerListActivity
+import org.rivchain.cuplink.rivmesh.AutoSelectPeerActivity
+import org.rivchain.cuplink.rivmesh.PublicPeerActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
@@ -51,7 +52,6 @@ import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
 /*
  * Show splash screen, name setup dialog, database password dialog and
  * start background service before starting the MainActivity.
@@ -64,8 +64,10 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private var isStartOnBootup = false
     private var requestPermissionLauncher: ActivityResultLauncher<Array<String>>? = null
     private var requestPeersLauncher: ActivityResultLauncher<Intent>? = null
+    private var requestListenLauncher: ActivityResultLauncher<Intent>? = null
     private val POLICY = "policy"
     private val PEERS = "peers"
+    private val LISTEN = "listen"
     private var preferences: SharedPreferences? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +102,11 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 preferences!!.edit().putString(PEERS, "done").apply()
                 continueInit()
             }
+        requestListenLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                preferences!!.edit().putString(LISTEN, "done").apply()
+                continueInit()
+            }
         continueInit()
     }
 
@@ -123,44 +130,10 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             2 -> {
-                Log.d(this, "init 2: check addresses")
-                if (binder!!.getService().firstStart) {
-                    showMissingAddressDialog()
-                } else {
-                    continueInit()
-                }
-            }
-            3 -> {
-                Log.d(this, "init 3: check database")
-                if (binder!!.isDatabaseEncrypted()) {
-                    // database is probably encrypted
-                    showDatabasePasswordDialog()
-                } else {
-                    continueInit()
-                }
-            }
-            4 -> {
-                Log.d(this, "init 4: check username")
-                if (binder!!.getSettings().username.isEmpty()) {
-                    // set username
-                    showMissingUsernameDialog()
-                } else {
-                    continueInit()
-                }
-            }
-            5 -> {
-                Log.d(this, "init 5: check key pair")
-                if (binder!!.getSettings().publicKey.isEmpty()) {
-                    // generate key pair
-                    initKeyPair()
-                }
-                continueInit()
-            }
-            6 -> {
                 // All persistent settings must be set up prior this step!
-                Log.d(this, "init 6: choose peers")
+                Log.d(this, "init 2: choose peers")
                 if(preferences?.getString(PEERS, null) == null) {
-                    val intent = Intent(this, PeerListActivity::class.java)
+                    val intent = Intent(this, AutoSelectPeerActivity::class.java)
                     intent.putStringArrayListExtra(
                         SelectPeerActivity.PEER_LIST,
                         org.rivchain.cuplink.rivmesh.util.Utils.serializePeerInfoSet2StringList(
@@ -172,8 +145,52 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
+            3 -> {
+                Log.d(this, "init 3: check addresses")
+                if (binder!!.getService().firstStart) {
+                    showMissingAddressDialog()
+                } else {
+                    continueInit()
+                }
+            }
+            4 -> {
+                Log.d(this, "init 4: check database")
+                if (binder!!.isDatabaseEncrypted()) {
+                    // database is probably encrypted
+                    showDatabasePasswordDialog()
+                } else {
+                    continueInit()
+                }
+            }
+            5 -> {
+                Log.d(this, "init 5: check username")
+                if (binder!!.getSettings().username.isEmpty()) {
+                    // set username
+                    showMissingUsernameDialog()
+                } else {
+                    continueInit()
+                }
+            }
+            6 -> {
+                Log.d(this, "init 6: check key pair")
+                if (binder!!.getSettings().publicKey.isEmpty()) {
+                    // generate key pair
+                    initKeyPair()
+                }
+                continueInit()
+            }
             7 -> {
-                Log.d(this, "init 7: check all permissions")
+                // All persistent settings must be set up prior this step!
+                Log.d(this, "init 7: agree to start as a Public Peer")
+                if(preferences?.getString(LISTEN, null) == null) {
+                    val intent = Intent(this, PublicPeerActivity::class.java)
+                    requestListenLauncher!!.launch(intent)
+                } else {
+                    continueInit()
+                }
+            }
+            8 -> {
+                Log.d(this, "init 8: check all permissions")
                 if (!havePostNotificationPermission(this) ||
                     !haveMicrophonePermission(this) ||
                     !haveCameraPermission(this)
@@ -188,8 +205,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            8 -> {
-                Log.d(this, "init 8: start MainActivity")
+            9 -> {
+                Log.d(this, "init 9: start MainActivity")
                 val settings = binder!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
@@ -275,7 +292,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private fun showMissingAddressDialog() {
         val defaultAddress = getDefaultAddress()
         if (defaultAddress == null) {
-            val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
+            val builder = AlertDialog.Builder(this, R.style.FullPPTCDialog)
             builder.setTitle(getString(R.string.setup_address))
             builder.setMessage(getString(R.string.setup_no_address_found))
             builder.setPositiveButton(R.string.button_ok) { dialog: DialogInterface, _: Int ->
@@ -314,7 +331,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         etUsername.filters = arrayOf(getEditTextFilter())
 
         // Build the dialog
-        val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val builder = AlertDialog.Builder(this, R.style.FullPPTCDialog)
         .setTitle(R.string.startup_prompt_name)
         .setView(dialogView)
         .setNegativeButton(R.string.button_skip) { dialog: DialogInterface?, _: Int ->
@@ -470,7 +487,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         } else {
             msg.text = Html.fromHtml(readResourceFile(R.raw.pp_tc))
         }
-        val ab = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val ab = AlertDialog.Builder(this, R.style.FullPPTCDialog)
         ab.setTitle("CupLink")
             .setIcon(R.mipmap.ic_launcher)
             .setView(view)

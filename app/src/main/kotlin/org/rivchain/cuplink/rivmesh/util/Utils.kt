@@ -12,11 +12,22 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.URI
 import java.net.URISyntaxException
+import kotlin.random.Random
 
 
 class Utils {
 
     companion object {
+
+        @JvmStatic
+        fun generateRandomPort(): Int {
+            // Define the range for allowed ports
+            val minPort = 49152
+            val maxPort = 65535
+
+            // Generate a random port within the range
+            return Random.nextInt(minPort, maxPort + 1)
+        }
 
         @JvmStatic
         fun deserializeStringList2PeerInfoSet(list: List<String>?): MutableSet<PeerInfo> {

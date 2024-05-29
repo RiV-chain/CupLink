@@ -40,6 +40,7 @@ import org.rivchain.cuplink.rivmesh.STATE_DISABLED
 import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.rivmesh.State
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
+import org.rivchain.cuplink.rivmesh.util.Utils
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils.readInternalFile
@@ -162,7 +163,7 @@ class MainService : VpnService() {
             database = Database()
             database.mesh.invoke()
             // Generate random port from allowed range
-            val port = generateRandomPort()
+            val port = Utils.generateRandomPort()
             val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
             database.mesh.setListen(setOf(localPeer))
             database.mesh.multicastRegex = ".*"
@@ -172,15 +173,6 @@ class MainService : VpnService() {
             firstStart = true
         }
         return database
-    }
-
-    private fun generateRandomPort(): Int {
-        // Define the range for allowed ports
-        val minPort = 49152
-        val maxPort = 65535
-
-        // Generate a random port within the range
-        return Random.nextInt(minPort, maxPort + 1)
     }
 
     fun mergeDatabase(newDb: Database) {

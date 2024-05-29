@@ -81,6 +81,7 @@
         android:fontFamily="@font/lato_bold"
         android:textSize="18sp"
         android:text="@string/button_ok"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:enabled="false"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

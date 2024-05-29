@@ -26,7 +26,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
     private lateinit var passwordEditText: TextView
 
     private fun showMessage(title: String, message: String) {
-        val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val builder = AlertDialog.Builder(this, R.style.FullPPTCDialog)
         builder.setTitle(title)
         builder.setMessage(message)
         builder.setPositiveButton(android.R.string.ok, null)
@@ -147,7 +147,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
         val contactCount = newDatabase.contacts.contactList.size
         val eventCount = newDatabase.events.eventList.size
         val peersCount = newDatabase.mesh.getPeers().length()
-        val builder = AlertDialog.Builder(this, R.style.PPTCDialog)
+        val builder = AlertDialog.Builder(this, R.style.FullPPTCDialog)
         builder.setTitle(R.string.dialog_title_import_backup)
         builder.setMessage(String.format(getString(R.string.import_dialog), contactCount, eventCount, peersCount))
         builder.setCancelable(false) // prevent key shortcut to cancel dialog

@@ -38,7 +38,7 @@ class PeerInfo {
     }
 
     override fun equals(other: Any?): Boolean {
-        return toString().equals(other.toString())
+        return toString() == other.toString()
     }
 
     override fun hashCode(): Int {

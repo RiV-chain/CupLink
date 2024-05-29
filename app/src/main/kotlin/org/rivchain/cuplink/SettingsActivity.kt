@@ -27,6 +27,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
+import org.json.JSONArray
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PeerListActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity.Companion.PEER_LIST
@@ -122,6 +123,11 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         findViewById<TextView>(R.id.publicKeyTv)
             .text = Utils.byteArrayToHexString(settings.publicKey)
         findViewById<View>(R.id.publicKeyLayout)
+            .setOnClickListener { Toast.makeText(this@SettingsActivity, R.string.setting_read_only, Toast.LENGTH_SHORT).show() }
+
+        findViewById<TextView>(R.id.listen)
+            .text = jsonArrayToString(binder.getMesh().getListen())
+        findViewById<View>(R.id.listenLayout)
             .setOnClickListener { Toast.makeText(this@SettingsActivity, R.string.setting_read_only, Toast.LENGTH_SHORT).show() }
 
         findViewById<SwitchMaterial>(R.id.blockUnknownSwitch).apply {
@@ -370,6 +376,19 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         applySettingsMode(settingsMode)
         applyVideoDegradationMode(settings.videoDegradationMode)
 
+    }
+
+    fun jsonArrayToString(listen: JSONArray): String {
+        val stringBuilder = StringBuilder()
+
+        for (i in 0 until listen.length()) {
+            if (i > 0) {
+                stringBuilder.append(", ")
+            }
+            stringBuilder.append(listen.get(i))
+        }
+
+        return stringBuilder.toString()
     }
 
     private var requestDrawOverlaysPermissionLauncher = registerForActivityResult(

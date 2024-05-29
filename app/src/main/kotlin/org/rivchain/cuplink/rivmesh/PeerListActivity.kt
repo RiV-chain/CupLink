@@ -22,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.SettingsActivity
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
@@ -50,9 +49,9 @@ class PeerListActivity : SelectPeerActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_peer_list)
         setSupportActionBar(findViewById(R.id.toolbar))
+        super.onCreate(savedInstanceState)
 
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { _ ->
             addNewPeer()
@@ -206,21 +205,10 @@ class PeerListActivity : SelectPeerActivity() {
             cancelPeerListPing()
             val result = Intent(this, SettingsActivity::class.java)
             val adapter = findViewById<ListView>(R.id.peerList).adapter as SelectPeerInfoListAdapter
-            val selectedPeers = adapter.getSelectedPeers()
-            binder!!.getMesh().setPeers(selectedPeers)
-            binder!!.saveDatabase()
-            // Restart service
-            val intentStop = Intent(this, MainService::class.java)
-            intentStop.action = MainService.ACTION_STOP
-            startService(intentStop)
 
-            Thread {
-                Thread.sleep(1000)
-                val intentStart = Intent(this, MainService::class.java)
-                intentStart.action = MainService.ACTION_START
-                startService(intentStart)
-                finish()
-            }.start()
+            val selectedPeers = adapter.getSelectedPeers()
+            saveSelectedPeers(selectedPeers)
+            restartService()
         }
 
         val editUrl = menu.findItem(R.id.editUrlItem) as MenuItem
