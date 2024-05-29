@@ -15,11 +15,11 @@
     <string name="camera_front">أمام</string>
     <string name="capture_format_change_text">قم بالتمرير لتغيير تنسيق الالتقاط</string>
     <string name="clear_events">مسح الأحداث</string>
-    <string name="connected_to_address">(%1$s إلى)</string>
-    <string name="connecting_to_address">الاتصال ب %1$s</string>
+    <string name="connected_to_address">(%s إلى)</string>
+    <string name="connecting_to_address">الاتصال ب %s</string>
     <string name="contact_address_input">العنوان</string>
     <string name="audio_device_earpiece">سماعة الأذن</string>
-    <string name="audio_device_fixed">%1$s (مُثَبَّت)</string>
+    <string name="audio_device_fixed">%s (مُثَبَّت)</string>
     <string name="audio_device_speakerphone">مكبر الصوت</string>
     <string name="audio_device_wired_headset">سماعة خيطية</string>
     <string name="call_error_no_address">خطأ: لا عنوان</string>
@@ -32,7 +32,7 @@
     <string name="call_denied">رُفِضَ</string>
     <string name="address_management_help_text">حدد عنوانًا واحدًا أو أكثر ليتم تضمينه في رمز الاستجابة السريعة الخاص بك. من الأفكار الجيدة استخدام عنوان MAC الخاص بمحول Wi-Fi (wlan0). لكن انتبه إلى أن Android قد يغيره اعتمادًا على إعدادات النظام. إذا لم يكن عنوان MAC مرئيًا، فقم بتمكين شبكة Wi-Fi لديك.</string>
     <string name="app_description">"  السماح بالاتصالات الصوتية والمرئية دون أي خادم أو الوصول إلى الإنترنت. ما عليك سوى مسح رمز الاستجابة السريعة للاتصال ببعضهم البعض والاتصال ببعضهم البعض. يعمل هذا على معظم الشبكات، على سبيل المثال. في المنزل أو في شبكات المجتمع أو في العمل."</string>
-    <string name="audio_device_auto">%1$s (تلقائي)</string>
+    <string name="audio_device_auto">%s (تلقائي)</string>
     <string name="call_ended">مكالمة منتهية</string>
     <string name="button_replace">استبدل</string>
     <string name="button_next">التالي</string>

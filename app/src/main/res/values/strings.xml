@@ -10,10 +10,10 @@
     <string name="app_license" translatable="false">GPL-3.0-or-later</string>
     <string name="app_name" translatable="false">CupLink</string>
     <string name="app_website" translatable="false">https://github.com/RiV-chain/CupLink</string>
-    <string name="audio_device_auto">%1$s (auto)</string>
+    <string name="audio_device_auto">%s (auto)</string>
     <string name="audio_device_bluetooth">Bluetooth</string>
     <string name="audio_device_earpiece">Earpiece</string>
-    <string name="audio_device_fixed">%1$s (fixed)</string>
+    <string name="audio_device_fixed">%s (fixed)</string>
     <string name="audio_device_speakerphone">Speakerphone</string>
     <string name="audio_device_wired_headset">Wired Headset</string>
     <string name="button_abort">Abort</string>
@@ -47,8 +47,8 @@
     <string name="camera_front">Front</string>
     <string name="capture_format_change_text">Slide to change capture format</string>
     <string name="clear_events">Clear Events</string>
-    <string name="connected_to_address">(to %1$s)</string>
-    <string name="connecting_to_address">Connecting to %1$s</string>
+    <string name="connected_to_address">(to %s)</string>
+    <string name="connecting_to_address">Connecting to %s</string>
     <string name="contact_address_input">Address</string>
     <string name="contact_address_list">Addresses</string>
     <string name="contact_blocked">Blocked</string>
@@ -82,9 +82,9 @@
     <string name="error_address_invalid">Address invalid</string>
     <string name="error_address_multicast_not_supported">Multicast address not supported</string>
     <string name="failed_to_export_database">Failed to export database</string>
-    <string name="import_dialog" translatable="false">Import new settings and add %1$d contacts, %2$d events, %3$d peers?</string>
+    <string name="import_dialog" translatable="false">Import new settings and add %d contacts, %d events, %d peers?</string>
     <string name="invalid_name">Invalid Name</string>
-    <string name="invalid_number">Invalid Value (must be %1$d..%2$d)</string>
+    <string name="invalid_number">Invalid Value (must be %d..%d)</string>
     <string name="invalid_qr">Invalid QR code</string>
     <string name="invalid_qr_code_data">Invalid data</string>
     <string name="listen_for_incoming_calls">Listen for incoming calls.</string>
@@ -102,7 +102,7 @@
     <string name="password_title">Password</string>
     <string name="paste_qr_code_data">Paste Contact JSON Here</string>
     <string name="ping_all_contacts">Ping All Contacts</string>
-    <string name="ping_contact">Ping %1$s</string>
+    <string name="ping_contact">Ping %s</string>
     <string name="remove_all_events">Remove all events?</string>
     <string name="setting_read_only">Read Only</string>
     <string name="settings_addresses">Addresses</string>
