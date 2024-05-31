@@ -17,8 +17,8 @@
         app:layout_constraintBottom_toTopOf="@+id/conflict_contact_edit_textview_layout"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:textSize="23sp"
-        android:fontFamily="@font/lato_bold"
+        android:textSize="20sp"
+        android:fontFamily="@font/poppins_regular"
         android:text="@string/contact_name_conflict"/>
 
     <com.google.android.material.textfield.TextInputLayout

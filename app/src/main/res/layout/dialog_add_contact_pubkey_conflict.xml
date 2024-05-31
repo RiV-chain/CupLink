@@ -15,8 +15,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/public_key_conflicting_contact_textview"
         android:layout_marginStart="10dp"
-        android:textSize="23sp"
-        android:fontFamily="@font/lato_bold"
+        android:textSize="20sp"
+        android:fontFamily="@font/poppins_regular"
         android:text="@string/contact_key_conflict"/>
 
     <TextView

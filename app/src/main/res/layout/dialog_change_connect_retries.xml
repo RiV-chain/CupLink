@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toTopOf="@+id/ConnectRetriesEditTextLayout"
         android:layout_marginStart="10dp"
         android:textSize="23sp"
-        android:fontFamily="@font/lato_bold"
+        android:fontFamily="@font/poppins_regular"
         android:text="@string/settings_connect_retries"/>
 
     <com.google.android.material.textfield.TextInputLayout

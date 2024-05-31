@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/NameEditLayout"
         android:textSize="23sp"
-        android:fontFamily="@font/lato_bold"
+        android:fontFamily="@font/poppins_regular"
         android:text="@string/enter_contact_name"/>
 
     <com.google.android.material.textfield.TextInputLayout
