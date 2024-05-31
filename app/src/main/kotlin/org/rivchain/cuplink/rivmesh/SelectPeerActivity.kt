@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.rivchain.cuplink.BaseActivity
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.models.Status
@@ -34,7 +35,7 @@ import java.net.URL
 import java.net.UnknownHostException
 import java.nio.charset.Charset
 import java.util.Locale
-open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
+open class SelectPeerActivity : BaseActivity(), ServiceConnection {
 
     private var binder: MainService.MainBinder? = null
     var peerListUrl = PEER_LIST_URL
@@ -73,28 +74,13 @@ open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
 
     }
 
-    protected open fun addAllPeers(currentPeers: ArrayList<PeerInfo>){
+    protected open fun addAlreadySelectedPeers(alreadySelectedPeers: ArrayList<PeerInfo>){
 
     }
 
     protected open fun saveSelectedPeers(selectedPeers: Set<PeerInfo>){
         binder!!.getMesh().setPeers(selectedPeers)
         binder!!.saveDatabase()
-    }
-
-    protected open fun restartService(){
-        // Restart service
-        val intentStop = Intent(this, MainService::class.java)
-        intentStop.action = MainService.ACTION_STOP
-        startService(intentStop)
-
-        Thread {
-            Thread.sleep(1000)
-            val intentStart = Intent(this, MainService::class.java)
-            intentStart.action = MainService.ACTION_START
-            startService(intentStart)
-            finish()
-        }.start()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -221,7 +207,7 @@ open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
                 }
                 val currentPeers = ArrayList(alreadySelectedPeers.sortedWith(compareBy { it.ping }))
                 withContext(Dispatchers.Main) {
-                    addAllPeers(currentPeers)
+                    addAlreadySelectedPeers(currentPeers)
                 }
             } catch (e: Throwable) {
                 e.printStackTrace()
@@ -246,6 +232,11 @@ open class SelectPeerActivity : AppCompatActivity(), ServiceConnection {
     override fun onServiceDisconnected(name: ComponentName?) {
         //nothing_todo
     }
+
+    override fun onServiceRestart(){
+
+    }
+
 }
 
 class SizeOfPeerList: SizeOf<List<PeerInfo>> {

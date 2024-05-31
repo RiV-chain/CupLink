@@ -69,6 +69,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private val PEERS = "peers"
     private val LISTEN = "listen"
     private var preferences: SharedPreferences? = null
+    private var restartService = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(this, "onCreate() CupLink version ${BuildConfig.VERSION_NAME}")
@@ -88,9 +89,10 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
+        findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
+
         preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext);
-        val type = Typeface.createFromAsset(assets, "rounds_black.otf")
-        findViewById<TextView>(R.id.splashText).typeface = type
 
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -130,7 +132,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             2 -> {
-                // All persistent settings must be set up prior this step!
                 Log.d(this, "init 2: choose peers")
                 if(preferences?.getString(PEERS, null) == null) {
                     val intent = Intent(this, AutoSelectPeerActivity::class.java)
@@ -141,6 +142,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                         )
                     )
                     requestPeersLauncher!!.launch(intent)
+                    restartService = true
                 } else {
                     continueInit()
                 }
@@ -180,7 +182,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 continueInit()
             }
             7 -> {
-                // All persistent settings must be set up prior this step!
                 Log.d(this, "init 7: agree to start as a Public Peer")
                 if(preferences?.getString(LISTEN, null) == null) {
                     val intent = Intent(this, PublicPeerActivity::class.java)
@@ -206,7 +207,16 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
             9 -> {
-                Log.d(this, "init 9: start MainActivity")
+                // All persistent settings must be set up prior this step!
+                Log.d(this, "init 9: restart main service if needed")
+                if(restartService) {
+                    restartService()
+                } else {
+                    continueInit()
+                }
+            }
+            10 -> {
+                Log.d(this, "init 10: start MainActivity")
                 val settings = binder!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
@@ -218,6 +228,10 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 finish()
             }
         }
+    }
+
+    override fun onServiceRestart() {
+        continueInit()
     }
 
     private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

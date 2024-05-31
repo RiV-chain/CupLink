@@ -44,8 +44,8 @@ class PeerListActivity : SelectPeerActivity() {
         }
     }
 
-    override fun addAllPeers(currentPeers: ArrayList<PeerInfo>){
-        adapter.addAll(0, currentPeers)
+    override fun addAlreadySelectedPeers(alreadySelectedPeers: ArrayList<PeerInfo>){
+        adapter.addAll(0, alreadySelectedPeers)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -219,5 +219,10 @@ class PeerListActivity : SelectPeerActivity() {
             editPeerListUrl()
         }
         return true
+    }
+
+    override fun onServiceRestart() {
+        super.onServiceRestart()
+        finish()
     }
 }

@@ -21,6 +21,8 @@ class AutoSelectPeerActivity: SelectPeerActivity() {
     private lateinit var progressBar: LinearProgressIndicator
     private lateinit var progressDialog: AlertDialog
 
+    private val selectedPeers = ArrayList<PeerInfo>()
+
     override fun peersMap(peersMap: Map<String, Map<String, Status>>) {
         // Calculate total peers with up status
         var totalProbablyOnlinePeers = 0
@@ -42,17 +44,20 @@ class AutoSelectPeerActivity: SelectPeerActivity() {
 
     override fun addPeer(peerInfo: PeerInfo){
         addedPeers++
+        selectedPeers.add(peerInfo)
         // Update progress
         updateProgress()
     }
 
-    override fun addAllPeers(currentPeers: ArrayList<PeerInfo>){
-        if (currentPeers.size == 0) {
+    override fun addAlreadySelectedPeers(alreadySelectedPeers: ArrayList<PeerInfo>){
+        selectedPeers.addAll(alreadySelectedPeers)
+
+        if (selectedPeers.size == 0) {
             // TODO show up a warning here
             finish()
         }
         // Do peers selection
-        super.saveSelectedPeers(selectPeers(currentPeers))
+        super.saveSelectedPeers(selectPeers(selectedPeers))
         // TODO show success status
         progressDialog.dismiss()
         finish()
