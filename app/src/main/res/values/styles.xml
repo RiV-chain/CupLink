@@ -54,6 +54,8 @@
         <item name="android:background">@drawable/dialog_rounded_corner</item>
         <item name="android:windowBackground">@drawable/dialog_rounded_corner</item>
         <item name="android:textColor">@color/light_light_grey</item>
+        <item name="android:textColorPrimary">@color/light_light_grey</item>
+        <item name="android:colorAccent">@color/light_light_grey</item>
         <item name="buttonBarPositiveButtonStyle">@style/CustomAlertDialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/CustomAlertDialogButton</item>
     </style>

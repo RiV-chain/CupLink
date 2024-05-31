@@ -378,7 +378,6 @@ class MainService : VpnService() {
 
         Log.d(TAG, "getting Mesh configuration")
         mesh.startJSON(binder.getMesh().getJSONByteArray())
-        Log.d(TAG, binder.getMesh().getJSONByteArray().decodeToString())
         val address = mesh.addressString
         val builder = Builder()
             .addAddress(address, 7)
