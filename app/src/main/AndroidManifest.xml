@@ -159,11 +159,12 @@
             android:name=".rivmesh.PeerListActivity"
             android:label="@string/title_activity_peer_list"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme" />
 
         <activity
             android:name=".rivmesh.PublicPeerActivity"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <service
             android:name=".MainService"
