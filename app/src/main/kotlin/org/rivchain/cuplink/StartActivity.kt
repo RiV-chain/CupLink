@@ -332,7 +332,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
         // Build the dialog
         val builder = AlertDialog.Builder(this, R.style.FullPPTCDialog)
-        .setTitle(R.string.startup_prompt_name)
         .setView(dialogView)
         .setNegativeButton(R.string.button_skip) { dialog: DialogInterface?, _: Int ->
             val username = generateRandomUserName()

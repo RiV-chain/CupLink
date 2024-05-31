@@ -1,12 +1,12 @@
 package org.rivchain.cuplink.rivmesh
 
 import android.content.ComponentName
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.IBinder
-import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
@@ -60,6 +60,7 @@ class PublicPeerActivity: AppCompatActivity(), ServiceConnection {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_empty)
 
         bindService(Intent(this, MainService::class.java), this, 0)
 

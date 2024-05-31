@@ -19,6 +19,7 @@
         <item name="popupMenuBackground">@color/colorPrimaryDark</item>
         <item name="dropDownBackgroundTint">@color/colorPrimaryDark</item>
     </style>
+
     <style name="CustomTabLayoutStyle" parent="Widget.Design.TabLayout">
         <item name="tabIndicator">@null</item>
         <item name="tabSelectedTextColor">@color/white</item>
@@ -51,6 +52,7 @@
 
     <style name="FullPPTCDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:background">@drawable/dialog_rounded_corner</item>
+        <item name="android:windowBackground">@drawable/dialog_rounded_corner</item>
         <item name="android:textColor">@color/light_light_grey</item>
         <item name="buttonBarPositiveButtonStyle">@style/CustomAlertDialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/CustomAlertDialogButton</item>
@@ -58,6 +60,7 @@
 
     <style name="PPTCDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:textColor">@color/light_light_grey</item>
         <item name="buttonBarPositiveButtonStyle">@style/CustomAlertDialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/CustomAlertDialogButton</item>

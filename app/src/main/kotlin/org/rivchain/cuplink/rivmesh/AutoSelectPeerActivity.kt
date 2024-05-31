@@ -117,7 +117,7 @@ class AutoSelectPeerActivity: SelectPeerActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setContentView(R.layout.activity_empty)
         // Inflate the layout for the dialog
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_progress, null)
 
