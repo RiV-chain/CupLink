@@ -2,7 +2,6 @@ package org.rivchain.cuplink
 
 import android.app.Activity
 import android.content.ComponentName
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
@@ -10,7 +9,6 @@ import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
 import android.widget.Toast
@@ -180,16 +178,16 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
 
     protected open fun startManualInput() {
         pause()
-
         // Inflate the custom layout/view
         val inflater = layoutInflater
         val dialogView = inflater.inflate(R.layout.dialog_manual_contact_input, null)
-        val et = dialogView.findViewById<EditText>(R.id.editTextInput)
-
-        val b = AlertDialog.Builder(this, R.style.FullPPTCDialog)
-        b.setTitle(R.string.paste_qr_code_data)
+        val et = dialogView.findViewById<TextInputEditText>(R.id.editTextInput)
+        val cancelButton = dialogView.findViewById<Button>(R.id.CancelButton)
+        val okButton = dialogView.findViewById<Button>(R.id.OkButton)
+        val b = AlertDialog.Builder(this, R.style.PPTCDialog)
             .setView(dialogView) // Set the custom view to the dialog
-            .setPositiveButton(R.string.button_ok) { _: DialogInterface?, _: Int ->
+        val dialog = b.create()
+        okButton.setOnClickListener{
                 try {
                     val data = et.text.toString()
                     addContact(data)
@@ -198,17 +196,11 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
                     Toast.makeText(this, R.string.invalid_qr_code_data, Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton(R.string.button_cancel) { dialog: DialogInterface, _: Int ->
-                dialog.cancel()
-                resume()
-            }
-        val adialog = b.create()
-        adialog.setOnShowListener {
-            adialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.white))
-            adialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.white))
+        cancelButton.setOnClickListener{
+            dialog.cancel()
+            resume()
         }
-        adialog.show()
-
+        dialog.show()
     }
 
     companion object {
