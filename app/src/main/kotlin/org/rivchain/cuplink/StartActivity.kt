@@ -251,7 +251,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 // show delayed splash page
                 Handler(Looper.getMainLooper()).postDelayed({
                     continueInit()
-                }, 1000)
+                }, 3000)
             } else {
                 // show contact list as fast as possible
                 continueInit()
