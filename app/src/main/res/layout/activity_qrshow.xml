@@ -9,7 +9,8 @@
         android:layout_width="wrap_content"
         android:padding="@dimen/padding_20"
         android:layout_height="wrap_content"
-        android:background="@drawable/qrscan_background">
+        android:background="@drawable/qrscan_background"
+        android:layout_marginTop="30dp">
 
         <TextView
             android:id="@+id/scan_invite_tv"

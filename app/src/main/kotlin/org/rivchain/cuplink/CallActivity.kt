@@ -142,9 +142,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         // keep screen on during the call
         window.addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
-        //extend screen view over systembar
-        window.setFlags(LayoutParams.FLAG_LAYOUT_NO_LIMITS, LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_call)
