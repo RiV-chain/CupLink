@@ -86,4 +86,10 @@
     <style name="CustomPopupBackground">
         <item name="android:background">@color/colorPrimaryDark</item> <!-- Define a custom background color -->
     </style>
+
+    <!-- Style for rounded corners on ImageView -->
+    <style name="RoundedCornerImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item> <!-- Adjust this value as needed -->
+    </style>
 </resources>

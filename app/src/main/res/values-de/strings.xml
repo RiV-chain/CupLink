@@ -138,4 +138,5 @@
     <string name="agree_to_connect1">I agree to connect this device</string>
     <string name="settings_listen">Mesh port</string>
     <string name="agree_to_connect2">as a public peer.</string>
+    <string name="qr_code_image">Contact QR code image</string>
 </resources>
