@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
+const val STATE_STARTING = "starting"
 const val STATE_ENABLED = "enabled"
 const val STATE_DISABLED = "disabled"
 const val STATE_CONNECTED = "connected"
@@ -23,6 +24,7 @@ class AppStateReceiver(var receiver: StateReceiver): BroadcastReceiver() {
         if (context == null) return
 
         val state = when (intent?.getStringExtra("state")) {
+            STATE_STARTING -> State.Starting
             STATE_ENABLED -> State.Enabled
             STATE_DISABLED -> State.Disabled
             STATE_CONNECTED -> State.Connected
@@ -54,5 +56,5 @@ class AppStateReceiver(var receiver: StateReceiver): BroadcastReceiver() {
  * Calling state is received by CallActivity
  */
 enum class State {
-    Unknown, Disabled, Enabled, Connected, Reconnecting, Calling, CallEnded;
+    Starting, Unknown, Disabled, Enabled, Connected, Reconnecting, Calling, CallEnded;
 }

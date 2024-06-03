@@ -306,14 +306,13 @@ class MainService : VpnService() {
             return START_NOT_STICKY
         } else if (intent.action == ACTION_CONNECT) {
             Log.d(this, "onStartCommand() Received Start Foreground Intent")
-            val message = resources.getText(R.string.listen_for_incoming_calls).toString()
-            val notification = createNotification(message, false)
-            startForeground(NOTIFICATION_ID, notification)
+            val notification = createServiceNotification(this, State.Starting)
+            startForeground(SERVICE_NOTIFICATION_ID, notification)
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                startForeground(NOTIFICATION_ID, notification)
+                startForeground(SERVICE_NOTIFICATION_ID, notification)
             } else {
-                startForeground(NOTIFICATION_ID, notification,
+                startForeground(SERVICE_NOTIFICATION_ID, notification,
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL)
             }
         }
@@ -652,18 +651,16 @@ class MainService : VpnService() {
         val eventList = binder.getEvents().eventList
         val eventsMissed = binder.getEvents().eventsMissed
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val message = if (eventList.isEmpty() || eventsMissed == 0) {
-            // default message
-            resources.getText(R.string.listen_for_incoming_calls).toString()
-        } else {
+
+        if(eventsMissed > 0 && !binder.getSettings().disableCallHistory){
             // missed calls
             val publicKey = eventList.last().publicKey
             val contact = binder.getContacts().getContactByPublicKey(publicKey)
             val name = contact?.name ?: getString(R.string.unknown_caller)
-            String.format(getString(R.string.missed_call_from), name, eventsMissed)
+            val message = String.format(getString(R.string.missed_call_from), name, eventsMissed)
+            val notification = createNotification(message, false)
+            manager.notify(NOTIFICATION_ID, notification)
         }
-        val notification = createNotification(message, false)
-        manager.notify(NOTIFICATION_ID, notification)
     }
 
     /*
@@ -757,16 +754,16 @@ class MainService : VpnService() {
         fun addEvent(event: Event) {
             Log.d(this, "addEvent() event.type=${event.type}")
 
-            // update notification
-            if (event.type == Event.Type.INCOMING_MISSED) {
-                getEvents().eventsMissed += 1
-                updateNotification()
-            }
-
             if (!getSettings().disableCallHistory) {
                 getEvents().addEvent(event)
                 saveDatabase()
                 refreshEvents(this@MainService)
+            }
+
+            // update notification
+            if (event.type == Event.Type.INCOMING_MISSED) {
+                getEvents().eventsMissed += 1
+                updateNotification()
             }
         }
 

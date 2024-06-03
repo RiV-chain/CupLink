@@ -37,8 +37,11 @@ import androidx.core.app.Person
 import androidx.core.graphics.drawable.toBitmap
 import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.RlpUtils
+import java.io.Serializable
+import java.util.Date
 
 class CallService : Service() {
 
@@ -130,7 +133,12 @@ class CallService : Service() {
         if(intent == null) {
             return super.onStartCommand(intent, flags, startId)
         }
-        callServiceReceiver = CallServiceReceiver()
+        val contact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
+        } else {
+            intent.getSerializableExtra(SERVICE_CONTACT_KEY)
+        } as Contact
+        callServiceReceiver = CallServiceReceiver(contact)
         val intentFilter = IntentFilter()
         intentFilter.addAction(START_CALL_ACTION)
         intentFilter.addAction(STOP_CALL_ACTION)
@@ -140,11 +148,6 @@ class CallService : Service() {
 
         filter.addAction(Intent.ACTION_SCREEN_OFF)
         filter.addAction(Intent.ACTION_USER_PRESENT)
-        val contact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getSerializableExtra(SERVICE_CONTACT_KEY, Contact::class.java)
-        } else {
-            intent.getSerializableExtra(SERVICE_CONTACT_KEY)
-        }
         screenReceiver = ScreenReceiver(contact as Contact)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             registerReceiver(callServiceReceiver, intentFilter, RECEIVER_EXPORTED)
@@ -373,7 +376,7 @@ class CallService : Service() {
     override fun onDestroy() {
         this.unregisterReceiver(callServiceReceiver)
         this.unregisterReceiver(screenReceiver)
-        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancelAll()
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancel(ID_ONGOING_CALL_NOTIFICATION)
         super.onDestroy()
     }
 
@@ -381,7 +384,7 @@ class CallService : Service() {
         return null
     }
 
-    inner class CallServiceReceiver : BroadcastReceiver() {
+    inner class CallServiceReceiver(private val contact: Contact) : BroadcastReceiver() {
         override fun onReceive(arg0: Context?, intent: Intent) {
             Log.d(this, "onReceive() action=$intent.action")
             when (intent.action) {
@@ -390,7 +393,9 @@ class CallService : Service() {
                 }
                 STOP_CALL_ACTION -> RTCPeerConnection.incomingRTCCall?.decline()
                 DECLINE_CALL_ACTION -> {
-                    // Do nothing
+                    // Notify missed call
+                    val event = Event(contact.publicKey, contact.lastWorkingAddress, Event.Type.INCOMING_MISSED, Date())
+                    RTCPeerConnection.incomingRTCCall?.binder!!.addEvent(event)
                 }
                 else -> {
                     // For all other actions, do nothing
@@ -398,7 +403,7 @@ class CallService : Service() {
             }
             stopRinging()
             stopSelf()
-            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancelAll()
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancel(ID_ONGOING_CALL_NOTIFICATION)
         }
     }
 

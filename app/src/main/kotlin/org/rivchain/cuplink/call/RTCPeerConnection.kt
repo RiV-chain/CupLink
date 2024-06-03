@@ -33,7 +33,7 @@ import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 
 abstract class RTCPeerConnection(
-    protected var binder: MainService.MainBinder,
+    var binder: MainService.MainBinder,
     protected var contact: Contact,
     protected var commSocket: Socket?
 ) {
