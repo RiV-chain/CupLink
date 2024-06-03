@@ -155,7 +155,7 @@ class CallService : Service() {
         }
 
         // check screen lock status and run showIncomingNotification when screen is unlocked. check an existing notification.
-        showIncomingNotification(intent, contact as Contact, this@CallService)
+        showIncomingNotification(intent, contact, this@CallService)
         Thread {
             RTCPeerConnection.incomingRTCCall?.continueOnIncomingSocket()
         }.start()
@@ -165,7 +165,7 @@ class CallService : Service() {
 
     private fun showIncomingNotification(
         intent: Intent,
-        contact: Contact?,
+        contact: Contact,
         service: CallService,
     ) {
 
@@ -297,7 +297,7 @@ class CallService : Service() {
         val incomingNotification: Notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
-            var personName: String = contact!!.name
+            var personName: String = contact.name
             if (TextUtils.isEmpty(personName)) {
                 //java.lang.IllegalArgumentException: person must have a non-empty a name
                 personName = "Unknown contact"
@@ -314,11 +314,11 @@ class CallService : Service() {
         } else {
             builder.addAction(R.drawable.ic_close, endTitle, endPendingIntent)
             builder.addAction(R.drawable.ic_audio_device_phone, answerTitle, answerPendingIntent)
-            builder.setContentText(contact!!.name)
+            builder.setContentText(contact.name)
 
             val customView = RemoteViews(
                 service.packageName,
-                R.layout.call_notification_rtl
+                R.layout.notification_call_rtl
             )
             customView.setTextViewText(R.id.name, contact.name)
             customView.setViewVisibility(R.id.subtitle, View.GONE)
@@ -402,7 +402,7 @@ class CallService : Service() {
         }
     }
 
-    inner class ScreenReceiver(var contact: Contact?) : BroadcastReceiver() {
+    inner class ScreenReceiver(private var contact: Contact) : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
                 Intent.ACTION_SCREEN_OFF -> {
@@ -417,7 +417,7 @@ class CallService : Service() {
                 Intent.ACTION_USER_PRESENT -> {
                     Log.d(this, "In Method: ACTION_USER_PRESENT")
                     (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancelAll()
-                    showIncomingNotification(intent, contact as Contact, this@CallService)
+                    showIncomingNotification(intent, contact, this@CallService)
                 }
             }
         }

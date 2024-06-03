@@ -729,7 +729,7 @@ abstract class RTCPeerConnection(
 
             if (contact == null) {
                 // unknown caller
-                contact = Contact("", otherPublicKey.clone(), ArrayList())
+                contact = Contact("", otherPublicKey.clone(), listOf(remoteAddress.address.hostAddress!!))
             }
 
             // suspicious change of identity in during peerConnection...
