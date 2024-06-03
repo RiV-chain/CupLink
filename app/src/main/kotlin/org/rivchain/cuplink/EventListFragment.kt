@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.ListView
@@ -54,14 +55,13 @@ class EventListFragment : Fragment() {
         }
     }
 
-    private val onEventLongClickListener = AdapterView.OnItemLongClickListener { _, view, i, _ ->
+    private val onEventLongClickListener = AdapterView.OnItemLongClickListener { _, _, i, _ ->
         Log.d(this, "onItemLongClick")
         val activity = requireActivity()
         val binder = (activity as MainActivity).binder ?: return@OnItemLongClickListener false
 
         val eventGroup = eventListAdapter.getItem(i)
         val latestEvent = eventGroup.last()
-        val menu = PopupMenu(activity, view)
         val res = resources
         val add = res.getString(R.string.contact_menu_add)
         val delete = res.getString(R.string.contact_menu_delete)
@@ -69,23 +69,42 @@ class EventListFragment : Fragment() {
         val unblock = res.getString(R.string.contact_menu_unblock)
         val contact = binder.getContacts().getContactByPublicKey(latestEvent.publicKey)
 
-        // allow to add unknown caller
+        // Create a list of options
+        val options = mutableListOf<String>()
+
+        // Allow to add unknown caller
         if (contact == null) {
-            menu.menu.add(add)
+            options.add(add)
         }
 
         if (contact != null) {
             if (contact.blocked) {
-                menu.menu.add(unblock)
+                options.add(unblock)
             } else {
-                menu.menu.add(block)
+                options.add(block)
             }
         }
 
-        menu.menu.add(delete)
+        options.add(delete)
 
-        menu.setOnMenuItemClickListener { menuItem: MenuItem ->
-            when (menuItem.title.toString()) {
+        // Inflate the dialog layout
+        val inflater = LayoutInflater.from(activity)
+        val dialogView = inflater.inflate(R.layout.dialog_select_one_listview_item, null)
+        val listViewEventOptions: ListView = dialogView.findViewById(R.id.listView)
+
+        // Create an ArrayAdapter
+        val adapter = ArrayAdapter(activity, android.R.layout.simple_list_item_1, options)
+        listViewEventOptions.adapter = adapter
+
+        // Create and show the dialog
+        val dialog = AlertDialog.Builder(activity, R.style.PPTCDialog)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        listViewEventOptions.setOnItemClickListener { _, _, position, _ ->
+            val selectedOption = options[position]
+            when (selectedOption) {
                 add -> {
                     showAddDialog(eventGroup)
                 }
@@ -99,9 +118,10 @@ class EventListFragment : Fragment() {
                     deleteEventGroup(eventGroup)
                 }
             }
-            false
+            dialog.dismiss()
         }
-        menu.show()
+
+        dialog.show()
         true
     }
 

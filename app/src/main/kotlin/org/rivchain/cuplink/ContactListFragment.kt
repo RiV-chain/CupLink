@@ -7,15 +7,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationSet
 import android.view.animation.TranslateAnimation
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -51,40 +50,50 @@ class ContactListFragment : Fragment() {
     }
 
     private val onContactLongClickListener =
-        AdapterView.OnItemLongClickListener { adapterView, view, i, _ ->
+        AdapterView.OnItemLongClickListener { adapterView, _, i, _ ->
             val contact = adapterView.adapter.getItem(i) as Contact
-            val menu = PopupMenu(activity, view)
-            val details = getString(R.string.contact_menu_details)
-            val delete = getString(R.string.contact_menu_delete)
-            val ping = getString(R.string.contact_menu_ping)
-            val share = getString(R.string.contact_menu_share)
-            val qrcode = getString(R.string.contact_menu_qrcode)
-            menu.menu.add(details)
-            menu.menu.add(delete)
-            menu.menu.add(ping)
-            menu.menu.add(share)
-            menu.menu.add(qrcode)
-            menu.setOnMenuItemClickListener { menuItem: MenuItem ->
-                val title = menuItem.title.toString()
+            val options = listOf(
+                getString(R.string.contact_menu_details),
+                getString(R.string.contact_menu_delete),
+                getString(R.string.contact_menu_ping),
+                getString(R.string.contact_menu_share),
+                getString(R.string.contact_menu_qrcode)
+            )
+
+            val inflater = LayoutInflater.from(activity)
+            val dialogView = inflater.inflate(R.layout.dialog_select_one_listview_item, null)
+            val listViewContactOptions: ListView = dialogView.findViewById(R.id.listView)
+
+            val adapter = ArrayAdapter(this.requireContext(), android.R.layout.simple_list_item_1, options)
+            listViewContactOptions.adapter = adapter
+
+            val dialog = AlertDialog.Builder(this.requireContext(), R.style.PPTCDialog)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create()
+
+            listViewContactOptions.setOnItemClickListener { _, _, position, _ ->
+                val selectedOption = options[position]
                 val publicKey = contact.publicKey
-                when (title) {
-                    details -> {
+                when (selectedOption) {
+                    getString(R.string.contact_menu_details) -> {
                         val intent = Intent(activity, ContactDetailsActivity::class.java)
                         intent.putExtra("EXTRA_CONTACT_PUBLICKEY", contact.publicKey)
                         startActivity(intent)
                     }
-                    delete -> showDeleteDialog(publicKey, contact.name)
-                    ping -> pingContact(contact)
-                    share -> shareContact(contact)
-                    qrcode -> {
+                    getString(R.string.contact_menu_delete) -> showDeleteDialog(publicKey, contact.name)
+                    getString(R.string.contact_menu_ping) -> pingContact(contact)
+                    getString(R.string.contact_menu_share) -> shareContact(contact)
+                    getString(R.string.contact_menu_qrcode) -> {
                         val intent = Intent(activity, QRShowActivity::class.java)
                         intent.putExtra("EXTRA_CONTACT_PUBLICKEY", contact.publicKey)
                         startActivity(intent)
                     }
                 }
-                false
+                dialog.dismiss()
             }
-            menu.show()
+
+            dialog.show()
             true
         }
 
