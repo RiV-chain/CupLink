@@ -136,7 +136,7 @@
     <string name="connect_as_public_peer">Connect as a Public Peer</string>
     <string name="note_device_as_public_peer">Note: Connecting this device as a public peer may result in additional traffic utilization while it stays online. This may incur additional charges from your mobile operator.</string>
     <string name="agree_to_connect1">I agree to connect this device</string>
-    <string name="settings_listen">Mesh port</string>
-    <string name="agree_to_connect2">as a public peer.</string>
+    <string name="settings_connect_as_public_peer">Connect as Public Peer</string>
     <string name="qr_code_image">Contact QR code image</string>
+    <string name="port_status">Port status</string>
 </resources>

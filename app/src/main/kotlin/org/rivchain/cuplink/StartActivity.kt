@@ -8,7 +8,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
-import android.graphics.Typeface
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
@@ -38,7 +37,7 @@ import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.rivmesh.AutoSelectPeerActivity
-import org.rivchain.cuplink.rivmesh.PublicPeerActivity
+import org.rivchain.cuplink.rivmesh.AutoTestPublicPeerActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity
 import org.rivchain.cuplink.util.AddressUtils
 import org.rivchain.cuplink.util.Log
@@ -46,8 +45,6 @@ import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
 import org.rivchain.cuplink.util.PermissionManager.haveMicrophonePermission
 import org.rivchain.cuplink.util.PermissionManager.havePostNotificationPermission
 import org.rivchain.cuplink.util.Utils
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -179,9 +176,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 continueInit()
             }
             7 -> {
-                Log.d(this, "init 7: agree to start as a Public Peer")
+                Log.d(this, "init 7: test port")
                 if(preferences?.getString(LISTEN, null) == null) {
-                    val intent = Intent(this, PublicPeerActivity::class.java)
+                    val intent = Intent(this, AutoTestPublicPeerActivity::class.java)
                     requestListenLauncher!!.launch(intent)
                 } else {
                     continueInit()
@@ -244,13 +241,11 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         binder = iBinder as MainBinder
 
         if (startState == 1) {
+            setContentView(R.layout.activity_splash)
+            findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
             if (binder!!.getService().firstStart) {
-                setContentView(R.layout.activity_splash)
-                findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
                 // show delayed splash page
-                Handler(Looper.getMainLooper()).postDelayed({
-                    continueInit()
-                }, 3000)
+                continueInit()
             } else {
                 // show contact list as fast as possible
                 continueInit()
@@ -495,9 +490,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val view: View = LayoutInflater.from(this).inflate(R.layout.policy_layout, null)
         val msg = view.findViewById<View>(R.id.policy) as TextView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            msg.text = Html.fromHtml(readResourceFile(R.raw.pp_tc), Html.FROM_HTML_OPTION_USE_CSS_COLORS)
+            msg.text = Html.fromHtml(Utils.readResourceFile(this, R.raw.pp_tc), Html.FROM_HTML_OPTION_USE_CSS_COLORS)
         } else {
-            msg.text = Html.fromHtml(readResourceFile(R.raw.pp_tc))
+            msg.text = Html.fromHtml(Utils.readResourceFile(this, R.raw.pp_tc))
         }
         val ab = AlertDialog.Builder(this, R.style.FullPPTCDialog)
         ab.setTitle("CupLink")
@@ -519,22 +514,5 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 }
             }
         ab.show()
-    }
-
-    private fun readResourceFile(id: Int): String {
-        val inputStream = getResources().openRawResource(id)
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        var i: Int
-        try {
-            i = inputStream.read()
-            while (i != -1) {
-                byteArrayOutputStream.write(i)
-                i = inputStream.read()
-            }
-            inputStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return byteArrayOutputStream.toString()
     }
 }

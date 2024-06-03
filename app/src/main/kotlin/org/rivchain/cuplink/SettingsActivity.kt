@@ -30,6 +30,7 @@ import com.google.android.material.textview.MaterialTextView
 import org.json.JSONArray
 import org.rivchain.cuplink.MainService.MainBinder
 import org.rivchain.cuplink.rivmesh.PeerListActivity
+import org.rivchain.cuplink.rivmesh.ConfigurePublicPeerActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity.Companion.PEER_LIST
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
@@ -39,6 +40,7 @@ import java.lang.Integer.parseInt
 
 class SettingsActivity : BaseActivity(), ServiceConnection {
 
+    private var requestListenLauncher: ActivityResultLauncher<Intent>? = null
     private var requestPeersLauncher: ActivityResultLauncher<Intent>? = null
 
     private var binder: MainBinder? = null
@@ -74,6 +76,12 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 if (result.resultCode == RESULT_OK) {
                     //nothing todo
                 }
+            }
+        requestListenLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                // refresh settings
+                binder!!.saveDatabase()
+                initViews()
             }
     }
 
@@ -125,10 +133,13 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         findViewById<View>(R.id.publicKeyLayout)
             .setOnClickListener { Toast.makeText(this@SettingsActivity, R.string.setting_read_only, Toast.LENGTH_SHORT).show() }
 
-        findViewById<TextView>(R.id.listen)
+        findViewById<TextView>(R.id.publicPeerUrl)
             .text = jsonArrayToString(binder.getMesh().getListen())
-        findViewById<View>(R.id.listenLayout)
-            .setOnClickListener { Toast.makeText(this@SettingsActivity, R.string.setting_read_only, Toast.LENGTH_SHORT).show() }
+        findViewById<View>(R.id.publicPeerLayout)
+            .setOnClickListener {
+                val intent = Intent(this, ConfigurePublicPeerActivity::class.java)
+                requestListenLauncher!!.launch(intent)
+            }
 
         findViewById<SwitchMaterial>(R.id.blockUnknownSwitch).apply {
             isChecked = settings.blockUnknown

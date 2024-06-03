@@ -111,6 +111,23 @@ internal object Utils {
         return buffer.toByteArray()
     }
 
+     fun readResourceFile(context: Context, id: Int): String {
+        val inputStream = context.resources.openRawResource(id)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        var i: Int
+        try {
+            i = inputStream.read()
+            while (i != -1) {
+                byteArrayOutputStream.write(i)
+                i = inputStream.read()
+            }
+            inputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return byteArrayOutputStream.toString()
+    }
+
    fun getExternalFileSize(ctx: Context, uri: Uri?): Long {
         val cursor = ctx.contentResolver.query(uri!!, null, null, null, null)
         cursor!!.moveToFirst()

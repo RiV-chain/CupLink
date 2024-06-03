@@ -161,7 +161,15 @@
             android:parentActivityName=".MainActivity"/>
 
         <activity
-            android:name=".rivmesh.PublicPeerActivity"
+            android:name=".rivmesh.AutoTestPublicPeerActivity"
+            android:noHistory="true"/>
+
+        <activity
+            android:name=".rivmesh.ConfigurePublicPeerActivity"
+            android:noHistory="true"/>
+
+        <activity
+            android:name=".rivmesh.TestPortActivity"
             android:noHistory="true"/>
 
         <service
