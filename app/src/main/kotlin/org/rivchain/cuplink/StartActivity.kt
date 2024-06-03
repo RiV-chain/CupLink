@@ -88,9 +88,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         isStartOnBootup = intent.getBooleanExtra(BootUpReceiver.IS_START_ON_BOOTUP, false)
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
-
-        findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext);
 
@@ -248,6 +245,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
         if (startState == 1) {
             if (binder!!.getService().firstStart) {
+                setContentView(R.layout.activity_splash)
+                findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
                 // show delayed splash page
                 Handler(Looper.getMainLooper()).postDelayed({
                     continueInit()
