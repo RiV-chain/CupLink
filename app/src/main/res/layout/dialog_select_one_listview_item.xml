@@ -6,8 +6,7 @@
     android:paddingTop="@dimen/padding_10"
     android:paddingStart="@dimen/padding_20"
     android:paddingEnd="@dimen/padding_20"
-    android:paddingBottom="@dimen/padding_20"
-    android:gravity="start"
+    android:gravity="center"
     android:background="@drawable/dialog_rounded_corner">
 
     <TextView
@@ -16,14 +15,13 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/name_text_size"
         android:fontFamily="@font/poppins_regular"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="16dp"
+        android:text="Choose an option"/>
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="10dp"
-        android:paddingBottom="16dp"/>
+        android:paddingBottom="@dimen/padding_10"/>
 
 </LinearLayout>

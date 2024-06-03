@@ -64,7 +64,7 @@ class ContactListFragment : Fragment() {
             val dialogView = inflater.inflate(R.layout.dialog_select_one_listview_item, null)
             val listViewContactOptions: ListView = dialogView.findViewById(R.id.listView)
 
-            val adapter = ArrayAdapter(this.requireContext(), android.R.layout.simple_list_item_1, options)
+            val adapter = ArrayAdapter(this.requireContext(), R.layout.spinner_item, options)
             listViewContactOptions.adapter = adapter
 
             val dialog = AlertDialog.Builder(this.requireContext(), R.style.PPTCDialog)
