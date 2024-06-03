@@ -88,7 +88,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         isStartOnBootup = intent.getBooleanExtra(BootUpReceiver.IS_START_ON_BOOTUP, false)
 
         super.onCreate(savedInstanceState)
-
+        setContentView(R.layout.activity_empty)
         preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext);
 
         requestPermissionLauncher = registerForActivityResult(
