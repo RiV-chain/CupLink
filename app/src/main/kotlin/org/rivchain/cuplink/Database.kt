@@ -13,6 +13,7 @@ import org.rivchain.cuplink.util.Log
 import java.nio.charset.Charset
 
 class Database {
+
     var version = BuildConfig.VERSION_NAME
     var settings = Settings()
     var contacts = Contacts()

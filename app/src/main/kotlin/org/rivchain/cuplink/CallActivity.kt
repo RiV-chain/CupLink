@@ -64,7 +64,7 @@ import java.util.Date
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
-    private var binder: MainService.MainBinder? = null
+    private var service: MainService? = null
     private lateinit var connection: ServiceConnection
     private lateinit var currentCall: RTCCall
     private lateinit var contact: Contact
@@ -344,7 +344,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
 
             val setContactState = { state: Contact.State ->
-                val b = binder
+                val b = service
                 if (b != null) {
                     val storedContact = b.getContacts().getContactByPublicKey(contact.publicKey)
                     if (storedContact != null) {
@@ -591,7 +591,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         }
 
         // set background
-        val settings = binder!!.getSettings()
+        val settings = service!!.getSettings()
         if (settings.pushToTalk) {
             val backgroundId = when (enabled) {
                 true -> R.drawable.ic_button_background_enabled_border
@@ -607,7 +607,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             updateCameraButtons()
             updateControlDisplay()
 
-            val settings = binder!!.getSettings()
+            val settings = service!!.getSettings()
             if (settings.enableMicrophoneByDefault != currentCall.getMicrophoneEnabled()) {
                 if (!settings.pushToTalk) {
                     Log.d(this, "onDataChannelReady() toggle microphone")
@@ -675,18 +675,18 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         connection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
                 Log.d(this@CallActivity, "onServiceConnected")
-                binder = iBinder as MainService.MainBinder
-                currentCall = RTCCall(binder!!, contact)
+                service = (iBinder as MainService.MainBinder).getService()
+                currentCall = RTCCall(service!!, contact)
                 currentCall.setCallContext(this@CallActivity)
 
-                captureQualityController.initFromSettings(binder!!.getSettings())
+                captureQualityController.initFromSettings(service!!.getSettings())
 
                 updateControlDisplay()
                 updateVideoDisplay()
 
                 continueCallSetup()
 
-                if (!binder!!.getSettings().promptOutgoingCalls) {
+                if (!service!!.getSettings().promptOutgoingCalls) {
                     // start outgoing call immediately
                     acceptButton.performClick()
                 }
@@ -768,7 +768,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         connection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
                 Log.d(this@CallActivity, "onServiceConnected()")
-                binder = iBinder as MainService.MainBinder
+                service = (iBinder as MainService.MainBinder).getService()
                 currentCall = RTCPeerConnection.incomingRTCCall ?: run {
                     // This happens when the call is missed while in background.
                     // and then the CallActivity is started from Recent Apps.
@@ -783,7 +783,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 currentCall.setCallContext(this@CallActivity)
                 currentCall.setEglBase(eglBase)
 
-                captureQualityController.initFromSettings(binder!!.getSettings())
+                captureQualityController.initFromSettings(service!!.getSettings())
 
                 Thread {
                     currentCall.continueOnIncomingSocket()
@@ -832,7 +832,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             + ", video permissions: ${Utils.hasPermission(this, Manifest.permission.CAMERA)}"
         )
 
-        val settings = binder!!.getSettings()
+        val settings = service!!.getSettings()
 
         // swap pip and fullscreen content
         pipContainer.setOnClickListener {
@@ -965,7 +965,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     private fun initCall() {
-        val settings = binder!!.getSettings()
+        val settings = service!!.getSettings()
 
         Log.d(this, "initCall() settings"
             + " microphone ${currentCall.getMicrophoneEnabled()} => ${settings.enableMicrophoneByDefault}"
@@ -1171,7 +1171,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
             if (callEventType != Event.Type.UNKNOWN) {
                 val event = Event(contact.publicKey, contact.lastWorkingAddress, callEventType, Date())
-                binder!!.addEvent(event)
+                service!!.addEvent(event)
             }
 
             unbindService(connection)

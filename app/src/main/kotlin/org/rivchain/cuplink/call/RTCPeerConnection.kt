@@ -1,9 +1,7 @@
 package org.rivchain.cuplink.call
 
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.core.content.ContextCompat
@@ -33,7 +31,7 @@ import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 
 abstract class RTCPeerConnection(
-    var binder: MainService.MainBinder,
+    var service: MainService,
     protected var contact: Contact,
     protected var commSocket: Socket?
 ) {
@@ -63,7 +61,7 @@ abstract class RTCPeerConnection(
             CallState.ERROR_NO_NETWORK -> R.raw.stop
         }
 
-        mediaPlayer = MediaPlayer.create(binder.getService(), toneResId)
+        mediaPlayer = MediaPlayer.create(service, toneResId)
         mediaPlayer?.isLooping = state == CallState.RINGING
         mediaPlayer?.start()
     }
@@ -110,7 +108,7 @@ abstract class RTCPeerConnection(
         }
 
         //val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = binder.getSettings()
+        val settings = service.getSettings()
         val ownSecretKey = settings.secretKey
         val ownPublicKey = settings.publicKey
 
@@ -148,7 +146,7 @@ abstract class RTCPeerConnection(
         Log.d(this, "createOutgoingCallInternal()")
 
         val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = binder.getSettings()
+        val settings = service.getSettings()
         val ownPublicKey = settings.publicKey
         val ownSecretKey = settings.secretKey
 
@@ -228,7 +226,7 @@ abstract class RTCPeerConnection(
         run {
             // remember latest working address and set state
             val workingAddress = InetSocketAddress(remoteAddress.address, MainService.serverPort)
-            val storedContact = binder.getContacts().getContactByPublicKey(contact.publicKey)
+            val storedContact = service.getContacts().getContactByPublicKey(contact.publicKey)
             if (storedContact != null) {
                 storedContact.lastWorkingAddress = workingAddress
             } else {
@@ -349,7 +347,7 @@ abstract class RTCPeerConnection(
         val socket = commSocket ?: throw IllegalStateException("commSocket not expected to be null")
 
         val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = binder.getSettings()
+        val settings = service.getSettings()
         val ownPublicKey = settings.publicKey
         val ownSecretKey = settings.secretKey
 
@@ -449,7 +447,7 @@ abstract class RTCPeerConnection(
         if(!CallActivity.isCallInProgress) {
             Log.d(this, "decline() send broadcast to receiver")
             PendingIntent.getBroadcast(
-                this.binder.getService(),
+                this.service,
                 0,
                 Intent().apply {
                     setAction(CallService.DECLINE_CALL_ACTION)
@@ -483,7 +481,7 @@ abstract class RTCPeerConnection(
         val socket = commSocket
         if (socket != null && !socket.isClosed) {
             val pw = PacketWriter(socket)
-            val settings = binder.getSettings()
+            val settings = service.getSettings()
             val ownPublicKey = settings.publicKey
             val ownSecretKey = settings.secretKey
 
@@ -526,7 +524,7 @@ abstract class RTCPeerConnection(
 
         Utils.checkIsNotOnMainThread()
 
-        val settings = binder.getSettings()
+        val settings = service.getSettings()
         val useNeighborTable = settings.useNeighborTable
         val connectTimeout = settings.connectTimeout
         val connectRetries = settings.connectRetries
@@ -647,10 +645,10 @@ abstract class RTCPeerConnection(
             }
         }
 
-        fun createIncomingCall(binder: MainService.MainBinder, socket: Socket) {
+        fun createIncomingCall(service: MainService, socket: Socket) {
             Thread {
                 try {
-                    createIncomingCallInternal(binder, socket)
+                    createIncomingCallInternal(service, socket)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     //decline()
@@ -658,11 +656,11 @@ abstract class RTCPeerConnection(
             }.start()
         }
 
-        private fun createIncomingCallInternal(binder: MainService.MainBinder, socket: Socket) {
+        private fun createIncomingCallInternal(service: MainService, socket: Socket) {
             Log.d(this, "createIncomingCallInternal()")
 
             val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-            val settings = binder.getSettings()
+            val settings = service.getSettings()
             val blockUnknown = settings.blockUnknown
             val ownSecretKey = settings.secretKey
             val ownPublicKey = settings.publicKey
@@ -714,7 +712,7 @@ abstract class RTCPeerConnection(
 
             Log.d(this, "createIncomingCallInternal() request: $decrypted")
 
-            var contact = binder.getContacts().getContactByPublicKey(otherPublicKey)
+            var contact = service.getContacts().getContactByPublicKey(otherPublicKey)
             if (contact == null && blockUnknown) {
                 Log.d(this, "createIncomingCallInternal() block unknown contact => decline")
                 decline()
@@ -748,7 +746,7 @@ abstract class RTCPeerConnection(
             when (action) {
                 "call" -> {
                     contact.state = Contact.State.CONTACT_ONLINE
-                    MainService.refreshContacts(binder.getService())
+                    MainService.refreshContacts(service)
 
                     if (CallActivity.isCallInProgress) {
                         Log.d(this, "createIncomingCallInternal() call in progress => decline")
@@ -783,12 +781,11 @@ abstract class RTCPeerConnection(
                     pw.writeMessage(encrypted)
 
                     incomingRTCCall?.cleanup() // just in case
-                    incomingRTCCall = RTCCall(binder, contact, socket, offer)
+                    incomingRTCCall = RTCCall(service, contact, socket, offer)
                     try {
-                        val service = binder.getService()
                         // CallActivity accepts calls by default
                         // CallActivity is being opened from a foreground notification below
-                        if (binder.getSettings().autoAcceptCalls) {
+                        if (service.getSettings().autoAcceptCalls) {
                             val activity = MainActivity.instance
                             if (activity != null && activity.lifecycle.currentState.isAtLeast(
                                     Lifecycle.State.RESUMED
@@ -831,7 +828,7 @@ abstract class RTCPeerConnection(
                     Log.d(this, "createIncomingCallInternal() ping...")
                     // someone wants to know if we are online
                     contact.state = Contact.State.CONTACT_ONLINE
-                    MainService.refreshContacts(binder.getService())
+                    MainService.refreshContacts(service)
 
                     val encrypted = Crypto.encryptMessage(
                         "{\"action\":\"pong\"}",
@@ -852,7 +849,7 @@ abstract class RTCPeerConnection(
                     val status = obj.getString("status")
                     if (status == "offline") {
                         contact.state = Contact.State.CONTACT_OFFLINE
-                        MainService.refreshContacts(binder.getService())
+                        MainService.refreshContacts(service)
                     } else {
                         Log.d(this, "createIncomingCallInternal() received unknown status_change: $status")
                     }

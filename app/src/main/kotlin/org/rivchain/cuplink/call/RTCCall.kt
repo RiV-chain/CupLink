@@ -240,11 +240,11 @@ class RTCCall : RTCPeerConnection {
 
     // called for incoming calls
     constructor(
-        binder: MainService.MainBinder,
+        service: MainService,
         contact: Contact,
         commSocket: Socket,
         offer: String
-    ) : super(binder, contact, commSocket) {
+    ) : super(service, contact, commSocket) {
         Log.d(this, "RTCCall() created for incoming calls")
 
         this.offer = offer
@@ -254,16 +254,16 @@ class RTCCall : RTCPeerConnection {
 
     // called for outgoing calls
     constructor(
-        binder: MainService.MainBinder,
+        service: MainService,
         contact: Contact
-    ) : super(binder, contact, null) {
+    ) : super(service, contact, null) {
         Log.d(this, "RTCCall() created for outgoing calls")
 
         createMediaConstraints()
     }
 
     private fun createMediaConstraints() {
-        val settings = binder.getSettings()
+        val settings = service.getSettings()
 
         sdpMediaConstraints.optional.add(MediaConstraints.KeyValuePair("offerToReceiveAudio", "true"))
         sdpMediaConstraints.optional.add(MediaConstraints.KeyValuePair("offerToReceiveVideo", "false"))
@@ -288,7 +288,7 @@ class RTCCall : RTCPeerConnection {
         execute {
             Log.d(this, "initOutgoing() executor start")
             val rtcConfig = RTCConfiguration(emptyList())
-            val settings = binder.getSettings()
+            val settings = service.getSettings()
             rtcConfig.sdpSemantics = SdpSemantics.UNIFIED_PLAN
             rtcConfig.continualGatheringPolicy = ContinualGatheringPolicy.GATHER_ONCE
             rtcConfig.enableCpuOveruseDetection = !settings.disableCpuOveruseDetection // true by default
@@ -548,7 +548,7 @@ class RTCCall : RTCPeerConnection {
         Log.d(this, "initVideo()")
         Utils.checkIsOnMainThread()
 
-        val settings = binder.getSettings()
+        val settings = service.getSettings()
         reportStateChange(CallState.WAITING)
 
         // must be created in Main/GUI Thread!
@@ -563,7 +563,7 @@ class RTCCall : RTCPeerConnection {
 
         Log.d(this, "initVideo() video acceleration: ${settings.videoHardwareAcceleration}")
 
-        if (binder.getSettings().videoHardwareAcceleration) {
+        if (service.getSettings().videoHardwareAcceleration) {
             val enableIntelVp8Encoder = true
             val enableH264HighProfile = true
             encoderFactory = DefaultVideoEncoderFactory(eglBase.eglBaseContext, enableIntelVp8Encoder, enableH264HighProfile)
@@ -647,7 +647,7 @@ class RTCCall : RTCPeerConnection {
 
         execute {
             Log.d(this, "initIncoming() executor start")
-            val settings = binder.getSettings()
+            val settings = service.getSettings()
             val remoteAddress = commSocket!!.remoteSocketAddress as InetSocketAddress
             val rtcConfig = RTCConfiguration(emptyList())
             rtcConfig.sdpSemantics = SdpSemantics.UNIFIED_PLAN
@@ -778,7 +778,7 @@ class RTCCall : RTCPeerConnection {
 
     fun cleanup() {
         Log.d(this, "cleanup()")
-        Handler(binder.getService().mainLooper).post {
+        Handler(service.mainLooper).post {
             Utils.checkIsOnMainThread()
             Log.d(this, "cleanup() executor start")
             setCallContext(null)

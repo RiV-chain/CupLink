@@ -21,7 +21,7 @@ import org.rivchain.cuplink.util.Utils
 
 open class AddContactActivity: BaseActivity(), ServiceConnection {
 
-    protected var binder: MainService.MainBinder? = null
+    protected var service: MainService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,14 +35,14 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
 
     override fun onResume() {
         super.onResume()
-        if (binder != null) {
+        if (service != null) {
             resume()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (binder != null) {
+        if (service != null) {
             pause()
         }
     }
@@ -59,7 +59,7 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
         // nothing to do
     }
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-        binder = iBinder as MainService.MainBinder
+        service = (iBinder as MainService.MainBinder).getService()
         onServiceConnected()
         if(intent!=null && intent.extras!=null) {
             addContact(intent.extras!!["EXTRA_CONTACT"] as Contact)
@@ -87,7 +87,7 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
         }
 
         // lookup existing contacts by key and name
-        val contacts = binder!!.getContacts()
+        val contacts = service!!.getContacts()
         val existingContactByPublicKey = contacts.getContactByPublicKey(contact.publicKey)
         val existingContactByName = contacts.getContactByName(contact.name)
         if (existingContactByPublicKey != null) {
@@ -98,7 +98,7 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
             showNameConflictDialog(contact, existingContactByName)
         } else {
             // no conflict
-            binder!!.addContact(contact)
+            service!!.addContact(contact)
             finish()
         }
     }
@@ -114,8 +114,8 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
         val replaceButton = view.findViewById<Button>(R.id.public_key_conflict_replace_button)
         nameTextView.text = other_contact.name
         replaceButton.setOnClickListener {
-            binder!!.deleteContact(other_contact.publicKey)
-            binder!!.addContact(newContact)
+            service!!.deleteContact(other_contact.publicKey)
+            service!!.addContact(newContact)
 
             // done
             Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
@@ -140,8 +140,8 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
         val renameButton = view.findViewById<Button>(R.id.conflict_contact_rename_button)
         nameEditText.setText(other_contact.name)
         replaceButton.setOnClickListener {
-            binder!!.deleteContact(other_contact.publicKey)
-            binder!!.addContact(newContact)
+            service!!.deleteContact(other_contact.publicKey)
+            service!!.addContact(newContact)
 
             // done
             Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
@@ -155,14 +155,14 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
                 return@setOnClickListener
             }
 
-            if (binder!!.getContacts().getContactByName(name) != null) {
+            if (service!!.getContacts().getContactByName(name) != null) {
                 Toast.makeText(this, R.string.contact_name_exists, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             // rename
             newContact.name = name
-            binder!!.addContact(newContact)
+            service!!.addContact(newContact)
 
             // done
             Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()

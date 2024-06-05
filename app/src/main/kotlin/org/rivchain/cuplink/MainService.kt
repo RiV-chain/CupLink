@@ -23,7 +23,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
-import org.json.JSONObject
 import org.libsodium.jni.NaCl
 import org.rivchain.cuplink.call.PacketWriter
 import org.rivchain.cuplink.call.Pinger
@@ -58,7 +57,6 @@ import java.net.UnknownHostException
 import java.util.Date
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
-import kotlin.random.Random
 
 const val TAG = "VPN service"
 const val SERVICE_NOTIFICATION_ID = 1000
@@ -95,10 +93,8 @@ class MainService : VpnService() {
 
     override fun onCreate() {
         super.onCreate()
-
         // Prevent UnsatisfiedLinkError
         NaCl.sodium()
-
         databasePath = this.filesDir.toString() + "/database.bin"
         Log.d(this, "init 1: load database")
         // open without password
@@ -204,7 +200,7 @@ class MainService : VpnService() {
     }
 
     private fun createCommSocket(contact: Contact): Socket? {
-        val settings = binder.getSettings()
+        val settings = getSettings()
         val useNeighborTable = settings.useNeighborTable
         val connectTimeout = settings.connectTimeout
 
@@ -294,7 +290,6 @@ class MainService : VpnService() {
         // save database on exit
         saveDatabase()
         database.destroy()
-
         super.onDestroy()
     }
 
@@ -376,7 +371,7 @@ class MainService : VpnService() {
         }
 
         Log.d(TAG, "getting Mesh configuration")
-        mesh.startJSON(binder.getMesh().getJSONByteArray())
+        mesh.startJSON(getMesh().getJSONByteArray())
         val address = mesh.addressString
         val builder = Builder()
             .addAddress(address, 7)
@@ -613,7 +608,7 @@ class MainService : VpnService() {
                             // Handle client connection
                             Log.d(TAG, "Client connected: ${clientSocket.inetAddress}")
                             Log.d(this, "run() new incoming connection")
-                            RTCPeerConnection.createIncomingCall(binder, clientSocket)
+                            RTCPeerConnection.createIncomingCall(this, clientSocket)
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -645,22 +640,111 @@ class MainService : VpnService() {
         }
     }
 
-    private fun updateNotification() {
+    fun updateNotification() {
         Log.d(this, "updateNotification()")
 
-        val eventList = binder.getEvents().eventList
-        val eventsMissed = binder.getEvents().eventsMissed
+        val eventList = getEvents().eventList
+        val eventsMissed = getEvents().eventsMissed
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        if(eventsMissed > 0 && !binder.getSettings().disableCallHistory){
+        if(eventsMissed > 0 && !getSettings().disableCallHistory){
             // missed calls
             val publicKey = eventList.last().publicKey
-            val contact = binder.getContacts().getContactByPublicKey(publicKey)
+            val contact = getContacts().getContactByPublicKey(publicKey)
             val name = contact?.name ?: getString(R.string.unknown_caller)
             val message = String.format(getString(R.string.missed_call_from), name, eventsMissed)
             val notification = createNotification(message, false)
             manager.notify(NOTIFICATION_ID, notification)
         }
+    }
+
+    fun isDatabaseEncrypted(): Boolean {
+        return dbEncrypted
+    }
+
+    fun getDatabase(): Database {
+        return database
+    }
+
+    fun getSettings(): Settings {
+        return database.settings
+    }
+
+    fun getContacts(): Contacts {
+        return database.contacts
+    }
+
+    fun getEvents(): Events {
+        return database.events
+    }
+
+    fun getMesh(): ConfigurationProxy {
+        return database.mesh
+    }
+
+    fun getContactOrOwn(otherPublicKey: ByteArray): Contact? {
+        val db = database
+        return if (db.settings.publicKey.contentEquals(otherPublicKey)) {
+            db.settings.getOwnContact()
+        } else {
+            db.contacts.getContactByPublicKey(otherPublicKey)
+        }
+    }
+
+    fun addContact(contact: Contact) {
+        database.contacts.addContact(contact)
+        saveDatabase()
+
+        pingContacts(listOf(contact))
+
+        refreshContacts(this@MainService)
+        refreshEvents(this@MainService)
+    }
+
+    fun deleteContact(publicKey: ByteArray) {
+        getDatabase().contacts.deleteContact(publicKey)
+        getDatabase().events.deleteEventsByPublicKey(publicKey)
+        saveDatabase()
+
+        refreshContacts(this@MainService)
+        refreshEvents(this@MainService)
+    }
+
+    fun deleteEvents(eventDates: List<Date>) {
+        getDatabase().events.deleteEventsByDate(eventDates)
+        saveDatabase()
+
+        refreshContacts(this@MainService)
+        refreshEvents(this@MainService)
+    }
+
+    fun pingContacts(contactList: List<Contact>) {
+        Log.d(this, "pingContacts()")
+        Thread(
+            //fix ConcurrentModificationException
+            Pinger(binder.getService(), ArrayList(contactList))
+        ).start()
+    }
+
+    fun addEvent(event: Event) {
+        Log.d(this, "addEvent() event.type=${event.type}")
+
+        if (!getSettings().disableCallHistory) {
+            getEvents().addEvent(event)
+            saveDatabase()
+            refreshEvents(this@MainService)
+        }
+
+        // update notification
+        if (event.type == Event.Type.INCOMING_MISSED) {
+            getEvents().eventsMissed += 1
+            updateNotification()
+        }
+    }
+
+    fun clearEvents() {
+        getEvents().clearEvents()
+        refreshEvents(this@MainService)
     }
 
     /*
@@ -670,111 +754,9 @@ class MainService : VpnService() {
         fun getService(): MainService {
             return this@MainService
         }
-
-        fun isDatabaseEncrypted(): Boolean {
-            return dbEncrypted
-        }
-
-        fun getDatabase(): Database {
-            return this@MainService.database
-        }
-
-        fun getSettings(): Settings {
-            return getDatabase().settings
-        }
-
-        fun getContacts(): Contacts {
-            return getDatabase().contacts
-        }
-
-        fun getEvents(): Events {
-            return getDatabase().events
-        }
-
-        fun getMesh(): ConfigurationProxy {
-            return getDatabase().mesh
-        }
-
-        fun getContactOrOwn(otherPublicKey: ByteArray): Contact? {
-            val db = getDatabase()
-            return if (db.settings.publicKey.contentEquals(otherPublicKey)) {
-                db.settings.getOwnContact()
-            } else {
-                db.contacts.getContactByPublicKey(otherPublicKey)
-            }
-        }
-
-        fun updateNotification() {
-            this@MainService.updateNotification()
-        }
-
-        fun addContact(contact: Contact) {
-            getDatabase().contacts.addContact(contact)
-            saveDatabase()
-
-            pingContacts(listOf(contact))
-
-            refreshContacts(this@MainService)
-            refreshEvents(this@MainService)
-        }
-
-        fun deleteContact(publicKey: ByteArray) {
-            getDatabase().contacts.deleteContact(publicKey)
-            getDatabase().events.deleteEventsByPublicKey(publicKey)
-            saveDatabase()
-
-            refreshContacts(this@MainService)
-            refreshEvents(this@MainService)
-        }
-
-        fun deleteEvents(eventDates: List<Date>) {
-            getDatabase().events.deleteEventsByDate(eventDates)
-            saveDatabase()
-
-            refreshContacts(this@MainService)
-            refreshEvents(this@MainService)
-        }
-
-        fun shutdown() {
-            this@MainService.shutdown()
-        }
-
-        fun pingContacts(contactList: List<Contact>) {
-            Log.d(this, "pingContacts()")
-            Thread(
-                //fix ConcurrentModificationException
-                Pinger(binder, ArrayList(contactList))
-            ).start()
-        }
-
-        fun saveDatabase() {
-            this@MainService.saveDatabase()
-        }
-
-        fun addEvent(event: Event) {
-            Log.d(this, "addEvent() event.type=${event.type}")
-
-            if (!getSettings().disableCallHistory) {
-                getEvents().addEvent(event)
-                saveDatabase()
-                refreshEvents(this@MainService)
-            }
-
-            // update notification
-            if (event.type == Event.Type.INCOMING_MISSED) {
-                getEvents().eventsMissed += 1
-                updateNotification()
-            }
-        }
-
-        fun clearEvents() {
-            getEvents().clearEvents()
-            refreshEvents(this@MainService)
-        }
-
     }
 
-    private fun shutdown() {
+    fun shutdown() {
         Log.i(this, "shutdown()")
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -15,7 +14,6 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.ListView
-import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -26,7 +24,7 @@ import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 
-class EventListFragment : Fragment() {
+class EventListFragment(val service: MainService?) : Fragment() {
     private lateinit var eventListAdapter: EventListAdapter
     private lateinit var eventListView: ListView
     private lateinit var fabClear: FloatingActionButton
@@ -34,12 +32,11 @@ class EventListFragment : Fragment() {
     private val onEventClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
         Log.d(this, "onItemClick")
         val activity = requireActivity()
-        val binder = (activity as MainActivity).binder ?: return@OnItemClickListener
         val eventGroup = eventListAdapter.getItem(i)
         // get last event that has an address
         val latestEvent = eventGroup.lastOrNull { it.address != null } ?: eventGroup.last()
 
-        val contact = binder.getContacts().getContactByPublicKey(latestEvent.publicKey)
+        val contact = service!!.getContacts().getContactByPublicKey(latestEvent.publicKey)
             ?: latestEvent.createUnknownContact("")
 
         if (contact.addresses.isEmpty()) {
@@ -58,7 +55,6 @@ class EventListFragment : Fragment() {
     private val onEventLongClickListener = AdapterView.OnItemLongClickListener { _, _, i, _ ->
         Log.d(this, "onItemLongClick")
         val activity = requireActivity()
-        val binder = (activity as MainActivity).binder ?: return@OnItemLongClickListener false
 
         val eventGroup = eventListAdapter.getItem(i)
         val latestEvent = eventGroup.last()
@@ -67,7 +63,7 @@ class EventListFragment : Fragment() {
         val delete = res.getString(R.string.contact_menu_delete)
         val block = res.getString(R.string.contact_menu_block)
         val unblock = res.getString(R.string.contact_menu_unblock)
-        val contact = binder.getContacts().getContactByPublicKey(latestEvent.publicKey)
+        val contact = service!!.getContacts().getContactByPublicKey(latestEvent.publicKey)
 
         // Create a list of options
         val options = mutableListOf<String>()
@@ -177,9 +173,8 @@ class EventListFragment : Fragment() {
         Log.d(this, "refreshEventList")
 
         val activity = requireActivity() as MainActivity
-        val binder = activity.binder ?: return
-        val events = binder.getEvents().eventList
-        val contacts = binder.getContacts().contactList
+        val events = service!!.getEvents().eventList
+        val contacts = service.getContacts().contactList
 
         activity.runOnUiThread {
             activity.updateEventTabTitle()
@@ -196,13 +191,11 @@ class EventListFragment : Fragment() {
 
     // only available for known contacts
     private fun setBlocked(event: Event, blocked: Boolean) {
-        val activity = requireActivity() as MainActivity
-        val binder = activity.binder ?: return
 
-        val contact = binder.getContacts().getContactByPublicKey(event.publicKey)
+        val contact = service!!.getContacts().getContactByPublicKey(event.publicKey)
         if (contact != null) {
             contact.blocked = blocked
-            binder.saveDatabase()
+            service.saveDatabase()
             LocalBroadcastManager.getInstance(requireContext())
                 .sendBroadcast(Intent("refresh_contact_list"))
             LocalBroadcastManager.getInstance(requireContext())
@@ -216,8 +209,7 @@ class EventListFragment : Fragment() {
         Log.d(this, "onResume()")
         super.onResume()
 
-        val activity = requireActivity() as MainActivity
-        activity.binder?. let {
+        service!!.let {
             it.getEvents().eventsMissed = 0
             it.updateNotification();
         }
@@ -227,24 +219,20 @@ class EventListFragment : Fragment() {
 
     private fun deleteEventGroup(eventGroup: List<Event>) {
         Log.d(this, "removeEventGroup()")
-        val activity = requireActivity() as MainActivity
-        val binder = activity.binder ?: return
-
-        binder.deleteEvents(eventGroup.map { it.date })
+        service!!.deleteEvents(eventGroup.map { it.date })
     }
 
     private fun showClearEventsDialog() {
         Log.d(this, "showClearEventsDialog()")
 
         val activity = requireActivity() as MainActivity
-        val binder = activity.binder ?: return
         val builder = AlertDialog.Builder(activity, R.style.FullPPTCDialog)
         builder.setTitle(R.string.clear_events)
         builder.setMessage(R.string.remove_all_events)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
         builder.setPositiveButton(R.string.button_yes) { dialog: DialogInterface, _: Int ->
-            binder.clearEvents()
-            binder.saveDatabase()
+            service!!.clearEvents()
+            service.saveDatabase()
 
             refreshEventList()
             Toast.makeText(activity, R.string.done, Toast.LENGTH_SHORT).show()
@@ -264,7 +252,6 @@ class EventListFragment : Fragment() {
     private fun showAddDialog(eventGroup: List<Event>) {
         Log.d(this, "showAddDialog")
         val activity = requireActivity() as MainActivity
-        val binder = activity.binder ?: return
         // prefer latest event that has an address
         val latestEvent = eventGroup.lastOrNull { it.address != null } ?: eventGroup.last()
         val view: View = LayoutInflater.from(activity).inflate(R.layout.dialog_add_contact, null)
@@ -280,13 +267,13 @@ class EventListFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (binder.getContacts().getContactByName(name) != null) {
+            if (service!!.getContacts().getContactByName(name) != null) {
                 Toast.makeText(activity, R.string.contact_name_exists, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
             val contact = latestEvent.createUnknownContact(name)
-            binder.addContact(contact)
+            service.addContact(contact)
 
             Toast.makeText(activity, R.string.done, Toast.LENGTH_SHORT).show()
 

@@ -45,20 +45,20 @@ class CarService : CarAppService() {
         super.onDestroy()
     }
 
-    override fun onCreateSession() = SettingsSession(mainServiceBinder)
+    override fun onCreateSession() = SettingsSession(mainService)
 
-    private var mainServiceBinder: MainService.MainBinder? = null
+    private var mainService: MainService? = null
     private var mainServiceConnection: ServiceConnection? = null
     private fun bindToMainService(context: Context) {
 
         mainServiceConnection = object : ServiceConnection {
 
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                mainServiceBinder = service as? MainService.MainBinder
+            override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
+                mainService = (iBinder as MainService.MainBinder).getService()
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
-                mainServiceBinder = null
+                // nothing todo
             }
         }
 
@@ -67,7 +67,7 @@ class CarService : CarAppService() {
     }
 
     private fun unbindFromMainService(context: Context) {
-        mainServiceBinder = null
+        mainService = null
         mainServiceConnection?.let {
             context.unbindService(it)
             mainServiceConnection = null
@@ -76,7 +76,7 @@ class CarService : CarAppService() {
 
 }
 @RequiresApi(Build.VERSION_CODES.M)
-class SettingsSession(private var mainServiceBinder: MainService.MainBinder?) : Session(), DefaultLifecycleObserver {
+class SettingsSession(private var mainService: MainService?) : Session(), DefaultLifecycleObserver {
 
     init {
         lifecycle.addObserver(this@SettingsSession)
@@ -106,15 +106,14 @@ class SettingsSession(private var mainServiceBinder: MainService.MainBinder?) : 
             val uri = intent.data.toString()
             Log.d(this, "uri:" + intent.data)
             if(uri != "cpl://localhost/#r/decline_call"){
-                var service = mainServiceBinder!!.getService()
-                mainServiceBinder!!.getService().startActivity(
-                    CallActivity.clearTop(service)
+                mainService!!.startActivity(
+                    CallActivity.clearTop(mainService!!)
                         .setAction("ANSWER_INCOMING_CALL")
                         .putExtra("EXTRA_CONTACT", RlpUtils.parseLink(uri))
                 )
             } else {
                 PendingIntent.getBroadcast(
-                    mainServiceBinder!!.getService(),
+                    mainService!!,
                     0,
                     Intent().apply {
                         action = CallService.STOP_CALL_ACTION
@@ -127,7 +126,7 @@ class SettingsSession(private var mainServiceBinder: MainService.MainBinder?) : 
             }
             carContext.finishCarApp()
         }
-        return AutoControlScreen(carContext, mainServiceBinder!!.getContacts())
+        return AutoControlScreen(carContext, mainService!!.getContacts())
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -25,7 +25,7 @@ import org.rivchain.cuplink.adapter.ContactListAdapter
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 
-class ContactListFragment : Fragment() {
+class ContactListFragment(val service: MainService?) : Fragment() {
     private lateinit var contactListView: ListView
     private lateinit var fabScan: FloatingActionButton
     private lateinit var fabGen: FloatingActionButton
@@ -120,12 +120,9 @@ class ContactListFragment : Fragment() {
         }
 
         fabGen.setOnClickListener {
-            val binder = (activity as MainActivity).binder
-            if (binder != null) {
-                val intent = Intent(activity, QRShowActivity::class.java)
-                intent.putExtra("EXTRA_CONTACT_PUBLICKEY", binder.getSettings().publicKey)
-                startActivity(intent)
-            }
+            val intent = Intent(activity, QRShowActivity::class.java)
+            intent.putExtra("EXTRA_CONTACT_PUBLICKEY", service!!.getSettings().publicKey)
+            startActivity(intent)
         }
 
         fabPingAll.setOnClickListener {
@@ -166,26 +163,16 @@ class ContactListFragment : Fragment() {
         Log.d(this, "onResume()")
         super.onResume()
 
-        val activity = requireActivity() as MainActivity
-        val binder = (activity as MainActivity).binder
-        if (binder != null) {
-            if (binder.getSettings().automaticStatusUpdates) {
-                // ping all contacts
-                binder.pingContacts(binder.getContacts().contactList)
-            }
+        if (service!!.getSettings().automaticStatusUpdates) {
+            // ping all contacts
+            service.pingContacts(service.getContacts().contactList)
         }
 
         MainService.refreshContacts(requireActivity())
     }
 
     private fun showPingAllButton(): Boolean {
-        val binder = (activity as MainActivity).binder
-        if (binder != null) {
-            return !binder.getSettings().automaticStatusUpdates
-        } else {
-            // it does not hurt to show the button
-            return true
-        }
+        return !service!!.getSettings().automaticStatusUpdates
     }
 
     private fun runFabAnimation(fab: View) {
@@ -266,29 +253,25 @@ class ContactListFragment : Fragment() {
     }
 
     private fun pingContact(contact: Contact) {
-        val binder = (activity as MainActivity).binder ?: return
-        binder.pingContacts(listOf(contact))
+        service!!.pingContacts(listOf(contact))
         val message = String.format(getString(R.string.ping_contact), contact.name)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun pingAllContacts() {
-        val binder = (activity as MainActivity).binder ?: return
-        binder.pingContacts(binder.getContacts().contactList)
+        service!!.pingContacts(service.getContacts().contactList)
         val message = String.format(getString(R.string.ping_all_contacts))
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun showDeleteDialog(publicKey: ByteArray, name: String) {
         val activity = requireActivity()
-        val binder = (activity as MainActivity).binder ?: return
-
         val builder = AlertDialog.Builder(activity, R.style.FullPPTCDialog)
         builder.setTitle(R.string.dialog_title_delete_contact)
         builder.setMessage(name)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
         builder.setPositiveButton(R.string.button_yes) { dialog: DialogInterface, _: Int ->
-                binder.deleteContact(publicKey)
+                service!!.deleteContact(publicKey)
                 dialog.cancel()
             }
 
@@ -302,10 +285,8 @@ class ContactListFragment : Fragment() {
 
     private fun refreshContactList() {
         Log.d(this, "refreshContactList")
-
         val activity = requireActivity()
-        val binder = (activity as MainActivity).binder ?: return
-        val contacts = binder.getContacts().contactList
+        val contacts = service!!.getContacts().contactList
 
         activity.runOnUiThread {
             contactListView.adapter = ContactListAdapter(activity, R.layout.item_contact, contacts)

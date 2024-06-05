@@ -26,7 +26,7 @@ import java.net.URL
 
 open class TestPortActivity: AppCompatActivity(), ServiceConnection {
 
-    protected var binder: MainService.MainBinder? = null
+    protected var service: MainService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +35,7 @@ open class TestPortActivity: AppCompatActivity(), ServiceConnection {
 
     override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
         Log.d(this, "onServiceConnected")
-        binder = iBinder as MainService.MainBinder
+        service = (iBinder as MainService.MainBinder).getService()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
@@ -46,13 +46,13 @@ open class TestPortActivity: AppCompatActivity(), ServiceConnection {
      * Run te after the onServiceConnected!
      */
     protected fun getPublicPeerPort(): Int {
-        val listenArray = binder!!.getMesh().getListen()
+        val listenArray = service!!.getMesh().getListen()
         val port: Int
         if(listenArray.length() == 0){
             // Generate a random port and continue
             port = Utils.generateRandomPort()
         } else {
-            val listen = binder!!.getMesh().getListen().get(0).toString()
+            val listen = service!!.getMesh().getListen().get(0).toString()
             port = URI(listen).port
         }
         return port

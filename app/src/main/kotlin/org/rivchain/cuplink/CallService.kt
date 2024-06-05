@@ -40,7 +40,6 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.RlpUtils
-import java.io.Serializable
 import java.util.Date
 
 class CallService : Service() {
@@ -395,7 +394,7 @@ class CallService : Service() {
                 DECLINE_CALL_ACTION -> {
                     // Notify missed call
                     val event = Event(contact.publicKey, contact.lastWorkingAddress, Event.Type.INCOMING_MISSED, Date())
-                    RTCPeerConnection.incomingRTCCall?.binder!!.addEvent(event)
+                    RTCPeerConnection.incomingRTCCall?.service!!.addEvent(event)
                 }
                 else -> {
                     // For all other actions, do nothing

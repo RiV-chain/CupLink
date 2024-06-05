@@ -43,7 +43,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     private var requestListenLauncher: ActivityResultLauncher<Intent>? = null
     private var requestPeersLauncher: ActivityResultLauncher<Intent>? = null
 
-    private var binder: MainBinder? = null
+    private var service: MainService? = null
     private var currentPeers = setOf<PeerInfo>()
 
     companion object {
@@ -80,7 +80,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         requestListenLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 // refresh settings
-                binder!!.saveDatabase()
+                service!!.saveDatabase()
                 initViews()
             }
     }
@@ -91,7 +91,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     }
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-        binder = iBinder as MainBinder
+        service = (iBinder as MainBinder).getService()
         initViews()
     }
 
@@ -100,7 +100,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     }
 
     private fun initViews() {
-        val binder = binder ?: return
+        val binder = service ?: return
         val settings = binder.getSettings()
 
         findViewById<TextView>(R.id.nameTv)
@@ -122,7 +122,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 requestPeersLauncher!!.launch(intent)
             }
 
-        val databasePassword = binder.getService().databasePassword
+        val databasePassword = service!!.databasePassword
         findViewById<TextView>(R.id.databasePasswordTv)
             .text = if (databasePassword.isEmpty()) getString(R.string.no_value) else "*".repeat(databasePassword.length)
         findViewById<View>(R.id.databasePasswordLayout)
@@ -411,7 +411,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 }
             }
         } else {
-            val binder = binder ?: return@registerForActivityResult
+            val binder = service ?: return@registerForActivityResult
             binder.getSettings().autoAcceptCalls = true
             binder.saveDatabase()
         }
@@ -420,7 +420,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     private fun showChangeUsernameDialog() {
         Log.d(this, "showChangeUsernameDialog()")
 
-        val binder = binder ?: return
+        val binder = service ?: return
         val settings = binder.getSettings()
         val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_name, null)
         val b = AlertDialog.Builder(this, R.style.PPTCDialog)
@@ -452,7 +452,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     }
 
     private fun showChangeConnectRetriesDialog() {
-        val binder = binder ?: return
+        val binder = service ?: return
         val settings = binder.getSettings()
         val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_connect_retries, null)
         val b = AlertDialog.Builder(this, R.style.PPTCDialog)
@@ -489,7 +489,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     }
 
     private fun showChangeConnectTimeoutDialog() {
-        val binder = binder ?: return
+        val binder = service ?: return
         val settings = binder.getSettings()
         val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_connect_timeout, null)
         val b = AlertDialog.Builder(this, R.style.PPTCDialog)
@@ -527,8 +527,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     }
 
     private fun showDatabasePasswordDialog() {
-        val binder = binder ?: return
-        val databasePassword = binder.getService().databasePassword
+        val binder = service ?: return
+        val databasePassword = service!!.databasePassword
 
         val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_database_password, null)
         val b = AlertDialog.Builder(this, R.style.PPTCDialog)
@@ -540,7 +540,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         passwordEditText.setText(databasePassword)
         okButton.setOnClickListener {
             val newPassword = passwordEditText.text.toString()
-            binder.getService().databasePassword = newPassword
+            service!!.databasePassword = newPassword
             binder.saveDatabase()
             Toast.makeText(this@SettingsActivity, R.string.done, Toast.LENGTH_SHORT).show()
             initViews()
@@ -551,7 +551,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     }
 
     private fun showMenuPasswordDialog() {
-        val binder = binder ?: return
+        val binder = service ?: return
         val menuPassword = binder.getSettings().menuPassword
         val view: View = LayoutInflater.from(this).inflate(R.layout.dialog_change_menu_password, null)
         val b = AlertDialog.Builder(this, R.style.PPTCDialog)

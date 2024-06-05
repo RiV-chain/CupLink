@@ -16,7 +16,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
 import android.widget.Button
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
@@ -38,7 +37,8 @@ import org.rivchain.cuplink.util.PowerManager
 
 // the main view with tabs
 class MainActivity : BaseActivity(), ServiceConnection {
-    internal var binder: MainBinder? = null
+
+    private var service: MainService? = null
     private lateinit var viewPager: ViewPager2
 
     private fun initToolbar() {
@@ -57,6 +57,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(this, "onCreate()")
+        bindService(Intent(this, MainService::class.java), this, 0)
         // need to be called before super.onCreate()
         applyNightMode()
         super.onCreate(savedInstanceState)
@@ -68,8 +69,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
         viewPager = findViewById(R.id.container)
         viewPager.adapter = ViewPagerFragmentAdapter(this)
-
-        bindService(Intent(this, MainService::class.java), this, 0)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PowerManager.needsFixing(this)) {
@@ -127,13 +126,8 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
     private fun showInvalidAddressSettingsWarning() {
         Handler(Looper.getMainLooper()).postDelayed({
-            val localBinder = this@MainActivity.binder
-            if (localBinder == null) {
-                Log.w(this, "showInvalidAddressSettingsWarning() binder is null")
-                return@postDelayed
-            }
 
-            val storedAddresses = localBinder.getSettings().addresses
+            val storedAddresses = service!!.getSettings().addresses
             val storedIPAddresses = storedAddresses.filter { AddressUtils.isIPAddress(it) || AddressUtils.isMACAddress(it) }
             if (storedAddresses.isNotEmpty() && storedIPAddresses.isEmpty()) {
                 // ignore, we only have domains configured
@@ -155,9 +149,10 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
         Log.d(this, "onServiceConnected()")
-        binder = iBinder as MainBinder
+        val binder = iBinder as MainBinder
+        service = binder.getService()
 
-        val settings = binder!!.getSettings()
+        val settings = service!!.getSettings()
 
         // data source for the views was not ready before
         (viewPager.adapter as ViewPagerFragmentAdapter).let {
@@ -187,7 +182,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
             tab.contentDescription = when (position) {
                 0 -> getString(R.string.title_contacts)
                 else -> {
-                    val eventsMissed = binder!!.getEvents().eventsMissed
+                    val eventsMissed = service!!.getEvents().eventsMissed
                     if (eventsMissed == 0) {
                         getString(R.string.title_calls)
                     } else {
@@ -198,7 +193,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
             tab.icon = when (position) {
                 0 -> resources.getDrawable(R.drawable.ic_contacts, theme)
                 else -> {
-                    val eventsMissed = binder!!.getEvents().eventsMissed
+                    val eventsMissed = service!!.getEvents().eventsMissed
                     if (eventsMissed == 0) {
                         resources.getDrawable(R.drawable.ic_call_accept, theme)
                     } else {
@@ -219,7 +214,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
     }
 
     override fun onServiceDisconnected(componentName: ComponentName) {
-        // nothing to do
+
     }
 
     private fun menuAction(itemId: Int) {
@@ -275,14 +270,11 @@ class MainActivity : BaseActivity(), ServiceConnection {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Log.d(this, "onOptionsItemSelected()")
 
-        val binder = binder
-        if (binder != null) {
-            val settings = binder.getSettings()
-            if (settings.menuPassword.isEmpty()) {
-                menuAction(item.itemId)
-            } else {
-                showMenuPasswordDialog(item.itemId, settings.menuPassword)
-            }
+        val settings = service!!.getSettings()
+        if (settings.menuPassword.isEmpty()) {
+            menuAction(item.itemId)
+        } else {
+            showMenuPasswordDialog(item.itemId, settings.menuPassword)
         }
 
         return super.onOptionsItemSelected(item)
@@ -316,8 +308,8 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                0 -> ContactListFragment()
-                else -> EventListFragment()
+                0 -> ContactListFragment(instance!!.service)
+                else -> EventListFragment(instance!!.service)
             }
         }
     }

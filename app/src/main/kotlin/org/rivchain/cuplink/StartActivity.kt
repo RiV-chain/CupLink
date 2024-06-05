@@ -11,9 +11,7 @@ import android.content.SharedPreferences
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.text.Editable
 import android.text.Html
 import android.text.InputFilter
@@ -55,7 +53,7 @@ import java.util.regex.Pattern
  */
 class StartActivity// to avoid "class has no zero argument constructor" on some devices
     () : BaseActivity(), ServiceConnection {
-    private var binder: MainBinder? = null
+    private var service: MainService? = null
     private var dialog : Dialog? = null
     private var startState = 0
     private var isStartOnBootup = false
@@ -143,7 +141,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             3 -> {
                 Log.d(this, "init 3: check addresses")
-                if (binder!!.getService().firstStart) {
+                if (service!!.firstStart) {
                     showMissingAddressDialog()
                 } else {
                     continueInit()
@@ -151,7 +149,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             4 -> {
                 Log.d(this, "init 4: check database")
-                if (binder!!.isDatabaseEncrypted()) {
+                if (service!!.isDatabaseEncrypted()) {
                     // database is probably encrypted
                     showDatabasePasswordDialog()
                 } else {
@@ -160,7 +158,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             5 -> {
                 Log.d(this, "init 5: check username")
-                if (binder!!.getSettings().username.isEmpty()) {
+                if (service!!.getSettings().username.isEmpty()) {
                     // set username
                     showMissingUsernameDialog()
                 } else {
@@ -169,7 +167,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             6 -> {
                 Log.d(this, "init 6: check key pair")
-                if (binder!!.getSettings().publicKey.isEmpty()) {
+                if (service!!.getSettings().publicKey.isEmpty()) {
                     // generate key pair
                     initKeyPair()
                 }
@@ -211,7 +209,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             10 -> {
                 Log.d(this, "init 10: start MainActivity")
-                val settings = binder!!.getSettings()
+                val settings = service!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
                 // set night mode
@@ -238,12 +236,12 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
         Log.d(this, "onServiceConnected")
-        binder = iBinder as MainBinder
+        service = (iBinder as MainBinder).getService()
 
         if (startState == 1) {
             setContentView(R.layout.activity_splash)
             findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
-            if (binder!!.getService().firstStart) {
+            if (service!!.firstStart) {
                 // show delayed splash page
                 continueInit()
             } else {
@@ -268,10 +266,10 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val publicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
         val secretKey = ByteArray(Sodium.crypto_sign_secretkeybytes())
         Sodium.crypto_sign_keypair(publicKey, secretKey)
-        val settings = binder!!.getSettings()
+        val settings = service!!.getSettings()
         settings.publicKey = publicKey
         settings.secretKey = secretKey
-        binder!!.saveDatabase()
+        service!!.saveDatabase()
     }
 
     private fun getDefaultAddress(): AddressEntry? {
@@ -321,8 +319,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
             adialog.show()
         } else {
-            binder!!.getSettings().addresses = mutableListOf(defaultAddress.address)
-            binder!!.saveDatabase()
+            service!!.getSettings().addresses = mutableListOf(defaultAddress.address)
+            service!!.saveDatabase()
             continueInit()
         }
     }
@@ -344,8 +342,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         .setNegativeButton(R.string.button_skip) { dialog: DialogInterface?, _: Int ->
             val username = generateRandomUserName()
             if (Utils.isValidName(username)) {
-                binder!!.getSettings().username = username
-                binder!!.saveDatabase()
+                service!!.getSettings().username = username
+                service!!.saveDatabase()
                 // close dialog
                 dialog?.dismiss()
                 continueInit()
@@ -356,8 +354,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         .setPositiveButton(R.string.button_next) { dialog: DialogInterface?, _: Int ->
             val username = etUsername.text.toString()
             if (Utils.isValidName(username)) {
-                binder!!.getSettings().username = username
-                binder!!.saveDatabase()
+                service!!.getSettings().username = username
+                service!!.saveDatabase()
                 // close dialog
                 dialog?.dismiss()
                 continueInit()
@@ -447,9 +445,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val okButton = view.findViewById<Button>(R.id.change_password_ok_button)
         okButton.setOnClickListener {
             val password = passwordEditText.text.toString()
-            binder!!.getService().databasePassword = password
+            service!!.databasePassword = password
             try {
-                binder!!.getService().loadDatabase()
+                service!!.loadDatabase()
                 //MainService first run wasn't success due to db encryption
                 MainService.startPacketsStream(this)
                 // close dialog
@@ -465,7 +463,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         exitButton.setOnClickListener {
             // shutdown app
             dialog.dismiss()
-            binder!!.shutdown()
+            service!!.shutdown()
             finish()
         }
 

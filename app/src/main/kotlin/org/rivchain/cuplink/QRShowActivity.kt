@@ -18,7 +18,7 @@ import org.rivchain.cuplink.util.RlpUtils
 
 class QRShowActivity : BaseActivity(), ServiceConnection {
     private lateinit var publicKey: ByteArray
-    private var binder: MainBinder? = null
+    private var service: MainService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +37,7 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
 
         findViewById<View>(R.id.fabShare).setOnClickListener {
             try {
-                val contact = binder!!.getContactOrOwn(publicKey)!!
+                val contact = service!!.getContactOrOwn(publicKey)!!
                 val data = RlpUtils.generateLink(contact)
                 val i = Intent(Intent.ACTION_SEND)
                 i.putExtra(Intent.EXTRA_TEXT, data)
@@ -52,7 +52,7 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (binder != null) {
+        if (service != null) {
             unbindService(this)
         }
     }
@@ -103,9 +103,9 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
     }
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-        binder = iBinder as MainBinder
+        service = (iBinder as MainBinder).getService()
         try {
-            val contact = binder!!.getContactOrOwn(publicKey)!!
+            val contact = service!!.getContactOrOwn(publicKey)!!
             generateDeepLinkQR(contact)
         } catch (e: NullPointerException) {
             e.printStackTrace()

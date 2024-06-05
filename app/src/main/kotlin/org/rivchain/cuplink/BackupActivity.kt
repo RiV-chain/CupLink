@@ -20,7 +20,7 @@ import org.rivchain.cuplink.util.Utils.writeExternalFile
 
 class BackupActivity : BaseActivity(), ServiceConnection {
     private var dialog: AlertDialog? = null
-    private var binder: MainBinder? = null
+    private var service: MainService? = null
     private lateinit var exportButton: Button
     private lateinit var importButton: Button
     private lateinit var passwordEditText: TextView
@@ -57,13 +57,13 @@ class BackupActivity : BaseActivity(), ServiceConnection {
 
         super.onDestroy()
 
-        if (binder != null) {
+        if (service != null) {
             unbindService(this)
         }
     }
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-        binder = iBinder as MainBinder
+        service = (iBinder as MainBinder).getService()
         initViews()
     }
 
@@ -72,7 +72,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
     }
 
     private fun initViews() {
-        if (binder == null) {
+        if (service == null) {
             return
         }
 
@@ -114,7 +114,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
     private fun exportDatabase(uri: Uri) {
         val password = passwordEditText.text.toString()
         try {
-            val database = binder!!.getDatabase()
+            val database = service!!.getDatabase()
             val dbData = Database.toData(database, password)
 
             if (dbData != null) {
@@ -129,7 +129,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
     }
 
     private fun importDatabase(uri: Uri) {
-        val binder = this.binder ?: return
+        val service = this.service ?: return
         val newDatabase : Database
 
         try {
@@ -152,20 +152,11 @@ class BackupActivity : BaseActivity(), ServiceConnection {
         builder.setMessage(String.format(getString(R.string.import_dialog), contactCount, eventCount, peersCount))
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
         builder.setPositiveButton(R.string.button_yes) { dialog: DialogInterface, _: Int ->
-            binder.getService().mergeDatabase(newDatabase)
-            binder.saveDatabase()
+            service.mergeDatabase(newDatabase)
+            service.saveDatabase()
             Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
             // Restart service
-            val intentStop = Intent(this, MainService::class.java)
-            intentStop.action = MainService.ACTION_STOP
-            startService(intentStop)
-
-            Thread {
-                Thread.sleep(1000)
-                val intentStart = Intent(this, MainService::class.java)
-                intentStart.action = MainService.ACTION_START
-                startService(intentStart)
-            }.start()
+            restartService()
 
             dialog.cancel()
         }

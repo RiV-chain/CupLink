@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -37,7 +36,7 @@ import java.nio.charset.Charset
 import java.util.Locale
 open class SelectPeerActivity : BaseActivity(), ServiceConnection {
 
-    private var binder: MainService.MainBinder? = null
+    private var service: MainService? = null
     var peerListUrl = PEER_LIST_URL
     private var peerListPing = true
 
@@ -79,8 +78,8 @@ open class SelectPeerActivity : BaseActivity(), ServiceConnection {
     }
 
     protected open fun saveSelectedPeers(selectedPeers: Set<PeerInfo>){
-        binder!!.getMesh().setPeers(selectedPeers)
-        binder!!.saveDatabase()
+        service!!.getMesh().setPeers(selectedPeers)
+        service!!.saveDatabase()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -226,7 +225,7 @@ open class SelectPeerActivity : BaseActivity(), ServiceConnection {
 
     override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
         Log.d(this, "onServiceConnected()")
-        binder = iBinder as MainService.MainBinder
+        service = (iBinder as MainService.MainBinder).getService()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
