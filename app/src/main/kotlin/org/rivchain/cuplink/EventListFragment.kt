@@ -31,7 +31,7 @@ class EventListFragment() : Fragment() {
     private lateinit var fabClear: FloatingActionButton
 
     fun setService(service: MainService){
-        this.service = service;
+        this.service = service
     }
 
     private val onEventClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
@@ -41,7 +41,7 @@ class EventListFragment() : Fragment() {
         // get last event that has an address
         val latestEvent = eventGroup.lastOrNull { it.address != null } ?: eventGroup.last()
 
-        val contact = service!!.getContacts().getContactByPublicKey(latestEvent.publicKey)
+        val contact = service.getContacts().getContactByPublicKey(latestEvent.publicKey)
             ?: latestEvent.createUnknownContact("")
 
         if (contact.addresses.isEmpty()) {
@@ -68,7 +68,7 @@ class EventListFragment() : Fragment() {
         val delete = res.getString(R.string.contact_menu_delete)
         val block = res.getString(R.string.contact_menu_block)
         val unblock = res.getString(R.string.contact_menu_unblock)
-        val contact = service!!.getContacts().getContactByPublicKey(latestEvent.publicKey)
+        val contact = service.getContacts().getContactByPublicKey(latestEvent.publicKey)
 
         // Create a list of options
         val options = mutableListOf<String>()
@@ -178,7 +178,7 @@ class EventListFragment() : Fragment() {
         Log.d(this, "refreshEventList")
 
         val activity = requireActivity() as MainActivity
-        val events = service!!.getEvents().eventList
+        val events = service.getEvents().eventList
         val contacts = service.getContacts().contactList
 
         activity.runOnUiThread {
@@ -197,7 +197,7 @@ class EventListFragment() : Fragment() {
     // only available for known contacts
     private fun setBlocked(event: Event, blocked: Boolean) {
 
-        val contact = service!!.getContacts().getContactByPublicKey(event.publicKey)
+        val contact = service.getContacts().getContactByPublicKey(event.publicKey)
         if (contact != null) {
             contact.blocked = blocked
             service.saveDatabase()
@@ -214,9 +214,9 @@ class EventListFragment() : Fragment() {
         Log.d(this, "onResume()")
         super.onResume()
 
-        service!!.let {
+        service.let {
             it.getEvents().eventsMissed = 0
-            it.updateNotification();
+            it.updateNotification()
         }
 
         MainService.refreshEvents(requireActivity())
@@ -224,7 +224,7 @@ class EventListFragment() : Fragment() {
 
     private fun deleteEventGroup(eventGroup: List<Event>) {
         Log.d(this, "removeEventGroup()")
-        service!!.deleteEvents(eventGroup.map { it.date })
+        service.deleteEvents(eventGroup.map { it.date })
     }
 
     private fun showClearEventsDialog() {
@@ -236,7 +236,7 @@ class EventListFragment() : Fragment() {
         builder.setMessage(R.string.remove_all_events)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
         builder.setPositiveButton(R.string.button_yes) { dialog: DialogInterface, _: Int ->
-            service!!.clearEvents()
+            service.clearEvents()
             service.saveDatabase()
 
             refreshEventList()
@@ -272,7 +272,7 @@ class EventListFragment() : Fragment() {
                 return@setOnClickListener
             }
 
-            if (service!!.getContacts().getContactByName(name) != null) {
+            if (service.getContacts().getContactByName(name) != null) {
                 Toast.makeText(activity, R.string.contact_name_exists, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }

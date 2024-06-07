@@ -35,7 +35,7 @@ class ContactListFragment() : Fragment() {
     private var fabExpanded = false
 
     fun setService(service: MainService){
-        this.service = service;
+        this.service = service
     }
 
     private val onContactClickListener =
@@ -126,7 +126,7 @@ class ContactListFragment() : Fragment() {
 
         fabGen.setOnClickListener {
             val intent = Intent(activity, QRShowActivity::class.java)
-            intent.putExtra("EXTRA_CONTACT_PUBLICKEY", service!!.getSettings().publicKey)
+            intent.putExtra("EXTRA_CONTACT_PUBLICKEY", service.getSettings().publicKey)
             startActivity(intent)
         }
 
@@ -168,7 +168,7 @@ class ContactListFragment() : Fragment() {
         Log.d(this, "onResume()")
         super.onResume()
 
-        if (service!!.getSettings().automaticStatusUpdates) {
+        if (service.getSettings().automaticStatusUpdates) {
             // ping all contacts
             service.pingContacts(service.getContacts().contactList)
         }
@@ -177,7 +177,7 @@ class ContactListFragment() : Fragment() {
     }
 
     private fun showPingAllButton(): Boolean {
-        return !service!!.getSettings().automaticStatusUpdates
+        return !service.getSettings().automaticStatusUpdates
     }
 
     private fun runFabAnimation(fab: View) {
@@ -258,13 +258,13 @@ class ContactListFragment() : Fragment() {
     }
 
     private fun pingContact(contact: Contact) {
-        service!!.pingContacts(listOf(contact))
+        service.pingContacts(listOf(contact))
         val message = String.format(getString(R.string.ping_contact), contact.name)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun pingAllContacts() {
-        service!!.pingContacts(service.getContacts().contactList)
+        service.pingContacts(service.getContacts().contactList)
         val message = String.format(getString(R.string.ping_all_contacts))
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
@@ -276,7 +276,7 @@ class ContactListFragment() : Fragment() {
         builder.setMessage(name)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
         builder.setPositiveButton(R.string.button_yes) { dialog: DialogInterface, _: Int ->
-                service!!.deleteContact(publicKey)
+                service.deleteContact(publicKey)
                 dialog.cancel()
             }
 
@@ -291,7 +291,7 @@ class ContactListFragment() : Fragment() {
     private fun refreshContactList() {
         Log.d(this, "refreshContactList")
         val activity = requireActivity()
-        val contacts = service!!.getContacts().contactList
+        val contacts = service.getContacts().contactList
 
         activity.runOnUiThread {
             contactListView.adapter = ContactListAdapter(activity, R.layout.item_contact, contacts)
