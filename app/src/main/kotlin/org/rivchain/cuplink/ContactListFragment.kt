@@ -25,13 +25,18 @@ import org.rivchain.cuplink.adapter.ContactListAdapter
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 
-class ContactListFragment(val service: MainService?) : Fragment() {
+class ContactListFragment() : Fragment() {
+    private lateinit var service: MainService
     private lateinit var contactListView: ListView
     private lateinit var fabScan: FloatingActionButton
     private lateinit var fabGen: FloatingActionButton
     private lateinit var fabPingAll: FloatingActionButton
     private lateinit var fab: FloatingActionButton
     private var fabExpanded = false
+
+    fun setService(service: MainService){
+        this.service = service;
+    }
 
     private val onContactClickListener =
         AdapterView.OnItemClickListener { adapterView, _, i, _ ->

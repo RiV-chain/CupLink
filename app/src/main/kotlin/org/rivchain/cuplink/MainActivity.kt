@@ -308,8 +308,16 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                0 -> ContactListFragment(instance!!.service)
-                else -> EventListFragment(instance!!.service)
+                0 -> {
+                    val fragment = ContactListFragment()
+                    fragment.setService(instance!!.service!!)
+                    fragment
+                }
+                else -> {
+                    val fragment = EventListFragment()
+                    fragment.setService(instance!!.service!!)
+                    fragment
+                }
             }
         }
     }

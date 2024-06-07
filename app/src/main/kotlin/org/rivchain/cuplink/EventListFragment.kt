@@ -24,10 +24,15 @@ import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 
-class EventListFragment(val service: MainService?) : Fragment() {
+class EventListFragment() : Fragment() {
+    private lateinit var service: MainService
     private lateinit var eventListAdapter: EventListAdapter
     private lateinit var eventListView: ListView
     private lateinit var fabClear: FloatingActionButton
+
+    fun setService(service: MainService){
+        this.service = service;
+    }
 
     private val onEventClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
         Log.d(this, "onItemClick")
