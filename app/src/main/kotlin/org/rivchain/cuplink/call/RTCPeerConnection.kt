@@ -786,32 +786,16 @@ abstract class RTCPeerConnection(
                         // CallActivity accepts calls by default
                         // CallActivity is being opened from a foreground notification below
                         if (service.getSettings().autoAcceptCalls) {
-                            val activity = MainActivity.instance
-                            if (activity != null && activity.lifecycle.currentState.isAtLeast(
-                                    Lifecycle.State.RESUMED
-                                )
-                            ) {
-                                Log.d(
-                                    this,
-                                    "createIncomingCallInternal() start incoming call from stored MainActivity"
-                                )
-                                val intent = Intent(activity, CallActivity::class.java)
-                                intent.action = "ACTION_INCOMING_CALL"
-                                intent.putExtra("EXTRA_CONTACT", contact)
-                                activity.startActivity(intent)
-                            } else {
                                 Log.d(
                                     this,
                                     "createIncomingCallInternal() start incoming call from Service"
                                 )
-
                                 val intent = Intent(service, CallActivity::class.java)
                                 intent.action = "ACTION_INCOMING_CALL"
                                 intent.putExtra("EXTRA_CONTACT", contact)
                                 intent.flags =
                                     Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 service.startActivity(intent)
-                            }
                         } else {
                             val intent = Intent(service, CallService::class.java)
                                 .putExtra(CallService.SERVICE_CONTACT_KEY,

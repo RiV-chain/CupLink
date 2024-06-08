@@ -46,8 +46,8 @@ class Settings {
     }
 
     fun destroy() {
-        //publicKey.fill(0)
-        //secretKey.fill(0)
+        publicKey.fill(0)
+        secretKey.fill(0)
     }
 
     companion object {

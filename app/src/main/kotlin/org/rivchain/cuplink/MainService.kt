@@ -67,7 +67,6 @@ class MainService : VpnService() {
     private val binder = MainBinder()
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
-    private lateinit var database: Database
     var firstStart = false
     private var databasePath = ""
     var databasePassword = ""
@@ -229,7 +228,6 @@ class MainService : VpnService() {
                 // ignore
             }
         }
-
         return null
     }
 
@@ -237,16 +235,10 @@ class MainService : VpnService() {
         Log.d(this, "onDestroy()")
 
         stopServer()
-
         stopPacketsStream()
 
-        if (!this::database.isInitialized) {
-            super.onDestroy()
-            return
-        }
-
         // say goodbye
-        val database = this.database
+        val database = database
         if (serverSocket != null && serverSocket!!.isBound && !serverSocket!!.isClosed) {
             try {
                 val ownPublicKey = database.settings.publicKey
@@ -291,6 +283,7 @@ class MainService : VpnService() {
         saveDatabase()
         database.destroy()
         super.onDestroy()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -353,7 +346,7 @@ class MainService : VpnService() {
     private fun startPacketsStream() {
         // !this::database.isInitialized means db is encrypted
         // we will re-try to load it after the next db password prompt
-        if (!this::database.isInitialized || !started.compareAndSet(false, true)) {
+        if (!started.compareAndSet(false, true)) {
             return
         }
 
@@ -430,7 +423,7 @@ class MainService : VpnService() {
             updater()
         }
 
-        var intent = Intent(AppStateReceiver.APP_STATE_INTENT)
+        val intent = Intent(AppStateReceiver.APP_STATE_INTENT)
         intent.putExtra("state", STATE_ENABLED)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
@@ -768,6 +761,9 @@ class MainService : VpnService() {
     }
 
     companion object {
+
+        private lateinit var database: Database
+
         /**
          * VPN variables
          */

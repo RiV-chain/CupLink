@@ -65,8 +65,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
 
         initToolbar()
 
-        instance = this
-
         viewPager = findViewById(R.id.container)
         viewPager.adapter = ViewPagerFragmentAdapter(this)
 
@@ -97,7 +95,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
         }
     }
     override fun onDestroy() {
-        instance = null
         super.onDestroy()
         unbindService(this)
     }
@@ -299,7 +296,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
         return true
     }
 
-    class ViewPagerFragmentAdapter(fm: FragmentActivity) : FragmentStateAdapter(fm) {
+    class ViewPagerFragmentAdapter(private val fm: FragmentActivity) : FragmentStateAdapter(fm) {
         var ready = false
 
         override fun getItemCount(): Int {
@@ -310,12 +307,12 @@ class MainActivity : BaseActivity(), ServiceConnection {
             return when (position) {
                 0 -> {
                     val fragment = ContactListFragment()
-                    fragment.setService(instance!!.service!!)
+                    fragment.setService((fm as MainActivity).service!!)
                     fragment
                 }
                 else -> {
                     val fragment = EventListFragment()
-                    fragment.setService(instance!!.service!!)
+                    fragment.setService((fm as MainActivity).service!!)
                     fragment
                 }
             }
@@ -338,7 +335,6 @@ class MainActivity : BaseActivity(), ServiceConnection {
     companion object {
 
         private var addressWarningShown = false
-        var instance: MainActivity? = null
 
         fun clearTop(context: Context): Intent {
             val intent = Intent(context, MainActivity::class.java)
