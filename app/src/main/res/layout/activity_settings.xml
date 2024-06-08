@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
-    tools:context=".SettingsActivity"
-    android:paddingBottom="50dp">
+    tools:context=".SettingsActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -41,6 +40,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_margin="5dp"
+        android:paddingBottom="80dp"
         android:scrollbarThumbVertical="@color/selectedColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appbar">
@@ -91,7 +91,8 @@
                     android:textSize="@dimen/title_text_size"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/settingsName"
-                    android:layout_marginTop="@dimen/padding_40"/>
+                    android:layout_marginTop="@dimen/padding_40"
+                    android:visibility="gone"/>
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/spinnerNightModes"
@@ -102,7 +103,8 @@
                     android:textAlignment="viewEnd"
                     app:layout_constraintEnd_toEndOf="@id/settingsNightModes"
                     app:layout_constraintTop_toTopOf="@id/settingsNightModes"
-                    app:layout_constraintBottom_toBottomOf="@id/settingsNightModes"/>
+                    app:layout_constraintBottom_toBottomOf="@id/settingsNightModes"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/blockUnknown"

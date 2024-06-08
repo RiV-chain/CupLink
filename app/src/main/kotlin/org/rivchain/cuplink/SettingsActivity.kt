@@ -661,7 +661,8 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_select_one_radio, null)
         val radioGroup = dialogView.findViewById<RadioGroup>(R.id.radioGroupNightModes)
         val titleTextView = dialogView.findViewById<TextView>(R.id.selectDialogTitle)
-        titleTextView.text = findViewById<TextView>(titleTextViewId).text
+        val textViewId = findViewById<TextView>(titleTextViewId)
+        titleTextView.text = textViewId.text
         val autoCompleteTextView = findViewById<MaterialTextView>(inputTextViewId)
         autoCompleteTextView.text = currentValue
 
@@ -684,6 +685,16 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
 
         val builder = AlertDialog.Builder(this, R.style.PPTCDialog).setView(dialogView)
         val dialog = builder.create()
+
+        radioGroup.setOnCheckedChangeListener { group, checkedId ->
+            if (checkedId >= 0 && checkedId < arrayValues.size) {
+                val selectedValue = arrayValues[checkedId]
+                callback.call(selectedValue)
+                autoCompleteTextView.text = selectedValue
+                dialog.dismiss()
+            }
+        }
+
         dialog.setOnDismissListener {
             val selectedId = radioGroup.checkedRadioButtonId
             if (selectedId >= 0 && selectedId < arrayValues.size) {
@@ -692,9 +703,11 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 autoCompleteTextView.text = selectedValue
             }
         }
+        textViewId.setOnClickListener {
+            dialog.show()
+        }
         autoCompleteTextView.setOnClickListener {
             dialog.show()
         }
     }
-
 }

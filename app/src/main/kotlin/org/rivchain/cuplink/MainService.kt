@@ -633,7 +633,7 @@ class MainService : VpnService() {
         }
     }
 
-    private fun updateNotification() {
+    fun updateNotification() {
         Log.d(this, "updateNotification()")
 
         if (!getSettings().disableCallHistory) {
