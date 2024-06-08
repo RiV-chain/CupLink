@@ -179,23 +179,13 @@ class MainActivity : BaseActivity(), ServiceConnection {
             tab.contentDescription = when (position) {
                 0 -> getString(R.string.title_contacts)
                 else -> {
-                    val eventsMissed = service!!.getEvents().eventsMissed
-                    if (eventsMissed == 0) {
-                        getString(R.string.title_calls)
-                    } else {
-                        String.format("%s (%d)", getString(R.string.title_calls), eventsMissed)
-                    }
+                    getString(R.string.title_calls)
                 }
             }
             tab.icon = when (position) {
                 0 -> resources.getDrawable(R.drawable.ic_contacts, theme)
                 else -> {
-                    val eventsMissed = service!!.getEvents().eventsMissed
-                    if (eventsMissed == 0) {
-                        resources.getDrawable(R.drawable.ic_call_accept, theme)
-                    } else {
-                        resources.getDrawable(android.R.drawable.stat_notify_missed_call, theme)
-                    }
+                    resources.getDrawable(R.drawable.ic_call_accept, theme)
                 }
             }
         }.attach()

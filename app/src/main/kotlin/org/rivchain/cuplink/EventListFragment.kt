@@ -213,12 +213,7 @@ class EventListFragment() : Fragment() {
     override fun onResume() {
         Log.d(this, "onResume()")
         super.onResume()
-
-        service.let {
-            it.getEvents().eventsMissed = 0
-            it.updateNotification()
-        }
-
+        //service.updateNotification()
         MainService.refreshEvents(requireActivity())
     }
 
