@@ -658,6 +658,11 @@ class MainService : VpnService() {
                 e.last().type == Event.Type.INCOMING_MISSED
             }
 
+            // Filter the last events to get only those that are not missed calls
+            val nonLastMissedEvents = eventsMap.values.filter { e ->
+                e.last().type != Event.Type.INCOMING_MISSED
+            }
+
             // Map to track missed calls per callerChannelId
             val missedCallCounts = mutableMapOf<Int, Int>()
 
@@ -676,18 +681,22 @@ class MainService : VpnService() {
 
             // Generate notifications for each callerChannelId if missedCount > 1
             for ((callerChannelId, missedCount) in missedCallCounts) {
-                if (missedCount > 1) {
-                    val publicKey = lastMissedEvents.find { event ->
-                        org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.last().publicKey) == callerChannelId
-                    }?.last()!!.publicKey
+                val publicKey = lastMissedEvents.find { event ->
+                    org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.last().publicKey) == callerChannelId
+                }?.last()!!.publicKey
 
-                    val contact = publicKey.let { getContacts().getContactByPublicKey(it) }
-                    val name = contact?.name ?: getString(R.string.unknown_caller)
-                    val message = String.format(getString(R.string.missed_call_from), name, missedCount)
+                val contact = publicKey.let { getContacts().getContactByPublicKey(it) }
+                val name = contact?.name ?: getString(R.string.unknown_caller)
+                val message = String.format(getString(R.string.missed_call_from), name, missedCount)
 
-                    val notification = createNotification(message, false)
-                    manager.notify(callerChannelId, notification)
-                }
+                val notification = createNotification(message, false)
+                manager.notify(callerChannelId, notification)
+            }
+
+            // Cancel notifications for each caller having no missed calls
+            for (e in nonLastMissedEvents) {
+                val callerChannelId = org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(e.last().publicKey)
+                manager.cancel(callerChannelId)
             }
         }
     }
