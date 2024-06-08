@@ -6,7 +6,6 @@ import java.util.Date
 
 class Events {
     var eventList = mutableListOf<Event>()
-    var eventsMissed = 0
 
     fun destroy() {
         // no sensitive data
@@ -35,7 +34,7 @@ class Events {
             eventList.add(event)
 
             // sort by date / oldest first
-            eventList.sortWith(Comparator { lhs: Event, rhs: Event -> lhs.date.compareTo(rhs.date) })
+            eventList.sortWith { lhs: Event, rhs: Event -> lhs.date.compareTo(rhs.date) }
 
             while (eventList.size > 100) {
                 // remove first item
@@ -55,11 +54,10 @@ class Events {
             }
 
             // sort by date / oldest first
-            eventList.sortWith(Comparator { lhs: Event, rhs: Event -> lhs.date.compareTo(rhs.date) })
+            eventList.sortWith { lhs: Event, rhs: Event -> lhs.date.compareTo(rhs.date) }
 
             val events = Events()
             events.eventList.addAll(eventList)
-            events.eventsMissed = obj.getInt("events_missed")
             return events
         }
 
@@ -70,7 +68,6 @@ class Events {
                 array.put(Event.toJSON(event))
             }
             obj.put("entries", array)
-            obj.put("events_missed", events.eventsMissed)
             return obj
         }
     }

@@ -636,11 +636,9 @@ class MainService : VpnService() {
     fun updateNotification() {
         Log.d(this, "updateNotification()")
 
-        val eventList = getEvents().eventList
-        val eventsMissed = getEvents().eventsMissed
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (eventsMissed > 0 && !getSettings().disableCallHistory) {
+        if (!getSettings().disableCallHistory) {
+            val eventList = getEvents().eventList
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             // Map to track the last event per callerChannelId
             val eventsMap = mutableMapOf<Int, ArrayList<Event>>()
 
@@ -779,10 +777,7 @@ class MainService : VpnService() {
         }
 
         // update notification
-        if (event.type == Event.Type.INCOMING_MISSED) {
-            getEvents().eventsMissed += 1
-            updateNotification()
-        }
+        updateNotification()
     }
 
     fun clearEvents() {
