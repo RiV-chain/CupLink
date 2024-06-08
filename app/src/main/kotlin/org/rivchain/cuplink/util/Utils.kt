@@ -12,8 +12,16 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.regex.Pattern
+import java.util.zip.CRC32
 
 internal object Utils {
+
+    fun byteArrayToCRC32Int(bytes: ByteArray): Int {
+        val crc = CRC32()
+        crc.update(bytes)
+        return crc.value.toInt()
+    }
+
     fun getThreadInfo(): String {
         val thread =  Thread.currentThread()
         return "@[name=${thread.name}, id=${thread.id}]"

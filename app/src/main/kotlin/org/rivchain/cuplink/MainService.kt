@@ -640,16 +640,37 @@ class MainService : VpnService() {
         val eventsMissed = getEvents().eventsMissed
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        if(eventsMissed > 0 && !getSettings().disableCallHistory){
-            // missed calls
-            val publicKey = eventList.last().publicKey
-            val contact = getContacts().getContactByPublicKey(publicKey)
-            val name = contact?.name ?: getString(R.string.unknown_caller)
-            val message = String.format(getString(R.string.missed_call_from), name, eventsMissed)
-            val notification = createNotification(message, false)
-            manager.notify(NOTIFICATION_ID, notification)
+        if (eventsMissed > 0 && !getSettings().disableCallHistory) {
+            val missedEvents = eventList.filter { event -> event.type == Event.Type.INCOMING_MISSED }
+
+            // Map to track missed calls per callerChannelId
+            val missedCallCounts = mutableMapOf<Int, Int>()
+
+            // Populate the missed call counts map
+            for (event in missedEvents) {
+                val callerChannelId = org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.publicKey)
+                val currentCount = missedCallCounts[callerChannelId] ?: 0
+                missedCallCounts[callerChannelId] = currentCount + 1
+            }
+
+            // Generate notifications for each callerChannelId if missedCount > 1
+            for ((callerChannelId, missedCount) in missedCallCounts) {
+                if (missedCount > 1) {
+                    val publicKey = missedEvents.find { event ->
+                        org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.publicKey) == callerChannelId
+                    }?.publicKey
+
+                    val contact = publicKey?.let { getContacts().getContactByPublicKey(it) }
+                    val name = contact?.name ?: getString(R.string.unknown_caller)
+                    val message = String.format(getString(R.string.missed_call_from), name, missedCount)
+
+                    val notification = createNotification(message, false)
+                    manager.notify(callerChannelId, notification)
+                }
+            }
         }
     }
+
 
     fun isDatabaseEncrypted(): Boolean {
         return dbEncrypted
