@@ -641,26 +641,47 @@ class MainService : VpnService() {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (eventsMissed > 0 && !getSettings().disableCallHistory) {
-            val missedEvents = eventList.filter { event -> event.type == Event.Type.INCOMING_MISSED }
+            // Map to track the last event per callerChannelId
+            val eventsMap = mutableMapOf<Int, ArrayList<Event>>()
+
+            // Populate the events per callerChannelId
+            for (event in eventList) {
+                val callerChannelId = org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.publicKey)
+                if(eventsMap[callerChannelId] == null){
+                    eventsMap[callerChannelId] = ArrayList()
+                }
+                eventsMap[callerChannelId]!!.add(event)
+            }
+
+            // Filter the last events to get only those that are missed calls
+            val lastMissedEvents = eventsMap.values.filter { e ->
+                e.last().type == Event.Type.INCOMING_MISSED
+            }
 
             // Map to track missed calls per callerChannelId
             val missedCallCounts = mutableMapOf<Int, Int>()
 
             // Populate the missed call counts map
-            for (event in missedEvents) {
-                val callerChannelId = org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.publicKey)
-                val currentCount = missedCallCounts[callerChannelId] ?: 0
-                missedCallCounts[callerChannelId] = currentCount + 1
+            for (el in lastMissedEvents) {
+                for (e in el.reversed()) {
+                    if(e.type != Event.Type.INCOMING_MISSED){
+                        break
+                    }
+                    val callerChannelId =
+                        org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(e.publicKey)
+                    val currentCount = missedCallCounts[callerChannelId] ?: 0
+                    missedCallCounts[callerChannelId] = currentCount + 1
+                }
             }
 
             // Generate notifications for each callerChannelId if missedCount > 1
             for ((callerChannelId, missedCount) in missedCallCounts) {
                 if (missedCount > 1) {
-                    val publicKey = missedEvents.find { event ->
-                        org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.publicKey) == callerChannelId
-                    }?.publicKey
+                    val publicKey = lastMissedEvents.find { event ->
+                        org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.last().publicKey) == callerChannelId
+                    }?.last()!!.publicKey
 
-                    val contact = publicKey?.let { getContacts().getContactByPublicKey(it) }
+                    val contact = publicKey.let { getContacts().getContactByPublicKey(it) }
                     val name = contact?.name ?: getString(R.string.unknown_caller)
                     val message = String.format(getString(R.string.missed_call_from), name, missedCount)
 
@@ -670,7 +691,6 @@ class MainService : VpnService() {
             }
         }
     }
-
 
     fun isDatabaseEncrypted(): Boolean {
         return dbEncrypted
