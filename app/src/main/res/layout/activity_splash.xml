@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/colorPrimaryDark"
+    android:paddingBottom="50dp">
 
     <FrameLayout
         android:id="@+id/frameLayout2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark">
+        android:layout_height="match_parent">
         <!-- Background image (for audio calls) -->
         <ImageView
             android:id="@+id/background_view"
@@ -33,8 +33,7 @@
         android:layout_height="0dp"
         android:layout_weight="0.4"
         android:background="@color/colorPrimaryDark"
-        app:layout_constraintBottom_toBottomOf="@+id/frameLayout2"
-        android:layout_marginBottom="50dp">
+        app:layout_constraintBottom_toBottomOf="@+id/frameLayout2">
 
         <TextView
             android:id="@+id/splashText"
@@ -49,6 +48,4 @@
             android:fontFamily="@font/poppins_regular"/>
 
     </RelativeLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="@color/colorPrimaryDark"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:paddingBottom="50dp">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -61,7 +62,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/colorPrimaryDark"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_marginBottom="50dp"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
