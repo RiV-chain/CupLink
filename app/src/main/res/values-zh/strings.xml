@@ -152,7 +152,7 @@
     <string name="contact_address_list">地址</string>
     <string name="enter_contact_public_key">更改公钥</string>
     <string name="contact_public_key_invalid">联系人公钥无效。</string>´
-    <string name="dialog_title_import_backup">导入备份？</string>
+    <string name="dialog_title_import_backup">导入备份</string>
     <string name="report_dialog_text">Sorry, the application crashed.</string>
     <string name="report_dialog_comment">Please describe what were you doing when the app crashed:</string>
     <string name="tile_disabled">Disabled</string>

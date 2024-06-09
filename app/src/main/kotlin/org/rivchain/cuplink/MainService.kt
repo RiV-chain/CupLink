@@ -170,20 +170,28 @@ class MainService : VpnService() {
         return database
     }
 
-    fun mergeDatabase(newDb: Database) {
+    fun importContacts(newDb: Database){
         val oldDatabase = database
-
-        oldDatabase.settings = newDb.settings
-
         for (contact in newDb.contacts.contactList) {
             oldDatabase.contacts.addContact(contact)
         }
+    }
 
+    fun importCalls(newDb: Database){
+        val oldDatabase = database
         for (event in newDb.events.eventList) {
             oldDatabase.events.addEvent(event)
         }
+    }
 
+    fun importPeers(newDb: Database){
+        val oldDatabase = database
         oldDatabase.mesh = newDb.mesh
+    }
+
+    fun importSettings(newDb: Database){
+        val oldDatabase = database
+        oldDatabase.settings = newDb.settings
     }
 
     fun saveDatabase() {

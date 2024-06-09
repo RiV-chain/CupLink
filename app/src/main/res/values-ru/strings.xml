@@ -136,7 +136,7 @@
     <string name="settings_automatic_status_updates">Автоматически обновлять контакты</string>
     <string name="contact_blocked">Заблокированные</string>
     <string name="contact_public_key_invalid">Публичный ключ контакта недействителен.</string>´
-    <string name="dialog_title_import_backup">Импортировать резервную копию?</string>
+    <string name="dialog_title_import_backup">Импортировать резервную копию</string>
     <string name="connecting_to_address">Подключение к %s</string>
     <string name="custom_address">КАСТОМНЫЕ АДРЕСА</string>
     <string name="missing_bluetooth_permission">Отсутствует разрешение. Bluetooth недоступен.</string>

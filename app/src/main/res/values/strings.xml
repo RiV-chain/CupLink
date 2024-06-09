@@ -71,7 +71,7 @@
     <string name="contact_public_key_invalid">Contact public key is invalid.</string>´
     <string name="custom_address">CUSTOM ADDRESS</string>
     <string name="dialog_title_delete_contact">Delete Contact?</string>
-    <string name="dialog_title_import_backup">Import Backup?</string>
+    <string name="dialog_title_import_backup">Import Backup</string>
     <string name="done">Done</string>
     <string name="empty_list_item">Empty</string>
     <string name="enter_contact_name">Change Name</string>
