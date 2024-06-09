@@ -3,6 +3,7 @@ package org.rivchain.cuplink.util
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Build
 import android.util.TypedValue
@@ -16,7 +17,6 @@ import android.view.ViewTreeObserver.OnWindowFocusChangeListener
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.inputmethod.InputMethodManager
-import com.google.android.material.textfield.TextInputEditText
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -27,6 +27,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.Lifecycle
+import com.google.android.material.textfield.TextInputEditText
 import org.rivchain.cuplink.util.view.Stub
 
 
@@ -141,7 +142,7 @@ object ViewUtil {
     fun <T : View?> inflate(
         inflater: LayoutInflater,
         parent: ViewGroup,
-        @LayoutRes layoutResId: Int
+        @LayoutRes layoutResId: Int,
     ): T {
         return inflater.inflate(layoutResId, parent, false) as T
     }
@@ -394,5 +395,11 @@ object ViewUtil {
         return if (context is AppCompatActivity) {
             context.lifecycle
         } else null
+    }
+
+    fun supportsPictureInPicture(context: Context): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && context.packageManager.hasSystemFeature(
+            PackageManager.FEATURE_PICTURE_IN_PICTURE
+        )
     }
 }

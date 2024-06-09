@@ -33,7 +33,7 @@ import org.rivchain.cuplink.rivmesh.PeerListActivity
 import org.rivchain.cuplink.rivmesh.ConfigurePublicPeerActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity.Companion.PEER_LIST
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.serializePeerInfoSet2StringList
+import org.rivchain.cuplink.rivmesh.util.Utils.serializePeerInfoSet2StringList
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 import java.lang.Integer.parseInt

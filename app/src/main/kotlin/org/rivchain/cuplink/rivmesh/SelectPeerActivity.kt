@@ -22,8 +22,8 @@ import org.rivchain.cuplink.BaseActivity
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.models.Status
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.deserializeStringList2PeerInfoSet
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.ping
+import org.rivchain.cuplink.rivmesh.util.Utils.deserializeStringList2PeerInfoSet
+import org.rivchain.cuplink.rivmesh.util.Utils.ping
 import org.rivchain.cuplink.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException

@@ -232,6 +232,7 @@
             android:name=".CallActivity"
             android:parentActivityName=".MainActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|touchscreen|uiMode|navigation"
+            android:supportsPictureInPicture="true"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
             android:exported="true">

@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.SettingsActivity
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
-import org.rivchain.cuplink.rivmesh.util.Utils.Companion.ping
+import org.rivchain.cuplink.rivmesh.util.Utils.ping
 import java.net.InetAddress
 import java.util.Locale
 class PeerListActivity : SelectPeerActivity() {

@@ -2,6 +2,7 @@ package org.rivchain.cuplink
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AppOpsManager
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -29,6 +30,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -53,6 +55,7 @@ import org.rivchain.cuplink.rivmesh.STATE_CALLING
 import org.rivchain.cuplink.rivmesh.STATE_CALL_ENDED
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
+import org.rivchain.cuplink.util.ViewUtil
 import org.webrtc.CameraEnumerationAndroid
 import org.webrtc.EglBase
 import org.webrtc.RTCStatsCollectorCallback
@@ -61,6 +64,7 @@ import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import java.net.InetSocketAddress
 import java.util.Date
+
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
@@ -1287,4 +1291,58 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         pressedTime = System.currentTimeMillis()
     }
 
+    override fun onUserLeaveHint() {
+        Log.d(this, "onUserLeaveHint")
+
+        super.onUserLeaveHint()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            enterPictureInPictureMode(false)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun enterPictureInPictureMode(launchedByUser: Boolean) {
+
+        if (!ViewUtil.supportsPictureInPicture(this)) {
+            return
+        }
+
+        val appOpsManager = getSystemService(APP_OPS_SERVICE) as AppOpsManager
+        if (appOpsManager.checkOpNoThrow(
+                AppOpsManager.OPSTR_PICTURE_IN_PICTURE, android.os.Process.myUid(),
+                packageName
+            ) != AppOpsManager.MODE_ALLOWED
+        ) {
+            return
+        }
+        uiMode = 1
+        updateControlDisplay()
+        try {
+            enterPictureInPictureMode()
+        } catch (e: IllegalArgumentException) {
+            Log.e(this,"Unable to enter PIP mode: ${e.message}" )
+            uiMode = 0
+            updateControlDisplay()
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration,
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+
+        if (isInPictureInPictureMode) {
+            // Hide the full-screen UI (controls, etc.) while in
+            // picture-in-picture mode.
+            uiMode = 1
+            updateControlDisplay()
+        } else {
+            // Restore the full-screen UI.
+            uiMode = 0
+            updateControlDisplay()
+            Log.d(this,"Unhide navigation")
+        }
+    }
 }
