@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.PendingIntent
+import android.app.PictureInPictureUiState
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -20,7 +21,9 @@ import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.INVISIBLE
 import android.view.View.OnTouchListener
+import android.view.View.VISIBLE
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.widget.Button
@@ -254,10 +257,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
     override fun onConfigurationChanged(newConfig: Configuration)
     {
-        Log.d("tag", "config changed");
+        Log.d("tag", "config changed")
         super.onConfigurationChanged(newConfig);
         adjustPipLayout(newConfig)
     }
+
     @UiThread
     private fun adjustPipLayout(newConfig: Configuration) {
 
@@ -377,16 +381,16 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                 CallState.CONNECTED -> {
                     // call started
                     acceptButton.visibility = View.GONE
-                    declineButton.visibility = View.VISIBLE
+                    declineButton.visibility = VISIBLE
                     //callStatus.text = getString(R.string.call_connected)
                     callStatus.visibility = View.GONE
-                    callDuration.visibility = View.VISIBLE
+                    callDuration.visibility = VISIBLE
                     callDuration.setBase(SystemClock.elapsedRealtime());
                     callDuration.start()
                     callWasStarted = true
                     updateCameraButtons()
                     setContactState(Contact.State.CONTACT_ONLINE)
-                    changeUiButton.visibility = View.VISIBLE
+                    changeUiButton.visibility = VISIBLE
                 }
                 CallState.DISMISSED -> {
                     // call did not start
@@ -475,7 +479,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         Log.d(this, "updateCameraButtons() cameraEnabled=$cameraEnabled")
 
         if (cameraEnabled) {
-            toggleFrontCameraButton.visibility = View.VISIBLE
+            toggleFrontCameraButton.visibility = VISIBLE
             toggleCameraButton.setImageResource(R.drawable.ic_camera_off)
         } else {
             toggleFrontCameraButton.visibility = View.GONE
@@ -489,7 +493,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         val updateDebug = { enable: Boolean ->
             if (enable) {
                 currentCall.setStatsCollector(statsCollector)
-                callStats.visibility = View.VISIBLE
+                callStats.visibility = VISIBLE
             } else {
                 currentCall.setStatsCollector(null)
                 callStats.visibility = View.GONE
@@ -500,13 +504,13 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             0 -> {
                 // default
                 updateDebug(false)
-                controlPanel.visibility = View.VISIBLE
-                callName.visibility = View.VISIBLE
+                controlPanel.visibility = VISIBLE
+                callName.visibility = VISIBLE
                 if (callWasStarted) {
                     callStatus.visibility = View.GONE
-                    callDuration.visibility = View.VISIBLE
+                    callDuration.visibility = VISIBLE
                 } else {
-                    callStatus.visibility = View.VISIBLE
+                    callStatus.visibility = VISIBLE
                     callDuration.visibility = View.GONE
                 }
                 setVideoPreferencesButtonsEnabled(isLocalVideoAvailable)
@@ -514,8 +518,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             1 -> {
                 // all off
                 updateDebug(false)
-                controlPanel.visibility = View.INVISIBLE
-                callName.visibility = View.INVISIBLE
+                controlPanel.visibility = INVISIBLE
+                callName.visibility = INVISIBLE
                 callStatus.visibility = View.GONE
                 callDuration.visibility = View.GONE
                 setVideoPreferencesButtonsEnabled(false)
@@ -526,39 +530,39 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private fun setVideoPreferencesButtonsEnabled(enable: Boolean) {
         Log.d(this, "setVideoPreferencesButtonsEnabled() enable=$enable")
         if (enable) {
-            captureResolution.visibility = View.VISIBLE
-            captureFramerate.visibility = View.VISIBLE
+            captureResolution.visibility = VISIBLE
+            captureFramerate.visibility = VISIBLE
             if (captureResolution.tag == "on") {
-                resolutionSlider.visibility = View.VISIBLE
+                resolutionSlider.visibility = VISIBLE
             } else {
-                resolutionSlider.visibility = View.INVISIBLE
+                resolutionSlider.visibility = INVISIBLE
             }
             if (captureFramerate.tag == "on") {
-                framerateSlider.visibility = View.VISIBLE
+                framerateSlider.visibility = VISIBLE
             } else {
-                framerateSlider.visibility = View.INVISIBLE
+                framerateSlider.visibility = INVISIBLE
             }
         } else {
-            captureResolution.visibility = View.INVISIBLE
-            captureFramerate.visibility = View.INVISIBLE
-            resolutionSlider.visibility = View.INVISIBLE
-            framerateSlider.visibility = View.INVISIBLE
+            captureResolution.visibility = INVISIBLE
+            captureFramerate.visibility = INVISIBLE
+            resolutionSlider.visibility = INVISIBLE
+            framerateSlider.visibility = INVISIBLE
         }
     }
 
     private fun setPipButtonEnabled(enable: Boolean) {
         Log.d(this, "setPipButtonEnabled() enable=$enable")
         if (enable) {
-            changePipButton.visibility = View.VISIBLE
+            changePipButton.visibility = VISIBLE
         } else {
-            changePipButton.visibility = View.INVISIBLE
+            changePipButton.visibility = INVISIBLE
         }
     }
 
     private fun showPipView(enable: Boolean) {
         Log.d(this, "showPipView() enable=$enable")
         if (enable) {
-            pipRenderer.visibility = View.VISIBLE
+            pipRenderer.visibility = VISIBLE
             changePipButton.bringToFront()
         } else {
             pipRenderer.visibility = View.GONE
@@ -568,18 +572,18 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private fun hideCallBackground(enable: Boolean) {
         Log.d(this, "hideCallBackground() enable=$enable")
         if (enable) {
-            backgroundView.visibility = View.INVISIBLE
+            backgroundView.visibility = INVISIBLE
         } else {
-            backgroundView.visibility = View.VISIBLE
+            backgroundView.visibility = VISIBLE
         }
     }
 
     private fun showFullscreenView(enable: Boolean) {
         Log.d(this, "showFullscreenView() enable=$enable")
         if (enable) {
-            fullscreenRenderer.visibility = View.VISIBLE
+            fullscreenRenderer.visibility = VISIBLE
         } else {
-            fullscreenRenderer.visibility = View.INVISIBLE
+            fullscreenRenderer.visibility = INVISIBLE
         }
     }
 
@@ -732,13 +736,13 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             currentCall.initOutgoing()
 
             acceptButton.visibility = View.GONE
-            declineButton.visibility = View.VISIBLE
+            declineButton.visibility = VISIBLE
 
             initCall()
         }
 
-        acceptButton.visibility = View.VISIBLE
-        declineButton.visibility = View.VISIBLE
+        acceptButton.visibility = VISIBLE
+        declineButton.visibility = VISIBLE
 
         acceptButton.setOnClickListener(startCallListener)
         declineButton.setOnClickListener(declineListener)
@@ -762,8 +766,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         acceptButton.setOnClickListener(acceptListener)
         declineButton.setOnClickListener(declineListener)
 
-        acceptButton.visibility = View.VISIBLE
-        declineButton.visibility = View.VISIBLE
+        acceptButton.visibility = VISIBLE
+        declineButton.visibility = VISIBLE
 
         bindService(Intent(this, MainService::class.java), connection, 0)
     }
@@ -820,7 +824,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             return
         }
         acceptButton.visibility = View.GONE
-        declineButton.visibility = View.VISIBLE
+        declineButton.visibility = VISIBLE
         currentCall.initVideo()
         currentCall.initIncoming()
         initCall()
@@ -1031,8 +1035,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         setProximitySensorEnabled(!settings.disableProximitySensor)
 
-        toggleMicButton.visibility = View.VISIBLE
-        toggleCameraButton.visibility = View.VISIBLE
+        toggleMicButton.visibility = VISIBLE
+        toggleCameraButton.visibility = VISIBLE
         toggleFrontCameraButton.visibility = View.GONE
     }
 
@@ -1318,13 +1322,16 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         uiMode = 1
         updateControlDisplay()
         try {
-            enterPictureInPictureMode()
+            val params = ViewUtil.setPictureInPicture(this)
+            params?.let { enterPictureInPictureMode(it) }
         } catch (e: IllegalArgumentException) {
             Log.e(this,"Unable to enter PIP mode: ${e.message}" )
             uiMode = 0
             updateControlDisplay()
         }
     }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     override fun onPictureInPictureModeChanged(
@@ -1338,10 +1345,16 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             // picture-in-picture mode.
             uiMode = 1
             updateControlDisplay()
+            changeUiButton.visibility = INVISIBLE
+            toggleFrontCameraButton.visibility = INVISIBLE
+            setPipButtonEnabled(false)
+            showPipView(false)
         } else {
             // Restore the full-screen UI.
             uiMode = 0
             updateControlDisplay()
+            changeUiButton.visibility = VISIBLE
+            toggleFrontCameraButton.visibility = VISIBLE
             Log.d(this,"Unhide navigation")
         }
     }

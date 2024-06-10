@@ -31,6 +31,7 @@ import kotlin.math.min
  */
 class TextureViewRenderer : TextureView, SurfaceTextureListener, VideoSink, RendererEvents {
     private val eglRenderer: SurfaceTextureEglRenderer
+    private var context: Context
     private val videoLayoutMeasure = VideoLayoutMeasure()
     private var rendererEvents: RendererEvents? = null
     private var rotatedFrameWidth = 0
@@ -44,11 +45,13 @@ class TextureViewRenderer : TextureView, SurfaceTextureListener, VideoSink, Rend
 
     constructor(context: Context) : super(context) {
         eglRenderer = SurfaceTextureEglRenderer(resourceName)
+        this.context = context
         this.surfaceTextureListener = this
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         eglRenderer = SurfaceTextureEglRenderer(resourceName)
+        this.context = context
         this.surfaceTextureListener = this
     }
 
@@ -62,7 +65,7 @@ class TextureViewRenderer : TextureView, SurfaceTextureListener, VideoSink, Rend
         sharedContext: EglBase.Context,
         rendererEvents: RendererEvents?,
         configAttributes: IntArray,
-        drawer: GlDrawer
+        drawer: GlDrawer,
     ) {
         ThreadUtils.checkIsOnMainThread()
         this.rendererEvents = rendererEvents
@@ -128,7 +131,7 @@ class TextureViewRenderer : TextureView, SurfaceTextureListener, VideoSink, Rend
 
     fun setScalingType(
         scalingTypeMatchOrientation: ScalingType,
-        scalingTypeMismatchOrientation: ScalingType
+        scalingTypeMismatchOrientation: ScalingType,
     ) {
         ThreadUtils.checkIsOnMainThread()
         videoLayoutMeasure.setScalingType(
@@ -209,6 +212,10 @@ class TextureViewRenderer : TextureView, SurfaceTextureListener, VideoSink, Rend
         }
         val rotatedWidth = if (rotation != 0 && rotation != 180) videoHeight else videoWidth
         val rotatedHeight = if (rotation != 0 && rotation != 180) videoWidth else videoHeight
+
+        // Set picture in picture params to the given aspect ratio
+        ViewUtil.setPictureInPicture(context)
+
         postOrRun {
             rotatedFrameWidth = rotatedWidth
             rotatedFrameHeight = rotatedHeight
@@ -247,7 +254,7 @@ class TextureViewRenderer : TextureView, SurfaceTextureListener, VideoSink, Rend
             ""
         }
 
-    fun clearImage() {
+    private fun clearImage() {
         eglRenderer.clearImage()
     }
 

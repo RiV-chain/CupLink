@@ -2,10 +2,13 @@ package org.rivchain.cuplink.util
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
+import android.util.Rational
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -21,6 +24,7 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.view.ViewCompat
@@ -401,5 +405,37 @@ object ViewUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && context.packageManager.hasSystemFeature(
             PackageManager.FEATURE_PICTURE_IN_PICTURE
         )
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private fun createPictureInPictureParams(context: Context): PictureInPictureParams? {
+        val aspectRatio =
+            if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                Rational(16, 9)
+            } else {
+                Rational(9, 16)
+            }
+
+        val pipParamsBuilder = PictureInPictureParams.Builder()
+            .setAspectRatio(aspectRatio)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pipParamsBuilder.setAutoEnterEnabled(true)
+        }
+
+        return pipParamsBuilder.build()
+    }
+
+
+    fun setPictureInPicture(context: Context): PictureInPictureParams? {
+        if (supportsPictureInPicture(context)) {
+            val params = createPictureInPictureParams(context)
+            if (params != null) {
+                return params
+            } else {
+                Log.i(this,"PictureInPictureParams are null")
+            }
+        }
+        return null
     }
 }
