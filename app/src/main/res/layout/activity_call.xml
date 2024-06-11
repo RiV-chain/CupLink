@@ -155,7 +155,8 @@
                 android:alpha="0.8"
                 app:layout_constraintHeight_percent=".5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/captureResolution">
+                app:layout_constraintTop_toBottomOf="@+id/captureResolution"
+                android:contentDescription="@string/capture_format_change_text">
 
                 <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
                     android:id="@+id/captureResolutionSlider"
@@ -173,11 +174,11 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 android:padding="10dp"
-                android:text="@string/capture_format_change_text"
+                android:text=""
                 android:textColor="@android:color/darker_gray"
                 android:background="@drawable/tooltip_background"
                 android:textSize="16sp"
-                android:visibility="gone"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/captureResolutionSliderWrapper"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -242,11 +243,11 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 android:padding="10dp"
-                android:text="@string/capture_format_change_text"
+                android:text=""
                 android:textColor="@android:color/darker_gray"
                 android:background="@drawable/tooltip_background"
                 android:textSize="16sp"
-                android:visibility="gone"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/captureFramerateSliderWrapper"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -270,7 +271,8 @@
                 android:alpha="0.8"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHeight_percent=".5"
-                app:layout_constraintTop_toBottomOf="@+id/captureFramerate">
+                app:layout_constraintTop_toBottomOf="@+id/captureFramerate"
+                android:contentDescription="@string/capture_format_change_text">
 
                 <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
                     android:id="@+id/captureFramerateSlider"

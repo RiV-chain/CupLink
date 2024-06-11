@@ -25,6 +25,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
 import org.json.JSONArray
@@ -676,8 +677,12 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 ).apply {
                     bottomMargin = resources.getDimensionPixelSize(R.dimen.radio_button_margin_bottom)
                 }
+
                 if (arrayValues[index] == currentValue) {
                     isChecked = true
+                    setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.light_light_grey))
+                } else {
+                    setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.light_grey))
                 }
             }
             radioGroup.addView(radioButton)
@@ -703,6 +708,7 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
                 autoCompleteTextView.text = selectedValue
             }
         }
+
         textViewId.setOnClickListener {
             dialog.show()
         }
