@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
-import org.rivchain.cuplink.Log
 
 object PowerManager {
 
@@ -235,8 +234,7 @@ object PowerManager {
      */
     fun isIgnoringBatteryOptimizations(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val powerManager =
-                context.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            val powerManager = ServiceUtil.getPowerManager(context.applicationContext)
             return try {
                 powerManager.isIgnoringBatteryOptimizations(context.packageName)
             } catch (e: Exception) {

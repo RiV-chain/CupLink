@@ -25,8 +25,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.ActivityCompat
-import org.rivchain.cuplink.Log
-import org.rivchain.cuplink.Utils
+import org.rivchain.cuplink.util.Log
+import org.rivchain.cuplink.util.ServiceUtil
+import org.rivchain.cuplink.util.Utils
 
 /**
  * RTCBluetoothManager manages functions related to Bluetooth devices.
@@ -49,7 +50,7 @@ open class RTCBluetoothManager(contextArg: Context, audioManagerArg: RTCAudioMan
 
     private val context = contextArg
     private val rtcAudioManager = audioManagerArg
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val audioManager = ServiceUtil.getAudioManager(context)
     private val handler = Handler(Looper.getMainLooper())
     var scoConnectionAttempts = 0
     private var bluetoothState = State.UNINITIALIZED
