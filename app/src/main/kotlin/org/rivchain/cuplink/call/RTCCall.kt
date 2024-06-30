@@ -2,6 +2,7 @@ package org.rivchain.cuplink.call
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import org.json.JSONException
 import org.json.JSONObject
 import org.rivchain.cuplink.Crypto
@@ -285,6 +286,10 @@ class RTCCall : RTCPeerConnection {
         Log.d(this, "initOutgoing()")
         Utils.checkIsOnMainThread()
 
+        // Max number of reconnection attempts
+        val maxReconnectionAttempts = 5
+        var reconnectionAttempts = 0
+
         execute {
             Log.d(this, "initOutgoing() executor start")
             val rtcConfig = RTCConfiguration(emptyList())
@@ -293,37 +298,75 @@ class RTCCall : RTCPeerConnection {
             rtcConfig.continualGatheringPolicy = ContinualGatheringPolicy.GATHER_ONCE
             rtcConfig.enableCpuOveruseDetection = !settings.disableCpuOveruseDetection // true by default
 
-            peerConnection = factory.createPeerConnection(rtcConfig, object : DefaultObserver() {
-                override fun onIceGatheringChange(iceGatheringState: IceGatheringState) {
-                    Log.d(this, "onIceGatheringChange() state=$iceGatheringState")
-                    super.onIceGatheringChange(iceGatheringState)
-                    if (iceGatheringState == IceGatheringState.COMPLETE) {
-                        Log.d(this, "initOutgoing() outgoing call: send offer")
-                        createOutgoingCall(contact, peerConnection!!.localDescription.description)
+            fun createPeerConnection() {
+                peerConnection = factory.createPeerConnection(rtcConfig, object : DefaultObserver() {
+                    override fun onIceGatheringChange(iceGatheringState: IceGatheringState) {
+                        Log.d(this, "onIceGatheringChange() state=$iceGatheringState")
+                        super.onIceGatheringChange(iceGatheringState)
+                        if (iceGatheringState == IceGatheringState.COMPLETE) {
+                            Log.d(this, "initOutgoing() outgoing call: send offer")
+                            createOutgoingCall(contact, peerConnection!!.localDescription.description)
+                        }
                     }
-                }
 
-                override fun onIceConnectionChange(iceConnectionState: IceConnectionState) {
-                    Log.d(this, "onIceConnectionChange() state=$iceConnectionState")
-                    super.onIceConnectionChange(iceConnectionState)
-                    when (iceConnectionState) {
-                        IceConnectionState.DISCONNECTED -> reportStateChange(CallState.ENDED)
-                        IceConnectionState.FAILED -> reportStateChange(CallState.ERROR_COMMUNICATION)
-                        IceConnectionState.CONNECTED -> reportStateChange(CallState.CONNECTED)
-                        else -> return
+                    private fun reconnect() {
+                        execute {
+                            Log.d(this, "Reconnecting... Attempt: $reconnectionAttempts")
+                            createPeerConnection()
+
+                            val init = DataChannel.Init()
+                            init.ordered = true
+                            dataChannel = peerConnection!!.createDataChannel("data", init)
+                            dataChannel!!.registerObserver(dataChannelObserver)
+
+                            addTracks()
+
+                            peerConnection!!.createOffer(object : DefaultSdpObserver() {
+                                override fun onCreateSuccess(sessionDescription: SessionDescription) {
+                                    super.onCreateSuccess(sessionDescription)
+                                    peerConnection!!.setLocalDescription(DefaultSdpObserver(), sessionDescription)
+                                }
+                            }, sdpMediaConstraints)
+                        }
                     }
-                    closeSocket(commSocket!!)
-                }
 
-                override fun onConnectionChange(state: PeerConnectionState) {
-                    Log.d(this, "onConnectionChange() state=$state")
-                }
+                    override fun onIceConnectionChange(iceConnectionState: IceConnectionState) {
+                        Log.d(this, "onIceConnectionChange() state=$iceConnectionState")
+                        super.onIceConnectionChange(iceConnectionState)
+                        when (iceConnectionState) {
+                            IceConnectionState.DISCONNECTED -> {
+                                Log.d(this, "IceConnectionState.DISCONNECTED - Attempting to reconnect...")
+                                if (reconnectionAttempts < maxReconnectionAttempts) {
+                                    reconnectionAttempts++
+                                    reconnect()
+                                } else {
+                                    Log.d(this, "Max reconnection attempts reached. Reporting call end.")
+                                    reportStateChange(CallState.ENDED)
+                                }
+                            }
+                            IceConnectionState.FAILED -> reportStateChange(CallState.ERROR_COMMUNICATION)
+                            IceConnectionState.CONNECTED -> {
+                                reportStateChange(CallState.CONNECTED)
+                                // Reset reconnection attempts on successful connection
+                                reconnectionAttempts = 0
+                            }
+                            else -> return
+                        }
+                        closeSocket(commSocket!!)
+                    }
 
-                override fun onAddStream(mediaStream: MediaStream) {
-                    super.onAddStream(mediaStream)
-                    handleMediaStream(mediaStream)
-                }
-            })!!
+                    override fun onConnectionChange(state: PeerConnectionState) {
+                        Log.d(this, "onConnectionChange() state=$state")
+                    }
+
+                    override fun onAddStream(mediaStream: MediaStream) {
+                        super.onAddStream(mediaStream)
+                        handleMediaStream(mediaStream)
+                    }
+                })!!
+            }
+
+            createPeerConnection()
 
             val init = DataChannel.Init()
             init.ordered = true
@@ -645,6 +688,10 @@ class RTCCall : RTCPeerConnection {
         Log.d(this, "initIncoming()")
         Utils.checkIsOnMainThread()
 
+        // Timer and Handler to handle the 5 seconds delay
+        val handler = Handler(Looper.getMainLooper())
+        var disconnectTimer: Runnable? = null
+
         execute {
             Log.d(this, "initIncoming() executor start")
             val settings = service.getSettings()
@@ -695,9 +742,22 @@ class RTCCall : RTCPeerConnection {
                     Log.d(this, "onIceConnectionChange() $iceConnectionState")
                     super.onIceConnectionChange(iceConnectionState)
                     when (iceConnectionState) {
-                        IceConnectionState.DISCONNECTED -> reportStateChange(CallState.ENDED)
+                        IceConnectionState.DISCONNECTED -> {
+                            disconnectTimer?.let { handler.removeCallbacks(it) }
+                            disconnectTimer = Runnable {
+                                Log.d(this, "Disconnect timer expired, reporting call end.")
+                                reportStateChange(CallState.ENDED)
+                            }
+                            handler.postDelayed(disconnectTimer!!, 5000)
+                        }
+                        IceConnectionState.CONNECTED -> {
+                            disconnectTimer?.let {
+                                Log.d(this, "Connection re-established, canceling disconnect timer.")
+                                handler.removeCallbacks(it)
+                            }
+                            reportStateChange(CallState.CONNECTED)
+                        }
                         IceConnectionState.FAILED -> reportStateChange(CallState.ERROR_COMMUNICATION)
-                        IceConnectionState.CONNECTED -> reportStateChange(CallState.CONNECTED)
                         else -> return
                     }
                     closeSocket(commSocket!!)
