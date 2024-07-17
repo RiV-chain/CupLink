@@ -38,19 +38,14 @@ import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
 import org.rivchain.cuplink.rivmesh.STATE_DISABLED
 import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.rivmesh.State
-import org.rivchain.cuplink.rivmesh.models.PeerInfo
-import org.rivchain.cuplink.rivmesh.util.Utils
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.ServiceUtil
-import org.rivchain.cuplink.util.Utils.readInternalFile
 import org.rivchain.cuplink.util.Utils.writeInternalFile
-import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.ConnectException
-import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
@@ -68,9 +63,9 @@ class MainService : VpnService() {
     private val binder = MainBinder()
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
-    var firstStart = false
-    private var databasePath = ""
-    var databasePassword = ""
+    private lateinit var database: Database
+    private lateinit var databasePath: String
+    private lateinit var databasePassword: String
 
     /**
      * VPN variables
@@ -86,7 +81,6 @@ class MainService : VpnService() {
     private var readerStream: FileInputStream? = null
     private var writerStream: FileOutputStream? = null
     private var multicastLock: WifiManager.MulticastLock? = null
-    private var dbEncrypted: Boolean = false
 
     private var KEY_ENABLE_CHROME_FIX = "enable_chrome_fix"
     private var KEY_DNS_SERVERS = "dns_servers"
@@ -95,20 +89,6 @@ class MainService : VpnService() {
         super.onCreate()
         // Prevent UnsatisfiedLinkError
         NaCl.sodium()
-        databasePath = this.filesDir.toString() + "/database.bin"
-        Log.d(this, "init 1: load database")
-        // open without password
-        try {
-            loadDatabase()
-        } catch (e: Database.WrongPasswordException) {
-            // ignore and continue with initialization,
-            // the password dialog comes on the next startState
-            dbEncrypted = true
-        } catch (e: Exception) {
-            Log.e(this, "${e.message}")
-            Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
-            stopSelf()
-        }
     }
 
     private fun createNotification(text: String, showSinceWhen: Boolean): Notification {
@@ -146,29 +126,6 @@ class MainService : VpnService() {
             .setContentText(text)
             .setContentIntent(pendingNotificationIntent)
             .build()
-    }
-
-    fun loadDatabase(): Database {
-        if (File(databasePath).exists()) {
-            // Open an existing database
-            val db = readInternalFile(databasePath)
-            database = Database.fromData(db, databasePassword)
-            firstStart = false
-        } else {
-            // Create a new database
-            database = Database()
-            database.mesh.invoke()
-            // Generate random port from allowed range
-            val port = Utils.generateRandomPort()
-            val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
-            database.mesh.setListen(setOf(localPeer))
-            database.mesh.multicastRegex = ".*"
-            database.mesh.multicastListen = true
-            database.mesh.multicastBeacon = true
-            database.mesh.multicastPassword = ""
-            firstStart = true
-        }
-        return database
     }
 
     fun importContacts(newDb: Database){
@@ -710,12 +667,20 @@ class MainService : VpnService() {
         }
     }
 
-    fun isDatabaseEncrypted(): Boolean {
-        return dbEncrypted
-    }
-
     fun getDatabase(): Database {
         return database
+    }
+
+    fun setDatabase(database: Database) {
+        this.database = database
+    }
+
+    fun setDatabasePath(databasePath: String) {
+        this.databasePath = databasePath
+    }
+
+    fun setDatabasePassword(databasePassword: String) {
+        this.databasePassword = databasePassword
     }
 
     fun getSettings(): Settings {
@@ -817,8 +782,6 @@ class MainService : VpnService() {
     }
 
     companion object {
-
-        private lateinit var database: Database
 
         /**
          * VPN variables

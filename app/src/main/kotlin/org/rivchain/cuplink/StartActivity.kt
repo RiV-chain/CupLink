@@ -37,12 +37,16 @@ import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.rivmesh.AutoSelectPeerActivity
 import org.rivchain.cuplink.rivmesh.AutoTestPublicPeerActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity
+import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
 import org.rivchain.cuplink.util.PermissionManager.haveMicrophonePermission
 import org.rivchain.cuplink.util.PermissionManager.havePostNotificationPermission
 import org.rivchain.cuplink.util.Utils
+import org.rivchain.cuplink.util.Utils.readInternalFile
+import java.io.File
+import java.net.InetAddress
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -65,6 +69,11 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private val LISTEN = "listen"
     private var preferences: SharedPreferences? = null
     private var restartService = false
+    private lateinit var database: Database
+    private var firstStart = false
+    private var databasePassword = ""
+    private var dbEncrypted: Boolean = false
+    private var databasePath = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(this, "onCreate() CupLink version ${BuildConfig.VERSION_NAME}")
@@ -104,11 +113,60 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         continueInit()
     }
 
+    private fun loadDatabase(databasePath: String) {
+        val database: Database
+        if (File(databasePath).exists()) {
+            // Open an existing database
+            val db = readInternalFile(databasePath)
+            database = Database.fromData(db, databasePassword)
+            firstStart = false
+        } else {
+            // Create a new database
+            database = Database()
+            database.mesh.invoke()
+            // Generate random port from allowed range
+            val port = org.rivchain.cuplink.rivmesh.util.Utils.generateRandomPort()
+            val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
+            database.mesh.setListen(setOf(localPeer))
+            database.mesh.multicastRegex = ".*"
+            database.mesh.multicastListen = true
+            database.mesh.multicastBeacon = true
+            database.mesh.multicastPassword = ""
+            firstStart = true
+        }
+        this.database = database
+    }
+
     private fun continueInit() {
         startState += 1
         when (startState) {
             1 -> {
-                Log.d(this, "init 1: show policy and start VPN")
+                Log.d(this, "init $startState: load database")
+                databasePath = this.filesDir.toString() + "/database.bin"
+                // open without password
+                try {
+                    loadDatabase(databasePath)
+                } catch (e: Database.WrongPasswordException) {
+                    // ignore and continue with initialization,
+                    // the password dialog comes on the next startState
+                    dbEncrypted = true
+                } catch (e: Exception) {
+                    Log.e(this, "${e.message}")
+                    Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+            2 -> {
+                Log.d(this, "init $startState: check database")
+                if (dbEncrypted) {
+                    // database is probably encrypted
+                    showDatabasePasswordDialog()
+                } else {
+                    continueInit()
+                }
+            }
+            3 -> {
+                Log.d(this, "init $startState: show policy and start VPN")
                 if(preferences?.getString(POLICY, null) == null) {
                     showPolicy("En-Us")
                 } else {
@@ -118,13 +176,11 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                         startVpnActivity.launch(vpnIntent)
                     } else {
                         bindService(Intent(this, MainService::class.java), this, 0)
-                        // start MainService and call back via onServiceConnected()
-                        MainService.startPacketsStream(this)
                     }
                 }
             }
-            2 -> {
-                Log.d(this, "init 2: choose peers")
+            4 -> {
+                Log.d(this, "init $startState: choose peers")
                 if(preferences?.getString(PEERS, null) == null) {
                     val intent = Intent(this, AutoSelectPeerActivity::class.java)
                     intent.putStringArrayListExtra(
@@ -139,25 +195,16 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            3 -> {
-                Log.d(this, "init 3: check addresses")
-                if (service!!.firstStart) {
+            5 -> {
+                Log.d(this, "init $startState: check addresses")
+                if (firstStart) {
                     showMissingAddressDialog()
                 } else {
                     continueInit()
                 }
             }
-            4 -> {
-                Log.d(this, "init 4: check database")
-                if (service!!.isDatabaseEncrypted()) {
-                    // database is probably encrypted
-                    showDatabasePasswordDialog()
-                } else {
-                    continueInit()
-                }
-            }
-            5 -> {
-                Log.d(this, "init 5: check username")
+            6 -> {
+                Log.d(this, "init $startState: check username")
                 if (service!!.getSettings().username.isEmpty()) {
                     // set username
                     showMissingUsernameDialog()
@@ -165,16 +212,16 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            6 -> {
-                Log.d(this, "init 6: check key pair")
+            7 -> {
+                Log.d(this, "init $startState: check key pair")
                 if (service!!.getSettings().publicKey.isEmpty()) {
                     // generate key pair
                     initKeyPair()
                 }
                 continueInit()
             }
-            7 -> {
-                Log.d(this, "init 7: test port")
+            8 -> {
+                Log.d(this, "init $startState: test port")
                 if(preferences?.getString(LISTEN, null) == null) {
                     val intent = Intent(this, AutoTestPublicPeerActivity::class.java)
                     requestListenLauncher!!.launch(intent)
@@ -182,8 +229,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            8 -> {
-                Log.d(this, "init 8: check all permissions")
+            9 -> {
+                Log.d(this, "init $startState: check all permissions")
                 if (!havePostNotificationPermission(this) ||
                     !haveMicrophonePermission(this) ||
                     !haveCameraPermission(this)
@@ -198,17 +245,17 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     continueInit()
                 }
             }
-            9 -> {
+            10 -> {
                 // All persistent settings must be set up prior this step!
-                Log.d(this, "init 9: restart main service if needed")
+                Log.d(this, "init $startState: restart main service if needed")
                 if(restartService) {
                     restartService()
                 } else {
                     continueInit()
                 }
             }
-            10 -> {
-                Log.d(this, "init 10: start MainActivity")
+            11 -> {
+                Log.d(this, "init $startState: start MainActivity")
                 val settings = service!!.getSettings()
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
@@ -229,8 +276,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
     private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             bindService(Intent(this, MainService::class.java), this, 0)
-            // start MainService and call back via onServiceConnected()
-            MainService.startPacketsStream(this)
         }
     }
 
@@ -238,16 +283,15 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         Log.d(this, "onServiceConnected")
         service = (iBinder as MainBinder).getService()
 
-        if (startState == 1) {
+        if (startState == 3) {
             setContentView(R.layout.activity_splash)
             findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
-            if (service!!.firstStart) {
-                // show delayed splash page
-                continueInit()
-            } else {
-                // show contact list as fast as possible
-                continueInit()
-            }
+            // start MainService and call back via onServiceConnected()
+            service!!.setDatabase(database)
+            service!!.setDatabasePath(databasePath)
+            service!!.setDatabasePassword(databasePassword)
+            MainService.startPacketsStream(this)
+            continueInit()
         }
     }
 
@@ -445,9 +489,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val okButton = view.findViewById<Button>(R.id.change_password_ok_button)
         okButton.setOnClickListener {
             val password = passwordEditText.text.toString()
-            service!!.databasePassword = password
+            databasePassword = password
             try {
-                service!!.loadDatabase()
+                loadDatabase(databasePath)
                 //MainService first run wasn't success due to db encryption
                 MainService.startPacketsStream(this)
                 // close dialog
