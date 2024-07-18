@@ -21,6 +21,13 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mobile.Mesh
 import org.json.JSONArray
 import org.libsodium.jni.NaCl
@@ -59,7 +66,6 @@ import java.util.Date
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-const val TAG = "VPN service"
 const val SERVICE_NOTIFICATION_ID = 1000
 class MainService : VpnService() {
     /**
@@ -91,23 +97,104 @@ class MainService : VpnService() {
     private var KEY_ENABLE_CHROME_FIX = "enable_chrome_fix"
     private var KEY_DNS_SERVERS = "dns_servers"
 
+    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private val databaseLoaded = CompletableDeferred<Unit>()
+
     override fun onCreate() {
         super.onCreate()
         // Prevent UnsatisfiedLinkError
         NaCl.sodium()
         databasePath = this.filesDir.toString() + "/database.bin"
-        Log.d(this, "init 1: load database")
-        // open without password
-        try {
-            loadDatabase()
-        } catch (e: Database.WrongPasswordException) {
-            // ignore and continue with initialization,
-            // the password dialog comes on the next startState
-            dbEncrypted = true
-        } catch (e: Exception) {
-            Log.e(this, "${e.message}")
-            Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
-            stopSelf()
+        Log.d("MainService", "init 1: load database")
+
+        // Load database asynchronously
+        serviceScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    loadDatabase()
+                }
+                databaseLoaded.complete(Unit) // Mark the database as loaded
+                Log.d("MainService", "Database loaded successfully")
+            } catch (e: Database.WrongPasswordException) {
+                dbEncrypted = true
+                databaseLoaded.complete(Unit) // Mark the database as loaded even if encrypted
+            } catch (e: Exception) {
+                Log.e("MainService", "${e.message}")
+                databaseLoaded.completeExceptionally(e) // Complete with exception
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainService, "${e.message}", Toast.LENGTH_SHORT).show()
+                    stopSelf()
+                }
+            }
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(this, "onStartCommand()")
+
+        if (intent == null || intent.action == null) {
+            Log.d(this, "onStartCommand() Received invalid intent")
+            return START_NOT_STICKY
+        }
+
+        if (intent.action == ACTION_CONNECT) {
+            Log.d(this, "onStartCommand() Received Start Foreground Intent")
+            val notification = createServiceNotification(this, State.Starting)
+            startForeground(SERVICE_NOTIFICATION_ID, notification)
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                startForeground(SERVICE_NOTIFICATION_ID, notification)
+            } else {
+                startForeground(SERVICE_NOTIFICATION_ID, notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL)
+            }
+            // Ensure database is loaded before processing any commands
+            serviceScope.launch {
+                try {
+                    databaseLoaded.await() // Wait for the database to be loaded
+                    Log.d(this, "Database is ready, processing commands")
+                    // Process your intent here
+                } catch (e: Exception) {
+                    Log.e(this, "Error waiting for database: ${e.message}")
+                }
+            }
+        }
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
+        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, true)
+        return when (intent.action ?: ACTION_STOP) {
+            ACTION_STOP -> {
+                Log.d(this, "Stopping...")
+                Log.d(this, "onStartCommand() Received Stop Foreground Intent")
+                stopPacketsStream()
+                shutdown(); START_NOT_STICKY
+            }
+            ACTION_CONNECT -> {
+                Log.d(this, "Connecting...")
+                if (started.get()) {
+                    connect()
+                    acquireMulticastLock()
+                } else {
+                    startPacketsStream()
+                }
+                START_STICKY
+            }
+            ACTION_TOGGLE -> {
+                Log.d(this, "Toggling...")
+                if (started.get()) {
+                    stopPacketsStream(); START_NOT_STICKY
+                } else {
+                    startPacketsStream(); START_STICKY
+                }
+            }
+            else -> {
+                if (!enabled) {
+                    Log.d(this, "Service is disabled")
+                    return START_NOT_STICKY
+                }
+                Log.d(this, "Starting...")
+                startPacketsStream(); START_STICKY
+            }
         }
     }
 
@@ -238,10 +325,9 @@ class MainService : VpnService() {
 
     override fun onDestroy() {
         Log.d(this, "onDestroy()")
-
         stopServer()
         stopPacketsStream()
-
+        serviceScope.cancel()
         // say goodbye
         val database = database
         if (serverSocket != null && serverSocket!!.isBound && !serverSocket!!.isClosed) {
@@ -291,64 +377,6 @@ class MainService : VpnService() {
 
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(this, "onStartCommand()")
-
-        if (intent == null || intent.action == null) {
-            Log.d(this, "onStartCommand() Received invalid intent")
-            return START_NOT_STICKY
-        } else if (intent.action == ACTION_CONNECT) {
-            Log.d(this, "onStartCommand() Received Start Foreground Intent")
-            val notification = createServiceNotification(this, State.Starting)
-            startForeground(SERVICE_NOTIFICATION_ID, notification)
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                startForeground(SERVICE_NOTIFICATION_ID, notification)
-            } else {
-                startForeground(SERVICE_NOTIFICATION_ID, notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL)
-            }
-        }
-
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext)
-        val enabled = preferences.getBoolean(PREF_KEY_ENABLED, true)
-        return when (intent.action ?: ACTION_STOP) {
-            ACTION_STOP -> {
-                Log.d(TAG, "Stopping...")
-                Log.d(this, "onStartCommand() Received Stop Foreground Intent")
-                stopPacketsStream()
-                shutdown(); START_NOT_STICKY
-            }
-            ACTION_CONNECT -> {
-                Log.d(TAG, "Connecting...")
-                if (started.get()) {
-                    connect()
-                    acquireMulticastLock()
-                } else {
-                    startPacketsStream()
-                }
-                START_STICKY
-            }
-            ACTION_TOGGLE -> {
-                Log.d(TAG, "Toggling...")
-                if (started.get()) {
-                    stopPacketsStream(); START_NOT_STICKY
-                } else {
-                    startPacketsStream(); START_STICKY
-                }
-            }
-            else -> {
-                if (!enabled) {
-                    Log.d(TAG, "Service is disabled")
-                    return START_NOT_STICKY
-                }
-                Log.d(TAG, "Starting...")
-                startPacketsStream(); START_STICKY
-            }
-        }
-
-    }
-
     private fun acquireMulticastLock(){
         // Acquire multicast lock
         val wifi = ServiceUtil.getWifiManager(this)
@@ -373,7 +401,7 @@ class MainService : VpnService() {
         val notification = createServiceNotification(this, State.Enabled)
         startForeground(SERVICE_NOTIFICATION_ID, notification)
 
-        Log.d(TAG, "getting Mesh configuration")
+        Log.d(this, "getting Mesh configuration")
         val androidVersion = org.rivchain.cuplink.util.Utils.getAndroidVersionFromApi()
         mesh.startJSON(getMesh().getJSONByteArray(), androidVersion)
         val address = mesh.addressString
@@ -405,7 +433,7 @@ class MainService : VpnService() {
             val servers = serverString.split(",")
             if (servers.isNotEmpty()) {
                 servers.forEach {
-                    Log.i(TAG, "Using DNS server $it")
+                    Log.i(this, "Using DNS server $it")
                     builder.addDnsServer(it)
                 }
             }
@@ -545,11 +573,11 @@ class MainService : VpnService() {
             val writerStream = writerStream
             val writerThread = writerThread
             if (writerThread == null || writerStream == null) {
-                Log.i(TAG, "Write thread or stream is null")
+                Log.i(this, "Write thread or stream is null")
                 break@writes
             }
             if (Thread.currentThread().isInterrupted || !writerStream.fd.valid()) {
-                Log.i(TAG, "Write thread interrupted or file descriptor is invalid")
+                Log.i(this, "Write thread interrupted or file descriptor is invalid")
                 break@writes
             }
             try {
@@ -558,7 +586,7 @@ class MainService : VpnService() {
                     writerStream.write(buf, 0, len.toInt())
                 }
             } catch (e: Exception) {
-                Log.i(TAG, "Error in write: $e")
+                Log.i(this, "Error in write: $e")
                 if (e.toString().contains("ENOBUFS")) {
                     //TODO Check this by some error code
                     //More info about this: https://github.com/AdguardTeam/AdguardForAndroid/issues/724
@@ -579,18 +607,18 @@ class MainService : VpnService() {
             val readerStream = readerStream
             val readerThread = readerThread
             if (readerThread == null || readerStream == null) {
-                Log.i(TAG, "Read thread or stream is null")
+                Log.i(this, "Read thread or stream is null")
                 break@reads
             }
             if (Thread.currentThread().isInterrupted ||!readerStream.fd.valid()) {
-                Log.i(TAG, "Read thread interrupted or file descriptor is invalid")
+                Log.i(this, "Read thread interrupted or file descriptor is invalid")
                 break@reads
             }
             try {
                 val n = readerStream.read(b)
                 mesh.sendBuffer(b, n.toLong())
             } catch (e: Exception) {
-                Log.i(TAG, "Error in sendBuffer: $e")
+                Log.i(this, "Error in sendBuffer: $e")
                 break@reads
             }
         }
@@ -607,10 +635,10 @@ class MainService : VpnService() {
                     try {
                         serverSocket = ServerSocket(serverPort)
                         while (true) {
-                            Log.d(TAG, "Server listening on port $serverPort")
+                            Log.d(this, "Server listening on port $serverPort")
                             val clientSocket: Socket = serverSocket!!.accept()
                             // Handle client connection
-                            Log.d(TAG, "Client connected: ${clientSocket.inetAddress}")
+                            Log.d(this, "Client connected: ${clientSocket.inetAddress}")
                             Log.d(this, "run() new incoming connection")
                             RTCPeerConnection.createIncomingCall(this, clientSocket)
                         }
