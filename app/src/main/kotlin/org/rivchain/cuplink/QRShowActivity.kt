@@ -18,7 +18,6 @@ import org.rivchain.cuplink.util.RlpUtils
 
 class QRShowActivity : BaseActivity(), ServiceConnection {
     private lateinit var publicKey: ByteArray
-    private var service: MainService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

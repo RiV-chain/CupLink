@@ -45,7 +45,6 @@ class SettingsActivity : BaseActivity(), ServiceConnection {
     private var requestListenLauncher: ActivityResultLauncher<Intent>? = null
     private var requestPeersLauncher: ActivityResultLauncher<Intent>? = null
 
-    private var service: MainService? = null
     private var currentPeers = setOf<PeerInfo>()
 
     companion object {

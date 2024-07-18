@@ -25,7 +25,7 @@ import org.rivchain.cuplink.util.NetworkUtils.AddressType
 import java.util.Locale
 
 class AddressManagementActivity : BaseActivity(), ServiceConnection {
-    private var service: MainService? = null
+
     private lateinit var addressListView: ListView
     private lateinit var customAddressTextEdit: TextInputEditText
     private lateinit var addressListViewAdapter: AddressListAdapter

@@ -37,7 +37,6 @@ import java.util.Locale
 
 open class SelectPeerActivity : BaseActivity(), ServiceConnection {
 
-    private var service: MainService? = null
     var peerListUrl = PEER_LIST_URL
     private var peerListPing = true
 
@@ -222,15 +221,6 @@ open class SelectPeerActivity : BaseActivity(), ServiceConnection {
     override fun onStop() {
         super.onStop()
         cancelPeerListPing()
-    }
-
-    override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
-        Log.d(this, "onServiceConnected()")
-        service = (iBinder as MainService.MainBinder).getService()
-    }
-
-    override fun onServiceDisconnected(name: ComponentName?) {
-        //nothing_todo
     }
 
     override fun onServiceRestart(){

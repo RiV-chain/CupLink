@@ -21,8 +21,6 @@ import org.rivchain.cuplink.util.Utils
 
 open class AddContactActivity: BaseActivity(), ServiceConnection {
 
-    protected var service: MainService? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bindService(Intent(this, MainService::class.java), this, 0)
@@ -58,8 +56,8 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
     protected open fun resume(){
         // nothing to do
     }
+
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-        service = (iBinder as MainService.MainBinder).getService()
         onServiceConnected()
         if(intent!=null && intent.extras!=null) {
             addContact(intent.extras!!["EXTRA_CONTACT"] as Contact)

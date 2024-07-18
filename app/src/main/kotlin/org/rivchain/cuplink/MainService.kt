@@ -63,9 +63,9 @@ class MainService : VpnService() {
     private val binder = MainBinder()
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
-    private lateinit var database: Database
-    private lateinit var databasePath: String
-    private lateinit var databasePassword: String
+    lateinit var database: Database
+    lateinit var databasePath: String
+    lateinit var databasePassword: String
 
     /**
      * VPN variables
@@ -252,7 +252,7 @@ class MainService : VpnService() {
         Log.d(this, "onStartCommand()")
 
         if (intent == null || intent.action == null) {
-            Log.d(this, "onStartCommand() Received invalid intent")
+            Log.d(this, "onStartCommand() Received init service")
             return START_NOT_STICKY
         } else if (intent.action == ACTION_CONNECT) {
             Log.d(this, "onStartCommand() Received Start Foreground Intent")
@@ -667,22 +667,6 @@ class MainService : VpnService() {
         }
     }
 
-    fun getDatabase(): Database {
-        return database
-    }
-
-    fun setDatabase(database: Database) {
-        this.database = database
-    }
-
-    fun setDatabasePath(databasePath: String) {
-        this.databasePath = databasePath
-    }
-
-    fun setDatabasePassword(databasePassword: String) {
-        this.databasePassword = databasePassword
-    }
-
     fun getSettings(): Settings {
         return database.settings
     }
@@ -719,8 +703,8 @@ class MainService : VpnService() {
     }
 
     fun deleteContact(publicKey: ByteArray) {
-        getDatabase().contacts.deleteContact(publicKey)
-        getDatabase().events.deleteEventsByPublicKey(publicKey)
+        database.contacts.deleteContact(publicKey)
+        database.events.deleteEventsByPublicKey(publicKey)
         saveDatabase()
 
         refreshContacts(this@MainService)
@@ -728,7 +712,7 @@ class MainService : VpnService() {
     }
 
     fun deleteEvents(eventDates: List<Date>) {
-        getDatabase().events.deleteEventsByDate(eventDates)
+        database.events.deleteEventsByDate(eventDates)
         saveDatabase()
 
         refreshContacts(this@MainService)
@@ -794,6 +778,11 @@ class MainService : VpnService() {
 
         const val serverPort = 10001
         private const val NOTIFICATION_ID = 42
+
+        fun init(ctx: Context){
+            val startIntent = Intent(ctx, MainService::class.java)
+            ContextCompat.startForegroundService(ctx, startIntent)
+        }
 
         fun startPacketsStream(ctx: Context) {
             val startIntent = Intent(ctx, MainService::class.java)

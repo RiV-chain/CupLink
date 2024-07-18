@@ -31,6 +31,7 @@ import org.rivchain.cuplink.util.Utils
 import java.util.Locale
 
 class ContactDetailsActivity : BaseActivity(), ServiceConnection {
+
     private lateinit var publicKey: ByteArray
 
     private lateinit var contactNameEdit: TextView
@@ -40,8 +41,6 @@ class ContactDetailsActivity : BaseActivity(), ServiceConnection {
 
     private lateinit var addressListView: ListView
     private lateinit var addressListViewAdapter: AddressListAdapter
-
-    private var service: MainService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

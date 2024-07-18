@@ -28,9 +28,9 @@ class BootUpReceiver : BroadcastReceiver() {
         if (intent?.action != Intent.ACTION_BOOT_COMPLETED) {
             Log.w(TAG, "Wrong action: ${intent?.action}")
         }
-        Log.i(TAG, "CupLink enabled, starting service")
-        val serviceIntent = Intent(context, MainService::class.java)
-        serviceIntent.action = MainService.ACTION_START
+        //Log.i(TAG, "CupLink enabled, starting service")
+        //val serviceIntent = Intent(context, MainService::class.java)
+        //serviceIntent.action = MainService.ACTION_START
 
         val vpnIntent = VpnService.prepare(context)
         if (vpnIntent != null) {
@@ -39,7 +39,7 @@ class BootUpReceiver : BroadcastReceiver() {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.notify(444, notification)
         } else {
-            context.startService(serviceIntent)
+            //context.startService(serviceIntent)
         }
     }
 

@@ -24,8 +24,8 @@ import org.rivchain.cuplink.util.Utils.readExternalFile
 import org.rivchain.cuplink.util.Utils.writeExternalFile
 
 class BackupActivity : BaseActivity(), ServiceConnection {
+
     private var dialog: AlertDialog? = null
-    private var service: MainService? = null
     private lateinit var exportButton: Button
     private lateinit var importButton: Button
     private lateinit var passwordEditText: TextView
@@ -119,7 +119,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
     private fun exportDatabase(uri: Uri) {
         val password = passwordEditText.text.toString()
         try {
-            val database = service!!.getDatabase()
+            val database = service!!.database
             val dbData = Database.toData(database, password)
 
             if (dbData != null) {

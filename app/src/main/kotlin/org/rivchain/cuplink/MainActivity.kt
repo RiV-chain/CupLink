@@ -38,7 +38,6 @@ import org.rivchain.cuplink.util.PowerManager
 // the main view with tabs
 class MainActivity : BaseActivity(), ServiceConnection {
 
-    private var service: MainService? = null
     private lateinit var viewPager: ViewPager2
 
     private fun initToolbar() {
@@ -309,9 +308,11 @@ class MainActivity : BaseActivity(), ServiceConnection {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
+    override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        handleDeeplinkIntent(intent)
+        if (intent != null) {
+            handleDeeplinkIntent(intent)
+        }
     }
 
 

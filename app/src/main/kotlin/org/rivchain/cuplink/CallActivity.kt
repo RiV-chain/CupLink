@@ -70,7 +70,6 @@ import java.util.Date
 
 class CallActivity : BaseActivity(), RTCCall.CallContext {
 
-    private var service: MainService? = null
     private lateinit var connection: ServiceConnection
     private lateinit var currentCall: RTCCall
     private lateinit var eglBase: EglBase
