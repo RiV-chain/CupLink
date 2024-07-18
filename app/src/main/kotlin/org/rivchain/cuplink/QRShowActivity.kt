@@ -37,7 +37,7 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
 
         findViewById<View>(R.id.fabShare).setOnClickListener {
             try {
-                val contact = service!!.getContactOrOwn(publicKey)!!
+                val contact = getContactOrOwn(publicKey)!!
                 val data = RlpUtils.generateLink(contact)
                 val i = Intent(Intent.ACTION_SEND)
                 i.putExtra(Intent.EXTRA_TEXT, data)
@@ -105,7 +105,7 @@ class QRShowActivity : BaseActivity(), ServiceConnection {
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
         service = (iBinder as MainBinder).getService()
         try {
-            val contact = service!!.getContactOrOwn(publicKey)!!
+            val contact = getContactOrOwn(publicKey)!!
             generateDeepLinkQR(contact)
         } catch (e: NullPointerException) {
             e.printStackTrace()

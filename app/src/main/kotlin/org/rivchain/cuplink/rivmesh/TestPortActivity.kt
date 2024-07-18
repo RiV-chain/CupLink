@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.rivchain.cuplink.Load
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.rivmesh.util.Utils
@@ -46,13 +47,13 @@ open class TestPortActivity: AppCompatActivity(), ServiceConnection {
      * Run te after the onServiceConnected!
      */
     protected fun getPublicPeerPort(): Int {
-        val listenArray = service!!.getMesh().getListen()
+        val listenArray = Load.database.mesh.getListen()
         val port: Int
         if(listenArray.length() == 0){
             // Generate a random port and continue
             port = Utils.generateRandomPort()
         } else {
-            val listen = service!!.getMesh().getListen().get(0).toString()
+            val listen = Load.database.mesh.getListen().get(0).toString()
             port = URI(listen).port
         }
         return port

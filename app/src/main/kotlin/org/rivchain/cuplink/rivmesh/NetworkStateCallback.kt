@@ -15,7 +15,7 @@ class NetworkStateCallback(val context: Context) : ConnectivityManager.NetworkCa
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
         Log.d(this, "onAvailable")
-
+        /*
         Thread {
             // The message often arrives before the connection is fully established
             Thread.sleep(1000)
@@ -31,6 +31,7 @@ class NetworkStateCallback(val context: Context) : ConnectivityManager.NetworkCa
                 e.printStackTrace()
             }
         }.start()
+        */
     }
 
     override fun onLost(network: Network) {

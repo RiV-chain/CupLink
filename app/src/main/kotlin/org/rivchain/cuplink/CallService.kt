@@ -394,7 +394,7 @@ class CallService : Service() {
                 DECLINE_CALL_ACTION -> {
                     // Notify missed call
                     val event = Event(contact.publicKey, contact.lastWorkingAddress, Event.Type.INCOMING_MISSED, Date())
-                    RTCPeerConnection.incomingRTCCall?.service!!.addEvent(event)
+                    Load.database.events.addEvent(event)
                 }
                 else -> {
                     // For all other actions, do nothing

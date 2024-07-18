@@ -1,13 +1,9 @@
 package org.rivchain.cuplink
 
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
-import android.graphics.Color
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Binder
@@ -17,45 +13,30 @@ import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
-import org.libsodium.jni.NaCl
 import org.rivchain.cuplink.call.PacketWriter
-import org.rivchain.cuplink.call.Pinger
 import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.model.Contact
-import org.rivchain.cuplink.model.Contacts
-import org.rivchain.cuplink.model.Event
-import org.rivchain.cuplink.model.Events
-import org.rivchain.cuplink.model.Settings
 import org.rivchain.cuplink.rivmesh.AppStateReceiver
-import org.rivchain.cuplink.rivmesh.ConfigurationProxy
 import org.rivchain.cuplink.rivmesh.STATE_CONNECTED
 import org.rivchain.cuplink.rivmesh.STATE_DISABLED
 import org.rivchain.cuplink.rivmesh.STATE_ENABLED
 import org.rivchain.cuplink.rivmesh.State
-import org.rivchain.cuplink.rivmesh.models.PeerInfo
-import org.rivchain.cuplink.rivmesh.util.Utils
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.ServiceUtil
-import org.rivchain.cuplink.util.Utils.readInternalFile
-import org.rivchain.cuplink.util.Utils.writeInternalFile
-import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.ConnectException
-import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.util.Date
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
@@ -68,9 +49,6 @@ class MainService : VpnService() {
     private val binder = MainBinder()
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
-    var firstStart = false
-    private var databasePath = ""
-    var databasePassword = ""
 
     /**
      * VPN variables
@@ -86,125 +64,12 @@ class MainService : VpnService() {
     private var readerStream: FileInputStream? = null
     private var writerStream: FileOutputStream? = null
     private var multicastLock: WifiManager.MulticastLock? = null
-    private var dbEncrypted: Boolean = false
 
     private var KEY_ENABLE_CHROME_FIX = "enable_chrome_fix"
     private var KEY_DNS_SERVERS = "dns_servers"
 
-    override fun onCreate() {
-        super.onCreate()
-        // Prevent UnsatisfiedLinkError
-        NaCl.sodium()
-        databasePath = this.filesDir.toString() + "/database.bin"
-        Log.d(this, "init 1: load database")
-        // open without password
-        try {
-            loadDatabase()
-        } catch (e: Database.WrongPasswordException) {
-            // ignore and continue with initialization,
-            // the password dialog comes on the next startState
-            dbEncrypted = true
-        } catch (e: Exception) {
-            Log.e(this, "${e.message}")
-            Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
-            stopSelf()
-        }
-    }
-
-    private fun createNotification(text: String, showSinceWhen: Boolean): Notification {
-        Log.d(this, "createNotification() text=$text setShowWhen=$showSinceWhen")
-        val channelId = "cuplink_service"
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val chan = NotificationChannel(
-                channelId,
-                "CupLink Call Listener",
-                NotificationManager.IMPORTANCE_LOW // display notification as collapsed by default
-            )
-            chan.lightColor = Color.RED
-            chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-            val service = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            service.createNotificationChannel(chan)
-        }
-
-        // start MainActivity
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingNotificationIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getActivity(this, 0, notificationIntent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        } else {
-            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
-
-        return NotificationCompat.Builder(applicationContext, channelId)
-            .setSilent(true)
-            .setOngoing(true)
-            .setShowWhen(showSinceWhen)
-            .setUsesChronometer(showSinceWhen)
-            .setSmallIcon(R.drawable.cup_link_small)
-            .setPriority(NotificationCompat.PRIORITY_MIN)
-            .setCategory(Notification.CATEGORY_SERVICE)
-            .setContentText(text)
-            .setContentIntent(pendingNotificationIntent)
-            .build()
-    }
-
-    fun loadDatabase(): Database {
-        if (File(databasePath).exists()) {
-            // Open an existing database
-            val db = readInternalFile(databasePath)
-            database = Database.fromData(db, databasePassword)
-            firstStart = false
-        } else {
-            // Create a new database
-            database = Database()
-            database.mesh.invoke()
-            // Generate random port from allowed range
-            val port = Utils.generateRandomPort()
-            val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
-            database.mesh.setListen(setOf(localPeer))
-            database.mesh.multicastRegex = ".*"
-            database.mesh.multicastListen = true
-            database.mesh.multicastBeacon = true
-            database.mesh.multicastPassword = ""
-            firstStart = true
-        }
-        return database
-    }
-
-    fun importContacts(newDb: Database){
-        val oldDatabase = database
-        for (contact in newDb.contacts.contactList) {
-            oldDatabase.contacts.addContact(contact)
-        }
-    }
-
-    fun importCalls(newDb: Database){
-        val oldDatabase = database
-        for (event in newDb.events.eventList) {
-            oldDatabase.events.addEvent(event)
-        }
-    }
-
-    fun importSettings(newDb: Database){
-        val oldDatabase = database
-        oldDatabase.settings = newDb.settings
-        oldDatabase.mesh = newDb.mesh
-    }
-
-    fun saveDatabase() {
-        try {
-            val db = database
-            val dbData = Database.toData(db, databasePassword)
-            if (dbData != null) {
-                writeInternalFile(databasePath, dbData)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     private fun createCommSocket(contact: Contact): Socket? {
-        val settings = getSettings()
+        val settings = Load.database.settings
         val useNeighborTable = settings.useNeighborTable
         val connectTimeout = settings.connectTimeout
 
@@ -243,7 +108,7 @@ class MainService : VpnService() {
         stopPacketsStream()
 
         // say goodbye
-        val database = database
+        val database = Load.database
         if (serverSocket != null && serverSocket!!.isBound && !serverSocket!!.isClosed) {
             try {
                 val ownPublicKey = database.settings.publicKey
@@ -284,11 +149,8 @@ class MainService : VpnService() {
             // ignore
         }
 
-        // save database on exit
-        saveDatabase()
         database.destroy()
         super.onDestroy()
-
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -375,7 +237,7 @@ class MainService : VpnService() {
 
         Log.d(TAG, "getting Mesh configuration")
         val androidVersion = org.rivchain.cuplink.util.Utils.getAndroidVersionFromApi()
-        mesh.startJSON(getMesh().getJSONByteArray(), androidVersion)
+        mesh.startJSON(Load.database.mesh.getJSONByteArray(), androidVersion)
         val address = mesh.addressString
         val builder = Builder()
             .addAddress(address, 7)
@@ -612,6 +474,7 @@ class MainService : VpnService() {
                             // Handle client connection
                             Log.d(TAG, "Client connected: ${clientSocket.inetAddress}")
                             Log.d(this, "run() new incoming connection")
+
                             RTCPeerConnection.createIncomingCall(this, clientSocket)
                         }
                     } catch (e: IOException) {
@@ -644,158 +507,6 @@ class MainService : VpnService() {
         }
     }
 
-    fun updateNotification() {
-        Log.d(this, "updateNotification()")
-
-        if (!getSettings().disableCallHistory) {
-            val eventList = getEvents().eventList
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            // Map to track the last event per callerChannelId
-            val eventsMap = mutableMapOf<Int, ArrayList<Event>>()
-
-            // Populate the events per callerChannelId
-            for (event in eventList) {
-                val callerChannelId = org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.publicKey)
-                if(eventsMap[callerChannelId] == null){
-                    eventsMap[callerChannelId] = ArrayList()
-                }
-                eventsMap[callerChannelId]!!.add(event)
-            }
-
-            // Filter the last events to get only those that are missed calls
-            val lastMissedEvents = eventsMap.values.filter { e ->
-                e.last().type == Event.Type.INCOMING_MISSED
-            }
-
-            // Filter the last events to get only those that are not missed calls
-            val nonLastMissedEvents = eventsMap.values.filter { e ->
-                e.last().type != Event.Type.INCOMING_MISSED
-            }
-
-            // Map to track missed calls per callerChannelId
-            val missedCallCounts = mutableMapOf<Int, Int>()
-
-            // Populate the missed call counts map
-            for (el in lastMissedEvents) {
-                for (e in el.reversed()) {
-                    if(e.type != Event.Type.INCOMING_MISSED){
-                        break
-                    }
-                    val callerChannelId =
-                        org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(e.publicKey)
-                    val currentCount = missedCallCounts[callerChannelId] ?: 0
-                    missedCallCounts[callerChannelId] = currentCount + 1
-                }
-            }
-
-            // Generate notifications for each callerChannelId if missedCount > 1
-            for ((callerChannelId, missedCount) in missedCallCounts) {
-                val publicKey = lastMissedEvents.find { event ->
-                    org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(event.last().publicKey) == callerChannelId
-                }?.last()!!.publicKey
-
-                val contact = publicKey.let { getContacts().getContactByPublicKey(it) }
-                val name = contact?.name ?: getString(R.string.unknown_caller)
-                val message = String.format(getString(R.string.missed_call_from), name, missedCount)
-
-                val notification = createNotification(message, false)
-                manager.notify(callerChannelId, notification)
-            }
-
-            // Cancel notifications for each caller having no missed calls
-            for (e in nonLastMissedEvents) {
-                val callerChannelId = org.rivchain.cuplink.util.Utils.byteArrayToCRC32Int(e.last().publicKey)
-                manager.cancel(callerChannelId)
-            }
-        }
-    }
-
-    fun isDatabaseEncrypted(): Boolean {
-        return dbEncrypted
-    }
-
-    fun getDatabase(): Database {
-        return database
-    }
-
-    fun getSettings(): Settings {
-        return database.settings
-    }
-
-    fun getContacts(): Contacts {
-        return database.contacts
-    }
-
-    fun getEvents(): Events {
-        return database.events
-    }
-
-    fun getMesh(): ConfigurationProxy {
-        return database.mesh
-    }
-
-    fun getContactOrOwn(otherPublicKey: ByteArray): Contact? {
-        val db = database
-        return if (db.settings.publicKey.contentEquals(otherPublicKey)) {
-            db.settings.getOwnContact()
-        } else {
-            db.contacts.getContactByPublicKey(otherPublicKey)
-        }
-    }
-
-    fun addContact(contact: Contact) {
-        database.contacts.addContact(contact)
-        saveDatabase()
-
-        pingContacts(listOf(contact))
-
-        refreshContacts(this@MainService)
-        refreshEvents(this@MainService)
-    }
-
-    fun deleteContact(publicKey: ByteArray) {
-        getDatabase().contacts.deleteContact(publicKey)
-        getDatabase().events.deleteEventsByPublicKey(publicKey)
-        saveDatabase()
-
-        refreshContacts(this@MainService)
-        refreshEvents(this@MainService)
-    }
-
-    fun deleteEvents(eventDates: List<Date>) {
-        getDatabase().events.deleteEventsByDate(eventDates)
-        saveDatabase()
-
-        refreshContacts(this@MainService)
-        refreshEvents(this@MainService)
-    }
-
-    fun pingContacts(contactList: List<Contact>) {
-        Log.d(this, "pingContacts()")
-        Thread(
-            //fix ConcurrentModificationException
-            Pinger(binder.getService(), ArrayList(contactList))
-        ).start()
-    }
-
-    fun addEvent(event: Event) {
-        Log.d(this, "addEvent() event.type=${event.type}")
-
-        if (!getSettings().disableCallHistory) {
-            getEvents().addEvent(event)
-            saveDatabase()
-            refreshEvents(this@MainService)
-        }
-
-        // update notification
-        updateNotification()
-    }
-
-    fun clearEvents() {
-        getEvents().clearEvents()
-        refreshEvents(this@MainService)
-    }
-
     /*
     * Allows communication between MainService and other objects
     */
@@ -817,8 +528,6 @@ class MainService : VpnService() {
     }
 
     companion object {
-
-        private lateinit var database: Database
 
         /**
          * VPN variables
@@ -842,16 +551,6 @@ class MainService : VpnService() {
             val stopIntent = Intent(ctx, MainService::class.java)
             stopIntent.action = ACTION_STOP
             ctx.startService(stopIntent)
-        }
-
-        fun refreshContacts(ctx: Context) {
-            LocalBroadcastManager.getInstance(ctx)
-                .sendBroadcast(Intent("refresh_contact_list"))
-        }
-
-        fun refreshEvents(ctx: Context) {
-            LocalBroadcastManager.getInstance(ctx)
-                .sendBroadcast(Intent("refresh_event_list"))
         }
     }
 }

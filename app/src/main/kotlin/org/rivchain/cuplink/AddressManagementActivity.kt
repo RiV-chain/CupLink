@@ -73,9 +73,9 @@ class AddressManagementActivity : BaseActivity(), ServiceConnection {
         val addButton = findViewById<View>(R.id.AddCustomAddressButton)
 
         saveButton.setOnClickListener {
-            service!!.getSettings().addresses = addressListViewAdapter.storedAddresses.map { it.address }.toMutableList()
+            Load.database.settings.addresses = addressListViewAdapter.storedAddresses.map { it.address }.toMutableList()
             Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
-            service!!.saveDatabase()
+            saveDatabase()
         }
 
         addButton.setOnClickListener {
@@ -126,7 +126,7 @@ class AddressManagementActivity : BaseActivity(), ServiceConnection {
 
         // add extra information to stored addresses from system addresses
         val addresses = mutableListOf<AddressEntry>()
-        for (address in service!!.getSettings().addresses) {
+        for (address in Load.database.settings.addresses) {
             val ae = systemAddresses.firstOrNull { it.address == address }
             if (ae != null) {
                 addresses.add(AddressEntry(address, ae.device))
@@ -258,7 +258,7 @@ class AddressManagementActivity : BaseActivity(), ServiceConnection {
     private fun initAddressList() {
         // add extra information to stored addresses
         val storedAddresses = mutableListOf<AddressEntry>()
-        for (address in service!!.getSettings().addresses) {
+        for (address in Load.database.settings.addresses) {
             val ae = systemAddresses.firstOrNull { it.address == address }
             if (ae != null) {
                 storedAddresses.add(AddressEntry(address, ae.device))

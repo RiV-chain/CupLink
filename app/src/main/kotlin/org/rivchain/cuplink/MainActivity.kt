@@ -124,7 +124,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
     private fun showInvalidAddressSettingsWarning() {
         Handler(Looper.getMainLooper()).postDelayed({
 
-            val storedAddresses = service!!.getSettings().addresses
+            val storedAddresses = Load.database.settings.addresses
             val storedIPAddresses = storedAddresses.filter { NetworkUtils.isIPAddress(it) || NetworkUtils.isMACAddress(it) }
             if (storedAddresses.isNotEmpty() && storedIPAddresses.isEmpty()) {
                 // ignore, we only have domains configured
@@ -149,7 +149,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
         val binder = iBinder as MainBinder
         service = binder.getService()
 
-        val settings = service!!.getSettings()
+        val settings = Load.database.settings
 
         // data source for the views was not ready before
         (viewPager.adapter as ViewPagerFragmentAdapter).let {
@@ -196,8 +196,8 @@ class MainActivity : BaseActivity(), ServiceConnection {
             addressWarningShown = true
         }
 
-        MainService.refreshEvents(this)
-        MainService.refreshContacts(this)
+        refreshEvents()
+        refreshContacts()
     }
 
     override fun onServiceDisconnected(componentName: ComponentName) {
@@ -257,7 +257,7 @@ class MainActivity : BaseActivity(), ServiceConnection {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Log.d(this, "onOptionsItemSelected()")
 
-        val settings = service!!.getSettings()
+        val settings = Load.database.settings
         if (settings.menuPassword.isEmpty()) {
             menuAction(item.itemId)
         } else {
@@ -297,12 +297,10 @@ class MainActivity : BaseActivity(), ServiceConnection {
             return when (position) {
                 0 -> {
                     val fragment = ContactListFragment()
-                    fragment.setService((fm as MainActivity).service!!)
                     fragment
                 }
                 else -> {
                     val fragment = EventListFragment()
-                    fragment.setService((fm as MainActivity).service!!)
                     fragment
                 }
             }

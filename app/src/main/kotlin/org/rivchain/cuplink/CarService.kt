@@ -126,7 +126,7 @@ class SettingsSession(private var mainService: MainService?) : Session(), Defaul
             }
             carContext.finishCarApp()
         }
-        return AutoControlScreen(carContext, mainService!!.getContacts())
+        return AutoControlScreen(carContext, Load.database.contacts)
     }
 
     override fun onNewIntent(intent: Intent) {

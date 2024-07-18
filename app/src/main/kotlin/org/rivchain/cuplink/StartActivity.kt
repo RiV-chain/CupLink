@@ -37,12 +37,16 @@ import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.rivmesh.AutoSelectPeerActivity
 import org.rivchain.cuplink.rivmesh.AutoTestPublicPeerActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity
+import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.PermissionManager.haveCameraPermission
 import org.rivchain.cuplink.util.PermissionManager.haveMicrophonePermission
 import org.rivchain.cuplink.util.PermissionManager.havePostNotificationPermission
 import org.rivchain.cuplink.util.Utils
+import org.rivchain.cuplink.util.Utils.readInternalFile
+import java.io.File
+import java.net.InetAddress
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -78,11 +82,25 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     + "Model: ${Build.MODEL}, "
                     + "Product: ${Build.PRODUCT}"
         )
+        // Prevent UnsatisfiedLinkError
+        NaCl.sodium()
+        super.onCreate(savedInstanceState)
+        Log.d(this, "init 1: load database")
+        // open without password
+        try {
+            loadDatabase()
+        } catch (e: Database.WrongPasswordException) {
+            // ignore and continue with initialization,
+            // the password dialog comes on the next startState
+            dbEncrypted = true
+        } catch (e: Exception) {
+            Log.e(this, "${e.message}")
+            Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
+            finish()
+        }
 
         // set by BootUpReceiver
         isStartOnBootup = intent.getBooleanExtra(BootUpReceiver.IS_START_ON_BOOTUP, false)
-
-        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_empty)
         preferences = PreferenceManager.getDefaultSharedPreferences(this.baseContext);
 
@@ -102,6 +120,29 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 continueInit()
             }
         continueInit()
+    }
+
+    fun loadDatabase(): Database {
+        if (File(databasePath).exists()) {
+            // Open an existing database
+            val db = readInternalFile(databasePath)
+            Load.database = Database.fromData(db, databasePassword)
+            firstStart = false
+        } else {
+            // Create a new database
+            Load.database = Database()
+            Load.database.mesh.invoke()
+            // Generate random port from allowed range
+            val port = org.rivchain.cuplink.rivmesh.util.Utils.generateRandomPort()
+            val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
+            Load.database.mesh.setListen(setOf(localPeer))
+            Load.database.mesh.multicastRegex = ".*"
+            Load.database.mesh.multicastListen = true
+            Load.database.mesh.multicastBeacon = true
+            Load.database.mesh.multicastPassword = ""
+            firstStart = true
+        }
+        return Load.database
     }
 
     private fun continueInit() {
@@ -141,7 +182,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             3 -> {
                 Log.d(this, "init 3: check addresses")
-                if (service!!.firstStart) {
+                if (firstStart) {
                     showMissingAddressDialog()
                 } else {
                     continueInit()
@@ -149,7 +190,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             4 -> {
                 Log.d(this, "init 4: check database")
-                if (service!!.isDatabaseEncrypted()) {
+                if (isDatabaseEncrypted()) {
                     // database is probably encrypted
                     showDatabasePasswordDialog()
                 } else {
@@ -158,7 +199,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             5 -> {
                 Log.d(this, "init 5: check username")
-                if (service!!.getSettings().username.isEmpty()) {
+                if (Load.database.settings.username.isEmpty()) {
                     // set username
                     showMissingUsernameDialog()
                 } else {
@@ -167,7 +208,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             6 -> {
                 Log.d(this, "init 6: check key pair")
-                if (service!!.getSettings().publicKey.isEmpty()) {
+                if (Load.database.settings.publicKey.isEmpty()) {
                     // generate key pair
                     initKeyPair()
                 }
@@ -209,7 +250,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             }
             10 -> {
                 Log.d(this, "init 10: start MainActivity")
-                val settings = service!!.getSettings()
+                val settings = Load.database.settings
                 // set in case we just updated the app
                 BootUpReceiver.setEnabled(this, settings.startOnBootup)
                 // set night mode
@@ -241,7 +282,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         if (startState == 1) {
             setContentView(R.layout.activity_splash)
             findViewById<TextView>(R.id.splashText).text = "CupLink ${BuildConfig.VERSION_NAME}. Copyright 2024 RiV Chain LTD.\nAll rights reserved."
-            if (service!!.firstStart) {
+            if (firstStart) {
                 // show delayed splash page
                 continueInit()
             } else {
@@ -266,10 +307,10 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val publicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
         val secretKey = ByteArray(Sodium.crypto_sign_secretkeybytes())
         Sodium.crypto_sign_keypair(publicKey, secretKey)
-        val settings = service!!.getSettings()
+        val settings = Load.database.settings
         settings.publicKey = publicKey
         settings.secretKey = secretKey
-        service!!.saveDatabase()
+        saveDatabase()
     }
 
     private fun getDefaultAddress(): AddressEntry? {
@@ -319,8 +360,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
             adialog.show()
         } else {
-            service!!.getSettings().addresses = mutableListOf(defaultAddress.address)
-            service!!.saveDatabase()
+            Load.database.settings.addresses = mutableListOf(defaultAddress.address)
+            saveDatabase()
             continueInit()
         }
     }
@@ -342,8 +383,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         .setNegativeButton(R.string.button_skip) { dialog: DialogInterface?, _: Int ->
             val username = generateRandomUserName()
             if (Utils.isValidName(username)) {
-                service!!.getSettings().username = username
-                service!!.saveDatabase()
+                Load.database.settings.username = username
+                saveDatabase()
                 // close dialog
                 dialog?.dismiss()
                 continueInit()
@@ -354,8 +395,8 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         .setPositiveButton(R.string.button_next) { dialog: DialogInterface?, _: Int ->
             val username = etUsername.text.toString()
             if (Utils.isValidName(username)) {
-                service!!.getSettings().username = username
-                service!!.saveDatabase()
+                Load.database.settings.username = username
+                saveDatabase()
                 // close dialog
                 dialog?.dismiss()
                 continueInit()
@@ -445,9 +486,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         val okButton = view.findViewById<Button>(R.id.change_password_ok_button)
         okButton.setOnClickListener {
             val password = passwordEditText.text.toString()
-            service!!.databasePassword = password
+            databasePassword = password
             try {
-                service!!.loadDatabase()
+                loadDatabase()
                 //MainService first run wasn't success due to db encryption
                 MainService.startPacketsStream(this)
                 // close dialog

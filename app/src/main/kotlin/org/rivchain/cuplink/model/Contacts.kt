@@ -7,10 +7,10 @@ class Contacts {
     val contactList = mutableListOf<Contact>()
 
     fun destroy() {
-        for (contact in contactList) {
-            contact.publicKey.fill(0)
-        }
-        contactList.clear()
+        //for (contact in contactList) {
+        //    contact.publicKey.fill(0)
+        //}
+        //contactList.clear()
     }
 
     fun addContact(contact: Contact) {

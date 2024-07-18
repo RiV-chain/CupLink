@@ -2,7 +2,9 @@ package org.rivchain.cuplink.call
 
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
+import org.rivchain.cuplink.BaseActivity
 import org.rivchain.cuplink.Crypto
+import org.rivchain.cuplink.Load
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.NetworkUtils
@@ -15,12 +17,12 @@ import java.net.Socket
 /*
  * Checks if a contact is online.
 */
-class Pinger(val service: MainService, val contacts: List<Contact>) : Runnable {
+class Pinger(val context: BaseActivity, val contacts: List<Contact>) : Runnable {
     private fun pingContact(contact: Contact) : Contact.State {
         Log.d(this, "pingContact() contact: ${contact.name}")
 
         val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = service.getSettings()
+        val settings = Load.database.settings
         val useNeighborTable = settings.useNeighborTable
         val connectTimeout = settings.connectTimeout
         val ownPublicKey = settings.publicKey
@@ -127,13 +129,13 @@ class Pinger(val service: MainService, val contacts: List<Contact>) : Runnable {
     override fun run() {
         // set all states to unknown
         for (contact in contacts) {
-            service.getContacts()
+            Load.database.contacts
                 .getContactByPublicKey(contact.publicKey)
                 ?.state = Contact.State.PENDING
         }
 
-        MainService.refreshContacts(service)
-        MainService.refreshEvents(service)
+        context.refreshContacts()
+        context.refreshEvents()
 
         // ping contacts
         for (contact in contacts) {
@@ -141,12 +143,12 @@ class Pinger(val service: MainService, val contacts: List<Contact>) : Runnable {
             Log.d(this, "contact state is $state")
 
             // set contact state
-            service.getContacts()
+            Load.database.contacts
                 .getContactByPublicKey(contact.publicKey)
                 ?.state = state
         }
 
-        MainService.refreshContacts(service)
-        MainService.refreshEvents(service)
+        context.refreshContacts()
+        context.refreshEvents()
     }
 }

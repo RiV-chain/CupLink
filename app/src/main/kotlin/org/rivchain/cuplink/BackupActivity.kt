@@ -2,7 +2,6 @@ package org.rivchain.cuplink
 
 import android.app.Activity
 import android.content.ComponentName
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.ColorStateList
@@ -119,7 +118,7 @@ class BackupActivity : BaseActivity(), ServiceConnection {
     private fun exportDatabase(uri: Uri) {
         val password = passwordEditText.text.toString()
         try {
-            val database = service!!.getDatabase()
+            val database = Load.database
             val dbData = Database.toData(database, password)
 
             if (dbData != null) {
@@ -198,17 +197,17 @@ class BackupActivity : BaseActivity(), ServiceConnection {
             }
             if (contactsCheckbox.isChecked) {
                 // Handle contacts import
-                service.importContacts(newDatabase)
+                importContacts(newDatabase)
             }
             if (callsCheckbox.isChecked) {
                 // Handle calls import
-                service.importCalls(newDatabase)
+                importCalls(newDatabase)
             }
             if (settingsCheckbox.isChecked) {
                 // Handle peers import
-                service.importSettings(newDatabase)
+                importSettings(newDatabase)
             }
-            service.saveDatabase()
+            saveDatabase()
             Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
 
             // Restart service

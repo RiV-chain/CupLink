@@ -26,7 +26,8 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 
 class ContactListFragment() : Fragment() {
-    private lateinit var service: MainService
+
+    private lateinit var activity: BaseActivity
     private lateinit var contactListView: ListView
     private lateinit var fabScan: FloatingActionButton
     private lateinit var fabGen: FloatingActionButton
@@ -34,8 +35,48 @@ class ContactListFragment() : Fragment() {
     private lateinit var fab: FloatingActionButton
     private var fabExpanded = false
 
-    fun setService(service: MainService){
-        this.service = service
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        Log.d(this, "onCreateView")
+        val view: View = inflater.inflate(R.layout.fragment_contact_list, container, false)
+        activity = requireActivity() as BaseActivity
+
+        fab = view.findViewById(R.id.fab)
+        fabScan = view.findViewById(R.id.fabScan)
+        fabGen = view.findViewById(R.id.fabGenerate)
+        fabPingAll = view.findViewById(R.id.fabPing)
+        contactListView = view.findViewById(R.id.contactList)
+        contactListView.onItemClickListener = onContactClickListener
+        contactListView.onItemLongClickListener = onContactLongClickListener
+
+        val activity = requireActivity()
+        fabScan.setOnClickListener {
+            val intent = Intent(activity, QRScanActivity::class.java)
+            startActivity(intent)
+        }
+
+        fabGen.setOnClickListener {
+            val intent = Intent(activity, QRShowActivity::class.java)
+            intent.putExtra("EXTRA_CONTACT_PUBLICKEY", Load.database.settings.publicKey)
+            startActivity(intent)
+        }
+
+        fabPingAll.setOnClickListener {
+            pingAllContacts()
+            collapseFab()
+        }
+
+        fab.setOnClickListener { fab: View -> runFabAnimation(fab) }
+
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(refreshContactListReceiver, IntentFilter("refresh_contact_list"))
+
+        refreshContactListBroadcast()
+
+        return view
     }
 
     private val onContactClickListener =
@@ -102,49 +143,6 @@ class ContactListFragment() : Fragment() {
             true
         }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        Log.d(this, "onCreateView")
-        val view: View = inflater.inflate(R.layout.fragment_contact_list, container, false)
-
-        fab = view.findViewById(R.id.fab)
-        fabScan = view.findViewById(R.id.fabScan)
-        fabGen = view.findViewById(R.id.fabGenerate)
-        fabPingAll = view.findViewById(R.id.fabPing)
-        contactListView = view.findViewById(R.id.contactList)
-        contactListView.onItemClickListener = onContactClickListener
-        contactListView.onItemLongClickListener = onContactLongClickListener
-
-        val activity = requireActivity()
-        fabScan.setOnClickListener {
-            val intent = Intent(activity, QRScanActivity::class.java)
-            startActivity(intent)
-        }
-
-        fabGen.setOnClickListener {
-            val intent = Intent(activity, QRShowActivity::class.java)
-            intent.putExtra("EXTRA_CONTACT_PUBLICKEY", service.getSettings().publicKey)
-            startActivity(intent)
-        }
-
-        fabPingAll.setOnClickListener {
-            pingAllContacts()
-            collapseFab()
-        }
-
-        fab.setOnClickListener { fab: View -> runFabAnimation(fab) }
-
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(refreshContactListReceiver, IntentFilter("refresh_contact_list"))
-
-        refreshContactListBroadcast()
-
-        return view
-    }
-
     private val refreshContactListReceiver = object : BroadcastReceiver() {
         //private var lastTimeRefreshed = 0L
 
@@ -168,16 +166,16 @@ class ContactListFragment() : Fragment() {
         Log.d(this, "onResume()")
         super.onResume()
 
-        if (service.getSettings().automaticStatusUpdates) {
+        if (Load.database.settings.automaticStatusUpdates) {
             // ping all contacts
-            service.pingContacts(service.getContacts().contactList)
+            activity.pingContacts(Load.database.contacts.contactList)
         }
 
-        MainService.refreshContacts(requireActivity())
+        activity.refreshContacts()
     }
 
     private fun showPingAllButton(): Boolean {
-        return !service.getSettings().automaticStatusUpdates
+        return !Load.database.settings.automaticStatusUpdates
     }
 
     private fun runFabAnimation(fab: View) {
@@ -258,25 +256,24 @@ class ContactListFragment() : Fragment() {
     }
 
     private fun pingContact(contact: Contact) {
-        service.pingContacts(listOf(contact))
+        activity.pingContacts(listOf(contact))
         val message = String.format(getString(R.string.ping_contact), contact.name)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun pingAllContacts() {
-        service.pingContacts(service.getContacts().contactList)
+        activity.pingContacts(Load.database.contacts.contactList)
         val message = String.format(getString(R.string.ping_all_contacts))
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun showDeleteDialog(publicKey: ByteArray, name: String) {
-        val activity = requireActivity()
         val builder = AlertDialog.Builder(activity, R.style.FullPPTCDialog)
         builder.setTitle(R.string.dialog_title_delete_contact)
         builder.setMessage(name)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
         builder.setPositiveButton(R.string.button_yes) { dialog: DialogInterface, _: Int ->
-                service.deleteContact(publicKey)
+            activity.deleteContact(publicKey)
                 dialog.cancel()
             }
 
@@ -291,7 +288,7 @@ class ContactListFragment() : Fragment() {
     private fun refreshContactList() {
         Log.d(this, "refreshContactList")
         val activity = requireActivity()
-        val contacts = service.getContacts().contactList
+        val contacts = Load.database.contacts.contactList
 
         activity.runOnUiThread {
             contactListView.adapter = ContactListAdapter(activity, R.layout.item_contact, contacts)

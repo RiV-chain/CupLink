@@ -25,23 +25,49 @@ import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
 
 class EventListFragment() : Fragment() {
-    private lateinit var service: MainService
+
+    private lateinit var activity: BaseActivity
     private lateinit var eventListAdapter: EventListAdapter
     private lateinit var eventListView: ListView
     private lateinit var fabClear: FloatingActionButton
 
-    fun setService(service: MainService){
-        this.service = service
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_event_list, container, false)
+        eventListView = view.findViewById(R.id.eventList)
+        fabClear = view.findViewById(R.id.fabClear)
+
+        activity = requireActivity() as BaseActivity
+
+        fabClear.setOnClickListener {
+            Log.d(this, "fabClear")
+            showClearEventsDialog()
+        }
+
+        eventListAdapter = EventListAdapter(activity, R.layout.item_event, emptyList(), emptyList())
+        eventListView.adapter = eventListAdapter
+        eventListView.onItemClickListener = onEventClickListener
+        eventListView.onItemLongClickListener = onEventLongClickListener
+
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(refreshEventListReceiver, IntentFilter("refresh_event_list"))
+
+        refreshEventListBroadcast()
+
+        return view
     }
 
     private val onEventClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
         Log.d(this, "onItemClick")
-        val activity = requireActivity()
+
         val eventGroup = eventListAdapter.getItem(i)
         // get last event that has an address
         val latestEvent = eventGroup.lastOrNull { it.address != null } ?: eventGroup.last()
 
-        val contact = service.getContacts().getContactByPublicKey(latestEvent.publicKey)
+        val contact = Load.database.contacts.getContactByPublicKey(latestEvent.publicKey)
             ?: latestEvent.createUnknownContact("")
 
         if (contact.addresses.isEmpty()) {
@@ -59,7 +85,6 @@ class EventListFragment() : Fragment() {
 
     private val onEventLongClickListener = AdapterView.OnItemLongClickListener { _, _, i, _ ->
         Log.d(this, "onItemLongClick")
-        val activity = requireActivity()
 
         val eventGroup = eventListAdapter.getItem(i)
         val latestEvent = eventGroup.last()
@@ -68,7 +93,7 @@ class EventListFragment() : Fragment() {
         val delete = res.getString(R.string.contact_menu_delete)
         val block = res.getString(R.string.contact_menu_block)
         val unblock = res.getString(R.string.contact_menu_unblock)
-        val contact = service.getContacts().getContactByPublicKey(latestEvent.publicKey)
+        val contact = Load.database.contacts.getContactByPublicKey(latestEvent.publicKey)
 
         // Create a list of options
         val options = mutableListOf<String>()
@@ -126,35 +151,6 @@ class EventListFragment() : Fragment() {
         true
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val view = inflater.inflate(R.layout.fragment_event_list, container, false)
-        eventListView = view.findViewById(R.id.eventList)
-        fabClear = view.findViewById(R.id.fabClear)
-
-        val activity = requireActivity()
-
-        fabClear.setOnClickListener {
-            Log.d(this, "fabClear")
-            showClearEventsDialog()
-        }
-
-        eventListAdapter = EventListAdapter(activity, R.layout.item_event, emptyList(), emptyList())
-        eventListView.adapter = eventListAdapter
-        eventListView.onItemClickListener = onEventClickListener
-        eventListView.onItemLongClickListener = onEventLongClickListener
-
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(refreshEventListReceiver, IntentFilter("refresh_event_list"))
-
-        refreshEventListBroadcast()
-
-        return view
-    }
-
     private val refreshEventListReceiver = object : BroadcastReceiver() {
         //private var lastTimeRefreshed = 0L
 
@@ -178,8 +174,8 @@ class EventListFragment() : Fragment() {
         Log.d(this, "refreshEventList")
 
         val activity = requireActivity() as MainActivity
-        val events = service.getEvents().eventList
-        val contacts = service.getContacts().contactList
+        val events = Load.database.events.eventList
+        val contacts = Load.database.contacts.contactList
 
         activity.runOnUiThread {
             activity.updateEventTabTitle()
@@ -197,10 +193,10 @@ class EventListFragment() : Fragment() {
     // only available for known contacts
     private fun setBlocked(event: Event, blocked: Boolean) {
 
-        val contact = service.getContacts().getContactByPublicKey(event.publicKey)
+        val contact = Load.database.contacts.getContactByPublicKey(event.publicKey)
         if (contact != null) {
             contact.blocked = blocked
-            service.saveDatabase()
+            activity.saveDatabase()
             LocalBroadcastManager.getInstance(requireContext())
                 .sendBroadcast(Intent("refresh_contact_list"))
             LocalBroadcastManager.getInstance(requireContext())
@@ -214,12 +210,12 @@ class EventListFragment() : Fragment() {
         Log.d(this, "onResume()")
         super.onResume()
         //service.updateNotification()
-        MainService.refreshEvents(requireActivity())
+        activity.refreshEvents()
     }
 
     private fun deleteEventGroup(eventGroup: List<Event>) {
         Log.d(this, "removeEventGroup()")
-        service.deleteEvents(eventGroup.map { it.date })
+        activity.deleteEvents(eventGroup.map { it.date })
     }
 
     private fun showClearEventsDialog() {
@@ -231,8 +227,8 @@ class EventListFragment() : Fragment() {
         builder.setMessage(R.string.remove_all_events)
         builder.setCancelable(false) // prevent key shortcut to cancel dialog
         builder.setPositiveButton(R.string.button_yes) { dialog: DialogInterface, _: Int ->
-            service.clearEvents()
-            service.saveDatabase()
+            activity.clearEvents()
+            activity.saveDatabase()
 
             refreshEventList()
             Toast.makeText(activity, R.string.done, Toast.LENGTH_SHORT).show()
@@ -267,13 +263,13 @@ class EventListFragment() : Fragment() {
                 return@setOnClickListener
             }
 
-            if (service.getContacts().getContactByName(name) != null) {
+            if (Load.database.contacts.getContactByName(name) != null) {
                 Toast.makeText(activity, R.string.contact_name_exists, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
             val contact = latestEvent.createUnknownContact(name)
-            service.addContact(contact)
+            activity.addContact(contact)
 
             Toast.makeText(activity, R.string.done, Toast.LENGTH_SHORT).show()
 
