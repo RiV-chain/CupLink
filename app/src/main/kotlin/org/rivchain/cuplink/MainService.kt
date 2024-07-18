@@ -779,12 +779,8 @@ class MainService : VpnService() {
         const val serverPort = 10001
         private const val NOTIFICATION_ID = 42
 
-        fun init(ctx: Context){
-            val startIntent = Intent(ctx, MainService::class.java)
-            ContextCompat.startForegroundService(ctx, startIntent)
-        }
-
         fun startPacketsStream(ctx: Context) {
+            ContextCompat.startForegroundService(ctx, Intent(ctx, MainService::class.java))
             val startIntent = Intent(ctx, MainService::class.java)
             startIntent.action = ACTION_START
             ContextCompat.startForegroundService(ctx, startIntent)

@@ -77,7 +77,6 @@ open class BaseActivity : AppCompatActivity(), ServiceConnection {
         }
         Log.d(this, "onCreate: database loaded")
         bindService(Intent(this, MainService::class.java), this, 0)
-        MainService.init(this)
     }
 
     override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
