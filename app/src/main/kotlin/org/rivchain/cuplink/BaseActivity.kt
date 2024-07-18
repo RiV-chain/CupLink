@@ -75,6 +75,7 @@ open class BaseActivity : AppCompatActivity(), ServiceConnection {
             Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
             finish()
         }
+        Log.d(this, "onCreate: database loaded")
         bindService(Intent(this, MainService::class.java), this, 0)
         MainService.init(this)
     }
