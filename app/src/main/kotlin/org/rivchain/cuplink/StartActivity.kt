@@ -126,9 +126,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                     if (vpnIntent != null) {
                         startVpnActivity.launch(vpnIntent)
                     } else {
-                        bindService(Intent(this, MainService::class.java), this, 0)
-                        // start MainService and call back via onServiceConnected()
-                        MainService.init(this)
+                        MainService.startPacketsStream(this)
                     }
                 }
             }
@@ -226,7 +224,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         super.onServiceConnected(componentName, iBinder)
         Log.d(this, "onServiceConnected")
         if (startState == 2) {
-            MainService.startPacketsStream(this)
             continueInit()
         }
     }

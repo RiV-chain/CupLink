@@ -33,39 +33,34 @@ open class BaseActivity : AppCompatActivity(), ServiceConnection {
     var databasePath = ""
 
     protected fun loadDatabase(databasePath: String) {
-        val database: Database
-        if (File(databasePath).exists()) {
-            // Open an existing database
-            val db = readInternalFile(databasePath)
-            database = Database.fromData(db, databasePassword)
-            firstStart = false
-        } else {
-            // Create a new database
-            database = Database()
-            database.mesh.invoke()
-            // Generate random port from allowed range
-            val port = org.rivchain.cuplink.rivmesh.util.Utils.generateRandomPort()
-            val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
-            database.mesh.setListen(setOf(localPeer))
-            database.mesh.multicastRegex = ".*"
-            database.mesh.multicastListen = true
-            database.mesh.multicastBeacon = true
-            database.mesh.multicastPassword = ""
-            firstStart = true
+        if(!this::database.isInitialized) {
+            val database: Database
+            if (File(databasePath).exists()) {
+                // Open an existing database
+                val db = readInternalFile(databasePath)
+                database = Database.fromData(db, databasePassword)
+                firstStart = false
+            } else {
+                // Create a new database
+                database = Database()
+                database.mesh.invoke()
+                // Generate random port from allowed range
+                val port = org.rivchain.cuplink.rivmesh.util.Utils.generateRandomPort()
+                val localPeer = PeerInfo("tcp", InetAddress.getByName("0.0.0.0"), port, null, false)
+                database.mesh.setListen(setOf(localPeer))
+                database.mesh.multicastRegex = ".*"
+                database.mesh.multicastListen = true
+                database.mesh.multicastBeacon = true
+                database.mesh.multicastPassword = ""
+                firstStart = true
+            }
+            this.database = database
         }
-        this.database = database
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-        bindService(Intent(this, MainService::class.java), this, 0)
-        MainService.init(this)
-    }
-
-    override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-        Log.d(this, "onServiceConnected")
-        service = (iBinder as MainService.MainBinder).getService()
         Log.d(this, "onCreate: load database")
         databasePath = this.filesDir.toString() + "/database.bin"
         // open without password
@@ -80,11 +75,17 @@ open class BaseActivity : AppCompatActivity(), ServiceConnection {
             Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
             finish()
         }
+        bindService(Intent(this, MainService::class.java), this, 0)
+        MainService.init(this)
+    }
+
+    override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
+        Log.d(this, "onServiceConnected")
+        service = (iBinder as MainService.MainBinder).getService()
         // start MainService and call back via onServiceConnected()
         service!!.database = database
         service!!.databasePath = databasePath
         service!!.databasePassword = databasePassword
-        MainService.startPacketsStream(this)
     }
 
     override fun onServiceDisconnected(componentName: ComponentName) {
@@ -114,8 +115,9 @@ open class BaseActivity : AppCompatActivity(), ServiceConnection {
 
         Thread {
             Thread.sleep(1000)
-            bindService(Intent(this, MainService::class.java), this, 0)
-            MainService.init(this)
+            val intentStart = Intent(this, MainService::class.java)
+            intentStart.action = MainService.ACTION_START
+            startService(intentStart)
             Thread.sleep(2000)
             runOnUiThread {
                 serviceRestartDialog.dismiss()

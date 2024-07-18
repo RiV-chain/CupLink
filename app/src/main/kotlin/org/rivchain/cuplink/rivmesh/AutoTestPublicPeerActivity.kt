@@ -12,6 +12,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
 import org.rivchain.cuplink.BuildConfig
 import org.rivchain.cuplink.R
+import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils.readResourceFile
 
 open class AutoTestPublicPeerActivity: TestPortActivity() {
@@ -35,6 +36,7 @@ open class AutoTestPublicPeerActivity: TestPortActivity() {
     }
 
     override fun portOpen(port: Int) {
+        Log.d(this, "Port open")
         // Inflate the layout for the dialog
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_autotest_public_peer_activity, null)
 
@@ -71,6 +73,7 @@ open class AutoTestPublicPeerActivity: TestPortActivity() {
     }
 
     override fun portClosed(port: Int) {
+        Log.d(this, "Port closed")
         finish()
     }
 
