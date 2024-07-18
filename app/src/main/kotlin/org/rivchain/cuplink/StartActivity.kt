@@ -234,7 +234,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
 
     private var startVpnActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            continueInit()
+            MainService.startPacketsStream(this)
         }
     }
 
