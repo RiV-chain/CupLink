@@ -432,7 +432,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             try {
                 loadDatabase(databasePath)
                 //MainService first run wasn't success due to db encryption
-                MainService.init(this)
+                MainService.startPacketsStream(this)
                 // close dialog
                 dialog.dismiss()
                 // continue
@@ -489,9 +489,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 if (vpnIntent != null) {
                     startVpnActivity.launch(vpnIntent)
                 } else {
-                    bindService(Intent(this, MainService::class.java), this, 0)
-                    // start MainService and call back via onServiceConnected()
-                    MainService.init(this)
+                    MainService.startPacketsStream(this)
                 }
             }
         ab.show()
