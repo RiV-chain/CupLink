@@ -220,14 +220,6 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
         }
     }
 
-    override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-        super.onServiceConnected(componentName, iBinder)
-        Log.d(this, "onServiceConnected")
-        if (startState == 2) {
-            continueInit()
-        }
-    }
-
     override fun onServiceRestart() {
         continueInit()
     }
