@@ -114,7 +114,7 @@ class SettingsSession(private var mainService: MainService?) : Session(), Defaul
             } else {
                 PendingIntent.getBroadcast(
                     mainService!!,
-                    0,
+                    System.currentTimeMillis().toInt(),
                     Intent().apply {
                         action = CallService.STOP_CALL_ACTION
                     },

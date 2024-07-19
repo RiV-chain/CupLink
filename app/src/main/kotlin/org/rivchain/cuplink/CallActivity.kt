@@ -130,6 +130,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
     private var pressedTime: Long = 0
 
+    private lateinit var contact: Contact
+
     private val statsCollector = object : RTCStatsCollectorCallback {
         var statsReportUtil = StatsReportUtil()
 
@@ -241,7 +243,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         PendingIntent.getBroadcast(
             this,
-            0,
+            System.currentTimeMillis().toInt(),
             Intent().apply {
                 action = CallService.START_CALL_ACTION
                 putExtra("EXTRA_CONTACT", contact)
@@ -1264,8 +1266,6 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     companion object {
-
-        private lateinit var contact: Contact
 
         @Volatile
         var isCallInProgress: Boolean = false

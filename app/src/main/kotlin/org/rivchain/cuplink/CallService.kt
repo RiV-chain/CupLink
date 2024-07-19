@@ -263,7 +263,7 @@ class CallService : Service() {
                 0
         val endPendingIntent = PendingIntent.getBroadcast(
             service,
-            0,
+            System.currentTimeMillis().toInt(),
             Intent().apply {
                 action = CallService.STOP_CALL_ACTION
             },
@@ -272,7 +272,7 @@ class CallService : Service() {
 
         val answerPendingIntent = PendingIntent.getActivity(
             this@CallService,
-            0,
+            System.currentTimeMillis().toInt(),
             Intent(
                 this@CallService,
                 CallActivity::class.java
@@ -290,7 +290,7 @@ class CallService : Service() {
         .setFullScreenIntent(
             PendingIntent.getActivity(
                 service,
-                0,
+                System.currentTimeMillis().toInt(),
                 intent,
                 PendingIntent.FLAG_IMMUTABLE
             ), true

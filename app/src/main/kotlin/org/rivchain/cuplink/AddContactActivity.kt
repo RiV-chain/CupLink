@@ -98,7 +98,7 @@ open class AddContactActivity: BaseActivity(), ServiceConnection {
             showNameConflictDialog(contact, existingContactByName)
         } else {
             // no conflict
-            addContact(contact)
+            super.addContact(contact)
             finish()
         }
     }
