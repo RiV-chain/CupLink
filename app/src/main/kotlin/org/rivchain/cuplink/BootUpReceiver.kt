@@ -39,7 +39,7 @@ class BootUpReceiver : BroadcastReceiver() {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.notify(444, notification)
         } else {
-            //context.startService(serviceIntent)
+            context.startService(serviceIntent)
         }
     }
 
