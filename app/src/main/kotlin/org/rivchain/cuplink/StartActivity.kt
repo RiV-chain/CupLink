@@ -98,7 +98,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
             Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
             finish()
         }
-
+        Log.d(this, "init 1: load database complete")
         // set by BootUpReceiver
         isStartOnBootup = intent.getBooleanExtra(BootUpReceiver.IS_START_ON_BOOTUP, false)
         setContentView(R.layout.activity_empty)

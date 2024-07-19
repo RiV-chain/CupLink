@@ -142,6 +142,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(this, "onCreate()")
 
