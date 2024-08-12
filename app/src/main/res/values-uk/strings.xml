@@ -53,7 +53,7 @@
     <string name="contact_menu_add">Додати</string>
     <string name="contact_menu_block">Блокувати</string>
     <string name="contact_menu_delete">Видалити</string>
-    <string name="contact_menu_ping">Ping</string>
+    <string name="contact_call_reminder">Reminder</string>
     <string name="contact_menu_qrcode">QR-код</string>
     <string name="contact_menu_share">Поділитися</string>
     <string name="contact_menu_unblock">Розблокувати</string>
@@ -148,4 +148,5 @@
     <string name="port_status">Port status</string>
     <string name="search_multicast_peers">Search multicast peers</string>
     <string name="discoverable_over_multicast">Discoverable over multicast</string>
+    <string name="missing_alarm_permission">Missing Alarm permissin</string>
 </resources>

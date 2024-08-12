@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,17 +16,25 @@ import android.view.animation.AnimationSet
 import android.view.animation.TranslateAnimation
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.DatePicker
 import android.widget.ListView
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import org.json.JSONException
 import org.rivchain.cuplink.adapter.ContactListAdapter
 import org.rivchain.cuplink.model.Contact
+import org.rivchain.cuplink.model.ReminderViewModel
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.RlpUtils
+import org.rivchain.cuplink.util.ServiceUtil
+import java.util.Calendar
 
 class ContactListFragment() : Fragment() {
 
@@ -35,6 +45,7 @@ class ContactListFragment() : Fragment() {
     private lateinit var fabPingAll: FloatingActionButton
     private lateinit var fab: FloatingActionButton
     private var fabExpanded = false
+    private lateinit var reminderViewModel: ReminderViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,6 +88,10 @@ class ContactListFragment() : Fragment() {
 
         refreshContactListBroadcast()
 
+        // Initialize the ReminderViewModel
+        reminderViewModel = ViewModelProvider(requireActivity())[ReminderViewModel::class.java]
+
+
         return view
     }
 
@@ -102,7 +117,7 @@ class ContactListFragment() : Fragment() {
             val options = listOf(
                 getString(R.string.contact_menu_details),
                 getString(R.string.contact_menu_delete),
-                getString(R.string.contact_menu_ping),
+                getString(R.string.contact_call_reminder),
                 getString(R.string.contact_menu_share),
                 getString(R.string.contact_menu_qrcode)
             )
@@ -129,7 +144,7 @@ class ContactListFragment() : Fragment() {
                         startActivity(intent)
                     }
                     getString(R.string.contact_menu_delete) -> showDeleteDialog(publicKey, contact.name)
-                    getString(R.string.contact_menu_ping) -> pingContact(contact)
+                    getString(R.string.contact_call_reminder) -> showAddReminderDialog(contact)
                     getString(R.string.contact_menu_share) -> {
                         Thread {
                             shareContact(contact)
@@ -258,11 +273,46 @@ class ContactListFragment() : Fragment() {
         }
     }
 
-    private fun pingContact(contact: Contact) {
-        activity.pingContacts(listOf(contact))
-        val message = String.format(getString(R.string.ping_contact), contact.name)
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    private fun showAddReminderDialog(contact: Contact) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = ServiceUtil.getAlarmManager(this.requireContext())
+            if (!alarmManager.canScheduleExactAlarms()) {
+                // Ask the user to allow exact alarms
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                startActivity(intent)
+            }
+        }
+        val dialogView = LayoutInflater.from(this.requireContext()).inflate(R.layout.dialog_add_reminder, null)
+        val topicInput = dialogView.findViewById<TextInputEditText>(R.id.reminderTopic)
+        val dateTimePicker = dialogView.findViewById<DatePicker>(R.id.datePicker)
+        val timePicker = dialogView.findViewById<TimePicker>(R.id.timePicker)
+        val addButton = dialogView.findViewById<Button>(R.id.add)
+        addButton.setOnClickListener {
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.YEAR, dateTimePicker.year)
+                set(Calendar.MONTH, dateTimePicker.month)
+                set(Calendar.DAY_OF_MONTH, dateTimePicker.dayOfMonth)
+
+                // Check the API level and use the appropriate method
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    set(Calendar.HOUR_OF_DAY, timePicker.hour)
+                    set(Calendar.MINUTE, timePicker.minute)
+                } else {
+                    set(Calendar.HOUR_OF_DAY, timePicker.currentHour)
+                    set(Calendar.MINUTE, timePicker.currentMinute)
+                }
+            }
+            val topic = topicInput.text.toString()
+            val scheduledTime = calendar.timeInMillis
+
+            reminderViewModel.addReminder(topic, scheduledTime, contact)
+        }
+        AlertDialog.Builder(this.requireContext(), R.style.PPTCDialog)
+            .setView(dialogView)
+            .create()
+            .show()
     }
+
 
     private fun pingAllContacts() {
         activity.pingContacts(DatabaseCache.database.contacts.contactList)

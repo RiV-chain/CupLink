@@ -46,7 +46,7 @@
     <string name="contact_menu_add">Añadir</string>
     <string name="contact_menu_block">Bloquear</string>
     <string name="contact_menu_delete">Eliminar</string>
-    <string name="contact_menu_ping">Ping</string>
+    <string name="contact_call_reminder">Reminder</string>
     <string name="contact_menu_share">Compartir</string>
     <string name="contact_menu_unblock">Desbloquear</string>
     <string name="contact_name_conflict">Existe un contacto con el mismo nombre.</string>
@@ -114,4 +114,5 @@
     <string name="port_status">Port status</string>
     <string name="search_multicast_peers">Search multicast peers</string>
     <string name="discoverable_over_multicast">Discoverable over multicast</string>
+    <string name="missing_alarm_permission">Missing Alarm permissin</string>
 </resources>

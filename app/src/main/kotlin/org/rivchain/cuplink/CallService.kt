@@ -1,44 +1,24 @@
 package org.rivchain.cuplink
 
-import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.Ringtone
 import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.text.SpannableString
-import android.text.TextUtils
-import android.text.style.ForegroundColorSpan
-import android.view.View
-import android.widget.RemoteViews
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.car.app.notification.CarAppExtender
-import androidx.car.app.notification.CarNotificationManager
-import androidx.car.app.notification.CarPendingIntent
-import androidx.core.app.NotificationCompat
-import androidx.core.app.Person
-import androidx.core.graphics.drawable.toBitmap
 import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.Log
-import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.ServiceUtil
 import java.util.Date
 
@@ -157,229 +137,12 @@ class CallService : Service() {
         }
 
         // check screen lock status and run showIncomingNotification when screen is unlocked. check an existing notification.
-        showIncomingNotification(intent, contact, this@CallService)
+        NotificationUtils.showIncomingCallNotification(intent, contact, this@CallService)
         Thread {
             RTCPeerConnection.incomingRTCCall?.continueOnIncomingSocket()
         }.start()
         startRinging()
         return super.onStartCommand(intent, flags, startId)
-    }
-
-    private fun showIncomingNotification(
-        intent: Intent,
-        contact: Contact,
-        service: CallService,
-    ) {
-
-        val builder = NotificationCompat.Builder(service)
-            .setContentTitle(
-                service.getString(R.string.is_calling)
-            )
-            .setSmallIcon(R.drawable.ic_call_accept)
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    service,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val nprefs: SharedPreferences = service.application.getSharedPreferences("Notifications", Activity.MODE_PRIVATE)
-            var chanIndex = nprefs.getInt("calls_notification_channel", 0)
-            val nm = service.getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
-            var oldChannel = nm!!.getNotificationChannel("incoming_calls2$chanIndex")
-            if (oldChannel != null) {
-                nm.deleteNotificationChannel(oldChannel.id)
-            }
-            oldChannel = nm.getNotificationChannel("incoming_calls3$chanIndex")
-            if (oldChannel != null) {
-                nm.deleteNotificationChannel(oldChannel.id)
-            }
-            val existingChannel = nm.getNotificationChannel("incoming_calls4$chanIndex")
-            var needCreate = true
-            if (existingChannel != null) {
-                if (existingChannel.importance < NotificationManager.IMPORTANCE_HIGH || existingChannel.sound != null) {
-                    Log.d(this, "User messed up the notification channel; deleting it and creating a proper one")
-                    nm.deleteNotificationChannel("incoming_calls4$chanIndex")
-                    chanIndex++
-                    nprefs.edit().putInt("calls_notification_channel", chanIndex).apply()
-                } else {
-                    needCreate = false
-                }
-            }
-            if (needCreate) {
-                val attrs = AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setLegacyStreamType(AudioManager.STREAM_RING)
-                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                    .build()
-                val chan = NotificationChannel(
-                    "incoming_calls4$chanIndex",
-                    service.getString(
-                        R.string.call_ringing
-                    ),
-                    NotificationManager.IMPORTANCE_HIGH
-                )
-                try {
-                    chan.setSound(null, attrs)
-                } catch (e: java.lang.Exception) {
-                    Log.e(this, e.toString())
-                }
-                chan.description = service.getString(
-                    R.string.call_ringing
-                )
-                chan.enableVibration(false)
-                chan.enableLights(false)
-                chan.setBypassDnd(true)
-                try {
-                    nm.createNotificationChannel(chan)
-                } catch (e: java.lang.Exception) {
-                    Log.e(this, e.toString())
-                    this.stopSelf()
-                    return
-                }
-            }
-            builder.setChannelId("incoming_calls4$chanIndex")
-        } else {
-            builder.setSound(null)
-        }
-        var endTitle: CharSequence =
-            service.getString(R.string.call_denied)
-        var answerTitle: CharSequence =
-            service.getString(R.string.call_connected)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            endTitle = SpannableString(endTitle)
-            endTitle.setSpan(ForegroundColorSpan(-0xbbcca), 0, endTitle.length, 0)
-            answerTitle = SpannableString(answerTitle)
-            answerTitle.setSpan(ForegroundColorSpan(-0xff5600), 0, answerTitle.length, 0)
-        }
-
-        val flag =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                PendingIntent.FLAG_IMMUTABLE
-            else
-                0
-        val endPendingIntent = PendingIntent.getBroadcast(
-            service,
-            System.currentTimeMillis().toInt(),
-            Intent().apply {
-                action = CallService.STOP_CALL_ACTION
-            },
-            flag
-        )
-
-        val answerPendingIntent = PendingIntent.getActivity(
-            this@CallService,
-            System.currentTimeMillis().toInt(),
-            Intent(
-                this@CallService,
-                CallActivity::class.java
-            ).setAction("ANSWER_INCOMING_CALL").putExtra("EXTRA_CONTACT", contact),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        builder.setPriority(NotificationCompat.PRIORITY_MAX)
-        //.setWhen(0)
-        .setOngoing(true)
-        //.setShowWhen(false)
-        .setColor(-0xd35a20)
-        .setVibrate(LongArray(0))
-        .setCategory(Notification.CATEGORY_CALL)
-        .setFullScreenIntent(
-            PendingIntent.getActivity(
-                service,
-                System.currentTimeMillis().toInt(),
-                intent,
-                PendingIntent.FLAG_IMMUTABLE
-            ), true
-        )
-        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-        val incomingNotification: Notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
-            var personName: String = contact.name
-            if (TextUtils.isEmpty(personName)) {
-                //java.lang.IllegalArgumentException: person must have a non-empty a name
-                personName = "Unknown contact"
-            }
-            val person: Person.Builder = Person.Builder()
-                .setImportant(true)
-                .setName(personName)
-            //.setIcon(Icon.createWithAdaptiveBitmap(avatar)).build()
-            val notificationStyle =
-                NotificationCompat.CallStyle.forIncomingCall(person.build(), endPendingIntent, answerPendingIntent)
-
-            builder.setStyle(notificationStyle)
-            incomingNotification = builder.build()
-        } else {
-            builder.addAction(R.drawable.ic_close, endTitle, endPendingIntent)
-            builder.addAction(R.drawable.ic_audio_device_phone, answerTitle, answerPendingIntent)
-            builder.setContentText(contact.name)
-
-            val customView = RemoteViews(
-                service.packageName,
-                R.layout.notification_call_rtl
-            )
-            customView.setTextViewText(R.id.name, contact.name)
-            customView.setViewVisibility(R.id.subtitle, View.GONE)
-            customView.setTextViewText(
-                R.id.title,
-                contact.name,
-            )
-
-            val avatar: Bitmap? = AppCompatResources.getDrawable(service, R.drawable.ic_contacts)?.toBitmap()
-            customView.setTextViewText(
-                R.id.answer_text,
-                service.getString(R.string.call_connected)
-            )
-            customView.setTextViewText(
-                R.id.decline_text,
-                service.getString(R.string.button_abort)
-            )
-            //customView.setImageViewBitmap(R.id.photo, avatar)
-            customView.setOnClickPendingIntent(R.id.answer_btn, answerPendingIntent)
-            customView.setOnClickPendingIntent(R.id.decline_btn, endPendingIntent)
-            //builder.setLargeIcon(avatar)
-            incomingNotification = builder.build()
-            incomingNotification.bigContentView = customView
-            incomingNotification.headsUpContentView = incomingNotification.bigContentView
-        }
-        incomingNotification.flags = incomingNotification.flags or (Notification.FLAG_NO_CLEAR or Notification.FLAG_ONGOING_EVENT)
-        if(contact.name.isEmpty()){
-            contact.name = "Unknown caller"
-            contact.addresses = arrayListOf(contact.lastWorkingAddress!!.address.toString())
-        }
-        Thread {
-            val answerCarPendingIntent = CarPendingIntent.getCarApp(
-                applicationContext,
-                System.currentTimeMillis().toInt(),
-                Intent(Intent.ACTION_ANSWER)
-                    .setComponent(ComponentName(this, CarService::class.java))
-                    .setData(Uri.parse(RlpUtils.generateLink(contact))),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-
-            builder.extend(
-                CarAppExtender.Builder()
-                    .setLargeIcon(
-                        AppCompatResources.getDrawable(service, R.drawable.cup_link)!!.toBitmap()
-                    )
-                    .setImportance(NotificationManager.IMPORTANCE_HIGH)
-                    .setSmallIcon(R.drawable.dialog_rounded_corner)
-                    .addAction(
-                        R.drawable.ic_audio_device_phone,
-                        answerTitle,
-                        answerCarPendingIntent
-                    )
-                    .addAction(R.drawable.ic_close, endTitle, endPendingIntent)
-                    .build()
-            )
-
-            service.startForeground(ID_ONGOING_CALL_NOTIFICATION, incomingNotification)
-            CarNotificationManager.from(service).notify(ID_ONGOING_CALL_NOTIFICATION, builder)
-        }.start()
     }
 
     override fun onDestroy() {
@@ -444,7 +207,7 @@ class CallService : Service() {
                 Intent.ACTION_USER_PRESENT -> {
                     Log.d(this, "In Method: ACTION_USER_PRESENT")
                     (getSystemService(NOTIFICATION_SERVICE) as NotificationManager?)?.cancelAll()
-                    showIncomingNotification(intent, contact, this@CallService)
+                    NotificationUtils.showIncomingCallNotification(intent, contact, this@CallService)
                 }
             }
         }
@@ -455,7 +218,7 @@ class CallService : Service() {
         const val STOP_CALL_ACTION: String = "StopCall"
         const val DECLINE_CALL_ACTION: String = "DeclineCall"
         const val SERVICE_CONTACT_KEY: String = "ServiceContactKey"
-        private const val ID_ONGOING_CALL_NOTIFICATION = 201
+        const val ID_ONGOING_CALL_NOTIFICATION = 201
 
         var OTHER_NOTIFICATIONS_CHANNEL = 99
     }

@@ -85,10 +85,10 @@ class Settings {
             val addresses = mutableListOf<String>()
             for (i in 0 until array.length()) {
                 var address = array[i].toString()
-                if (NetworkUtils.isIPAddress(address) || NetworkUtils.isDomain(address)) {
-                    address = address.lowercase(Locale.ROOT)
+                address = if (NetworkUtils.isIPAddress(address) || NetworkUtils.isDomain(address)) {
+                    address.lowercase(Locale.ROOT)
                 } else if (NetworkUtils.isMACAddress(address)) {
-                    address = address.uppercase(Locale.ROOT)
+                    address.uppercase(Locale.ROOT)
                 } else {
                     Log.d("Settings", "invalid address $address")
                     continue

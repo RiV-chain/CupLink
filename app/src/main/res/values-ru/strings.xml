@@ -98,7 +98,7 @@
     <string name="settings_select_front_camera_by_default">Использовать переднюю камеру по умолчанию</string>
     <string name="settings_settings_mode">Режим настроек</string>
     <string name="warning_no_addresses_configured">Адрес для QR-кода не задан.</string>
-    <string name="contact_menu_ping">Пинг</string>
+    <string name="contact_call_reminder">Напоминание</string>
     <string name="state_app_not_running">Приложение не запущено</string>
     <string name="call_waiting">Ожидание…</string>
     <string name="camera_front">Вперёд</string>
@@ -176,4 +176,5 @@
     <string name="port_status">Port status</string>
     <string name="search_multicast_peers">Search multicast peers</string>
     <string name="discoverable_over_multicast">Discoverable over multicast</string>
+    <string name="missing_alarm_permission">Missing Alarm permissin</string>
 </resources>

@@ -13,12 +13,15 @@ import android.service.quicksettings.TileService
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import org.acra.config.dialog
 import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
 import org.libsodium.jni.NaCl
+import org.rivchain.cuplink.model.ReminderViewModel
 import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.MeshTileService
 import org.rivchain.cuplink.rivmesh.State
@@ -85,6 +88,22 @@ class MainApplication : Application(), AppStateReceiver.StateReceiver {
             Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
         }
         Log.d(this, "init 1: load database complete")
+        // Use ReminderViewModel to reschedule all reminders
+        rescheduleReminders()
+    }
+
+    private fun rescheduleReminders() {
+        val reminderViewModel = getViewModel()
+
+        // Reschedule all reminders
+        reminderViewModel.rescheduleAllReminders()
+    }
+
+    private fun getViewModel(): ReminderViewModel {
+        return ViewModelProvider(
+            ViewModelStore(),
+            ViewModelProvider.AndroidViewModelFactory.getInstance(this)
+        )[ReminderViewModel::class.java]
     }
 
     fun subscribe() {

@@ -7,6 +7,8 @@ import org.rivchain.cuplink.Crypto.encryptDatabase
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Contacts
 import org.rivchain.cuplink.model.Events
+import org.rivchain.cuplink.model.Reminder
+import org.rivchain.cuplink.model.Reminders
 import org.rivchain.cuplink.model.Settings
 import org.rivchain.cuplink.rivmesh.ConfigurationProxy
 import org.rivchain.cuplink.util.Log
@@ -18,6 +20,7 @@ class Database {
     var settings = Settings()
     var contacts = Contacts()
     var events = Events()
+    var reminders = Reminders()
     var mesh = ConfigurationProxy()
 
     // clear keys before the app exits
@@ -53,6 +56,7 @@ class Database {
             val db = fromJSON(obj)
             Log.d(this, "Loaded ${db.contacts.contactList.size} contacts")
             Log.d(this, "Loaded ${db.events.eventList.size} events")
+            Log.d(this, "Loaded ${db.reminders.reminders.size} reminders")
             Log.d(this, "Loaded ${db.mesh.getPeers().length()} peers")
             return db
         }
@@ -68,6 +72,7 @@ class Database {
             }
             Log.d(this, "Stored ${db.contacts.contactList.size} contacts")
             Log.d(this, "Stored ${db.events.eventList.size} events")
+            Log.d(this, "Stored ${db.reminders.reminders.size} events")
             Log.d(this, "Stored ${db.mesh.getPeers().length()} peers")
             return dbdata
         }
@@ -361,6 +366,7 @@ class Database {
             obj.put("settings", Settings.toJSON(db.settings))
             obj.put("contacts", Contacts.toJSON(db.contacts))
             obj.put("events", Events.toJSON(db.events))
+            obj.put("reminders", Reminders.toJSON(db.reminders))
             obj.put("mesh", db.mesh.getJSON())
             return obj
         }
@@ -381,6 +387,10 @@ class Database {
             // import events
             val events = obj.getJSONObject("events")
             db.events = Events.fromJSON(events)
+
+            // import reminders
+            val reminders = obj.getJSONObject("reminders")
+            db.reminders = Reminders.fromJSON(reminders)
 
             // import mesh
             db.mesh = ConfigurationProxy().fromJSON(obj.getJSONObject("mesh"))
