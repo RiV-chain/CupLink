@@ -5,18 +5,18 @@ import org.json.JSONObject
 
 class Reminders {
 
-    var reminders = mutableListOf<Reminder>()
+    var reminderList = mutableListOf<Reminder>()
 
     fun addReminder(reminder: Reminder) {
-        if (reminder !in reminders) {
-            reminders.add(reminder)
+        if (reminder !in reminderList) {
+            reminderList.add(reminder)
 
             // sort by date / oldest first
-            reminders.sortWith { lhs: Reminder, rhs: Reminder -> lhs.scheduledTime.compareTo(rhs.scheduledTime) }
+            reminderList.sortWith { lhs: Reminder, rhs: Reminder -> lhs.scheduledTime.compareTo(rhs.scheduledTime) }
 
-            while (reminders.size > 100) {
+            while (reminderList.size > 100) {
                 // remove first item
-                reminders.removeAt(0)
+                reminderList.removeAt(0)
             }
         }
     }
@@ -35,14 +35,14 @@ class Reminders {
             remindersList.sortWith { lhs: Reminder, rhs: Reminder -> lhs.scheduledTime.compareTo(rhs.scheduledTime) }
 
             val reminders = Reminders()
-            reminders.reminders.addAll(remindersList)
+            reminders.reminderList.addAll(remindersList)
             return reminders
         }
 
         fun toJSON(reminders: Reminders): JSONObject {
             val obj = JSONObject()
             val array = JSONArray()
-            for (reminder in reminders.reminders) {
+            for (reminder in reminders.reminderList) {
                 array.put(Reminder.toJSON(reminder))
             }
             obj.put("entries", array)

@@ -34,6 +34,7 @@ import org.rivchain.cuplink.model.ReminderViewModel
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.ServiceUtil
+import java.time.LocalDateTime
 import java.util.Calendar
 
 class ContactListFragment() : Fragment() {
@@ -303,7 +304,7 @@ class ContactListFragment() : Fragment() {
                 }
             }
             val topic = topicInput.text.toString()
-            val scheduledTime = calendar.timeInMillis
+            val scheduledTime =  calendar.timeInMillis
 
             reminderViewModel.addReminder(topic, scheduledTime, contact)
         }
@@ -313,6 +314,13 @@ class ContactListFragment() : Fragment() {
             .show()
     }
 
+    private fun convertToUTC(localTime: Long): Long {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = localTime
+        }
+        val timeZoneOffset = calendar.timeZone.getOffset(localTime)
+        return localTime - timeZoneOffset
+    }
 
     private fun pingAllContacts() {
         activity.pingContacts(DatabaseCache.database.contacts.contactList)

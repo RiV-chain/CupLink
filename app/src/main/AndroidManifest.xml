@@ -296,6 +296,8 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".ReminderReceiver" />
+
         <!-- samsung multiwindow -->
         <uses-library
             android:name="com.sec.android.app.multiwindow"

@@ -7,7 +7,6 @@ import org.rivchain.cuplink.Crypto.encryptDatabase
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Contacts
 import org.rivchain.cuplink.model.Events
-import org.rivchain.cuplink.model.Reminder
 import org.rivchain.cuplink.model.Reminders
 import org.rivchain.cuplink.model.Settings
 import org.rivchain.cuplink.rivmesh.ConfigurationProxy
@@ -56,7 +55,7 @@ class Database {
             val db = fromJSON(obj)
             Log.d(this, "Loaded ${db.contacts.contactList.size} contacts")
             Log.d(this, "Loaded ${db.events.eventList.size} events")
-            Log.d(this, "Loaded ${db.reminders.reminders.size} reminders")
+            Log.d(this, "Loaded ${db.reminders.reminderList.size} reminders")
             Log.d(this, "Loaded ${db.mesh.getPeers().length()} peers")
             return db
         }
@@ -72,7 +71,7 @@ class Database {
             }
             Log.d(this, "Stored ${db.contacts.contactList.size} contacts")
             Log.d(this, "Stored ${db.events.eventList.size} events")
-            Log.d(this, "Stored ${db.reminders.reminders.size} events")
+            Log.d(this, "Stored ${db.reminders.reminderList.size} reminders")
             Log.d(this, "Stored ${db.mesh.getPeers().length()} peers")
             return dbdata
         }
@@ -352,6 +351,13 @@ class Database {
                 db.put("events", Events.toJSON(e))
 
                 newFrom = "0.6.6"
+            }
+
+            if (newFrom == "0.6.10.6") {
+                val e = Reminders()
+                e.reminderList
+                db.put("reminders", Reminders.toJSON(e))
+                newFrom = "0.6.10.8"
             }
 
             alignSettings(settings)
