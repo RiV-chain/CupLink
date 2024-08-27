@@ -1104,6 +1104,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         Log.d(this, "changeSpeakerphoneMode() $oldMode => $newMode")
         rtcAudioManager.setSpeakerphoneMode(newMode)
+        rtcAudioManager.updateAudioDeviceState()
         updateSpeakerphoneIcon()
     }
 
