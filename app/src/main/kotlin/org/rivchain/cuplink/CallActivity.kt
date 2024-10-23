@@ -21,6 +21,7 @@ import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.OnTouchListener
 import android.view.View.VISIBLE
@@ -99,6 +100,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     private lateinit var callStats: TextView
     private lateinit var callAddress: TextView
     private lateinit var callName: TextView
+    private lateinit var notificationText: TextView
 
     // control buttons
     private lateinit var acceptButton: ImageButton
@@ -161,6 +163,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         callStats = findViewById(R.id.callStats)
         //callAddress = findViewById(R.id.callAddress)
         callName = findViewById(R.id.callName)
+        notificationText = findViewById(R.id.notificationText)
         pipContainer = findViewById(R.id.pip_video_view_container)
         pipRenderer = findViewById(R.id.pip_video_view)
         fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
@@ -181,7 +184,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         // Background
         backgroundView = findViewById(R.id.background_view);
-        settingsView = findViewById(R.id.settings_view);
+        settingsView = findViewById(R.id.call_status_view);
 
         // make both invisible
         showPipView(false)
@@ -203,6 +206,16 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         eglBase = EglBase.create()
         proximitySensor = RTCProximitySensor(applicationContext)
         rtcAudioManager = RTCAudioManager(applicationContext)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            rtcAudioManager.setMultipleMicrophoneUsageListener(MultipleMicrophoneUsageNotifier(notificationText))
+            val audioSessionsCounter = rtcAudioManager.getAudioSessionsCounter(this)
+            if (audioSessionsCounter > 0){
+                // notify user about MultipleMicrophoneUsage
+                notificationText.visibility = VISIBLE
+            } else {
+                notificationText.visibility = INVISIBLE
+            }
+        }
 
         pipRenderer.init(eglBase)
         pipRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED)
@@ -1079,13 +1092,23 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         // set initial speakerphone mode
         rtcAudioManager.setSpeakerphoneMode(speakerphoneMode)
         updateSpeakerphoneIcon()
-        rtcAudioManager.start()
-
+        rtcAudioManager.start(this)
         setProximitySensorEnabled(!settings.disableProximitySensor)
 
         toggleMicButton.visibility = VISIBLE
         toggleCameraButton.visibility = VISIBLE
-        toggleFrontCameraButton.visibility = View.GONE
+        toggleFrontCameraButton.visibility = GONE
+    }
+
+    class MultipleMicrophoneUsageNotifier(private val notificationText: TextView) : RTCAudioManager.MultipleMicrophoneUsageListener {
+        override fun onMicrophoneUsageChange(audioSessionsCounter: Int){
+            if (audioSessionsCounter > 0){
+                // notify user about MultipleMicrophoneUsage
+                notificationText.visibility = VISIBLE
+            } else {
+                notificationText.visibility = INVISIBLE
+            }
+        }
     }
 
     private fun setProximitySensorEnabled(enabled: Boolean) {

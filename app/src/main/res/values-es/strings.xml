@@ -118,4 +118,5 @@
     <string name="call">Call</string>
     <string name="camera_on_when_screen_locked">Camera On When Screen Locked</string>
     <string name="connect">Connect</string>
+    <string name="microphone_usage_message">Your call is being recorded by some other app(s)</string>
 </resources>

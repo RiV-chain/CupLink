@@ -8,7 +8,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.media.AudioRecordingConfiguration
 import android.os.Build
+import androidx.annotation.RequiresApi
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.ServiceUtil
 import org.rivchain.cuplink.util.Utils
@@ -34,6 +36,7 @@ class RTCAudioManager(private val context: Context) {
         fun onAudioDeviceChanged(oldDevice: AudioDevice, newDevice: AudioDevice)
     }
 
+    private lateinit var multipleMicrophoneUsageListener: MultipleMicrophoneUsageListener
     private val audioManager = ServiceUtil.getAudioManager(context)
     private var audioManagerEvents: AudioManagerEvents? = null
     private var audioManagerInitialized = false
@@ -118,7 +121,7 @@ class RTCAudioManager(private val context: Context) {
     // Callback method for changes in audio focus.
     private var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
 
-    fun start() {
+    fun start(context: Context) {
         Log.d(this, "start()")
         Utils.checkIsOnMainThread()
         if (audioManagerInitialized) {
@@ -155,6 +158,10 @@ class RTCAudioManager(private val context: Context) {
                     else -> "AUDIOFOCUS_INVALID"
                 }
                 Log.d(this, "onAudioFocusChange: $typeOfChange")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val audioSessionsCounter = getAudioSessionsCounter(context)
+                    multipleMicrophoneUsageListener.onMicrophoneUsageChange(audioSessionsCounter)
+                }
             }
         }
 
@@ -172,6 +179,15 @@ class RTCAudioManager(private val context: Context) {
         audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
 
         updateAudioDeviceState()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun getAudioSessionsCounter(context: Context): Int {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val recordingConfigs: List<AudioRecordingConfiguration> = audioManager.activeRecordingConfigurations
+
+        // Check if there are more than one unique clientAudioSessionId
+        return recordingConfigs.size
     }
 
     fun stop() {
@@ -263,5 +279,14 @@ class RTCAudioManager(private val context: Context) {
     fun startBluetooth() {
         Log.d(this, "startBluetooth()")
         bluetoothManager.start()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun setMultipleMicrophoneUsageListener(multipleMicrophoneUsageListener: MultipleMicrophoneUsageListener) {
+        this.multipleMicrophoneUsageListener = multipleMicrophoneUsageListener
+    }
+
+    interface MultipleMicrophoneUsageListener {
+        fun onMicrophoneUsageChange(audioSessionsCounter: Int)
     }
 }

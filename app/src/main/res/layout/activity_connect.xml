@@ -74,7 +74,7 @@
         android:contentDescription="@string/add_contact_link_or_json" />
 
     <!-- Scan Me Text (Top) -->
-    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+    <TextView
         android:id="@+id/scan_label_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -127,7 +127,7 @@
     </androidx.cardview.widget.CardView>
 
     <!-- Scan Me Text (Left) -->
-    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+    <TextView
         android:id="@+id/scan_label_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -147,7 +147,7 @@
         app:layout_constraintBottom_toBottomOf="@id/qrCodeContainer"/>
 
     <!-- Scan Me Text (Right) -->
-    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+    <TextView
         android:id="@+id/scan_label_right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -167,7 +167,7 @@
         app:layout_constraintBottom_toBottomOf="@id/qrCodeContainer"/>
 
     <!-- Scan Me Text (Bottom) -->
-    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+    <TextView
         android:id="@+id/scan_label_bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
