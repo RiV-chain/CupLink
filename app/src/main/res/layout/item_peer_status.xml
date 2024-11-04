@@ -1,0 +1,14 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp">
+
+    <ImageView
+        android:id="@+id/peerIcon"
+        android:padding="3dp"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
+        android:background="@drawable/circle_background"
+        android:scaleType="fitCenter" />
+
+</FrameLayout>

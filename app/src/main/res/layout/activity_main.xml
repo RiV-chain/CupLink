@@ -22,6 +22,20 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize">
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/peersRecyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_collapseMode="parallax"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
             <TextView
                 android:id="@+id/toolbar_label"
                 android:layout_width="wrap_content"
@@ -29,8 +43,23 @@
                 android:text=""
                 android:textSize="@dimen/title_text_size"
                 android:visibility="gone"
-                android:contentDescription="username" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
+            <TextView
+                android:id="@+id/connected_peers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 Peers"
+                android:fontFamily="@font/lato_bold"
+                android:layout_margin="@dimen/padding_5"
+                android:textSize="@dimen/title_text_size"
+                app:layout_constraintStart_toEndOf="@+id/peersRecyclerView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>

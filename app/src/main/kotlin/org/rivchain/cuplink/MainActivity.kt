@@ -22,13 +22,21 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.rivchain.cuplink.adapter.OverlapDecoration
+import org.rivchain.cuplink.adapter.PeersStatusListAdapter
+import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.PowerManager
+import java.net.InetAddress
 
 class MainActivity : BaseActivity() {
 
@@ -131,6 +139,7 @@ class MainActivity : BaseActivity() {
             override fun onPageSelected(position: Int) {
                 bottomNavigationView.menu.getItem(position).isChecked = true
                 currentFragmentTag = position.toString()
+                super.onPageSelected(position)
             }
         })
 
@@ -176,6 +185,16 @@ class MainActivity : BaseActivity() {
 
         NotificationUtils.refreshEvents(this)
         NotificationUtils.refreshContacts(this)
+
+        // Stories RecyclerView setup
+        val storiesRecyclerView: RecyclerView = findViewById(R.id.peersRecyclerView)
+        val peerInfoList = listOf<PeerInfo>(PeerInfo("tcp", "52.41.235.11", 4040, "us", false), PeerInfo("tcp", "52.41.235.12", 4040, "ie", false))
+        val adapter = PeersStatusListAdapter(this, peerInfoList)
+        storiesRecyclerView.adapter = adapter
+        storiesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        // Add the overlap decoration
+        val overlapWidth = 90 // Adjust this value as desired
+        storiesRecyclerView.addItemDecoration(OverlapDecoration(overlapWidth))
     }
 
     @SuppressLint("MissingSuperCall")

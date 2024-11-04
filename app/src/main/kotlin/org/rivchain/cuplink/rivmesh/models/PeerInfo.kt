@@ -22,6 +22,18 @@ class PeerInfo {
         this.isMeshPeer = isMeshPeer
     }
 
+    constructor(schema: String, address: String, port: Int, countryCode: String?, isMeshPeer: Boolean){
+        this.schema = schema
+        if(address.lastIndexOf('/')>0){
+            this.hostName = address.split("/")[0]
+        } else {
+            this.hostName = address.substring(1)
+        }
+        this.port = port
+        this.countryCode = countryCode
+        this.isMeshPeer = isMeshPeer
+    }
+
     lateinit var schema: String
     lateinit var hostName: String
     var port = 0
