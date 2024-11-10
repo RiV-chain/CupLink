@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="popup_menu_background" format="reference|color"/>
+    <declare-styleable name="DescriptiveTextView">
+        <attr name="titleText" format="string" />
+        <attr name="subtitleText" format="string" />
+        <attr name="titleWidth" format="dimension" />
+        <attr name="subtitleWidth" format="dimension" />
+        <attr name="titleFontFamily" format="reference|string" />
+        <attr name="subtitleFontFamily" format="reference|string" />
+        <attr name="titleTextSize" format="dimension" />
+        <attr name="subtitleTextSize" format="dimension" />
+    </declare-styleable>
 </resources>

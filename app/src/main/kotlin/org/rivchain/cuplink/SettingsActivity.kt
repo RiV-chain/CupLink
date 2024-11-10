@@ -26,6 +26,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import org.json.JSONArray
 import org.rivchain.cuplink.DatabaseCache.Companion.database
+import org.rivchain.cuplink.renderer.DescriptiveTextView
 import org.rivchain.cuplink.rivmesh.ConfigurePublicPeerActivity
 import org.rivchain.cuplink.rivmesh.PeerListActivity
 import org.rivchain.cuplink.rivmesh.SelectPeerActivity.Companion.PEER_LIST
@@ -74,8 +75,8 @@ class SettingsActivity : BaseActivity() {
         requestListenLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
                 findViewById<SwitchMaterial>(R.id.publicPeerLayoutSwitch).isChecked = result.resultCode == RESULT_OK
-                val publicPeerUrl = findViewById<TextView>(R.id.publicPeerUrl)
-                publicPeerUrl.text = jsonArrayToString(database.mesh.getListen())
+                val publicPeerUrl = findViewById<DescriptiveTextView>(R.id.publicPeerLayout)
+                publicPeerUrl.subtitleTextView.text = jsonArrayToString(database.mesh.getListen())
                 // refresh settings
                 DatabaseCache.save()
                 restartService()
@@ -136,8 +137,8 @@ class SettingsActivity : BaseActivity() {
         findViewById<View>(R.id.settingsName)
             .setOnClickListener { showChangeUsernameDialog() }
 
-        findViewById<TextView>(R.id.addressTv)
-            .text = if (settings.addresses.isEmpty()) getString(R.string.no_value) else settings.addresses.joinToString()
+        findViewById<DescriptiveTextView>(R.id.addressLayout)
+            .subtitleTextView.text = if (settings.addresses.isEmpty()) getString(R.string.no_value) else settings.addresses.joinToString()
         findViewById<View>(R.id.addressLayout)
             .setOnClickListener {
                 startActivity(Intent(this@SettingsActivity, AddressManagementActivity::class.java))
@@ -157,13 +158,16 @@ class SettingsActivity : BaseActivity() {
         findViewById<View>(R.id.databasePasswordLayout)
             .setOnClickListener { showDatabasePasswordDialog() }
 
-        findViewById<TextView>(R.id.publicKeyTv)
-            .text = Utils.byteArrayToHexString(settings.publicKey)
+        findViewById<DescriptiveTextView>(R.id.publicKeyLayout)
+            .subtitleTextView.text = Utils.byteArrayToHexString(settings.publicKey)
         findViewById<View>(R.id.publicKeyLayout)
             .setOnClickListener { Toast.makeText(this@SettingsActivity, R.string.setting_read_only, Toast.LENGTH_SHORT).show() }
 
-        val publicPeerUrl = findViewById<TextView>(R.id.publicPeerUrl)
-        publicPeerUrl.text = jsonArrayToString(database.mesh.getListen())
+        val publicPeerUrl = findViewById<DescriptiveTextView>(R.id.publicPeerLayout)
+        val url = jsonArrayToString(database.mesh.getListen())
+        if(url.isNotEmpty()) {
+            publicPeerUrl.subtitleTextView.text = url
+        }
 
         findViewById<SwitchMaterial>(R.id.blockUnknownSwitch).apply {
             isChecked = settings.blockUnknown
@@ -372,7 +376,8 @@ class SettingsActivity : BaseActivity() {
                     requestListenLauncher!!.launch(intent)
                 } else {
                     database.mesh.setListen(setOf())
-                    publicPeerUrl.text = ""
+                    val disabledColor = Color.parseColor("#d3d3d3")
+                    publicPeerUrl.subtitleTextView.setTextColor(disabledColor)
                     DatabaseCache.save()
                     restartService()
                 }
@@ -628,28 +633,28 @@ class SettingsActivity : BaseActivity() {
     // grey out resolution/framerate spinners that are not considered by certain
     // degradation modes. We still allow those two values to be changed though.
     private fun applyVideoDegradationMode(degradation: String) {
-        val videoDegradationModeText = findViewById<TextView>(R.id.videoDegradationModeText)
-        val cameraResolutionText = findViewById<TextView>(R.id.cameraResolutionText)
-        val cameraFramerateText = findViewById<TextView>(R.id.cameraFramerateText)
-        val enabledColor = videoDegradationModeText.currentTextColor
+        val videoDegradationModeText = findViewById<DescriptiveTextView>(R.id.videoDegradationModeText)
+        val cameraResolutionText = findViewById<DescriptiveTextView>(R.id.cameraResolutionText)
+        val cameraFramerateText = findViewById<DescriptiveTextView>(R.id.cameraFramerateText)
+        val enabledColor = videoDegradationModeText.titleTextView.currentTextColor
         val disabledColor = Color.parseColor("#d3d3d3")
 
         when (degradation) {
             "balanced" -> {
-                cameraResolutionText.setTextColor(disabledColor)
-                cameraFramerateText.setTextColor(disabledColor)
+                cameraResolutionText.titleTextView.setTextColor(disabledColor)
+                cameraFramerateText.titleTextView.setTextColor(disabledColor)
             }
             "maintain_resolution" -> {
-                cameraResolutionText.setTextColor(enabledColor)
-                cameraFramerateText.setTextColor(disabledColor)
+                cameraResolutionText.titleTextView.setTextColor(enabledColor)
+                cameraFramerateText.titleTextView.setTextColor(disabledColor)
             }
             "maintain_framerate" -> {
-                cameraResolutionText.setTextColor(disabledColor)
-                cameraFramerateText.setTextColor(enabledColor)
+                cameraResolutionText.titleTextView.setTextColor(disabledColor)
+                cameraFramerateText.titleTextView.setTextColor(enabledColor)
             }
             "disabled" -> {
-                cameraResolutionText.setTextColor(enabledColor)
-                cameraFramerateText.setTextColor(enabledColor)
+                cameraResolutionText.titleTextView.setTextColor(enabledColor)
+                cameraFramerateText.titleTextView.setTextColor(enabledColor)
             }
             else -> {
                 Log.w(this, "applyVideoDegradationMode() unhandled degradation=$degradation")
@@ -708,8 +713,13 @@ class SettingsActivity : BaseActivity() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_select_one_radio, null)
         val radioGroup = dialogView.findViewById<RadioGroup>(R.id.radioGroupNightModes)
         val titleTextView = dialogView.findViewById<TextView>(R.id.selectDialogTitle)
-        val textViewId = findViewById<TextView>(titleTextViewId)
-        titleTextView.text = textViewId.text
+        val textViewId = findViewById<View>(titleTextViewId)
+        if(textViewId is TextView){
+            titleTextView.text = textViewId.text
+        }
+        if(textViewId is DescriptiveTextView){
+            titleTextView.text = textViewId.titleTextView.text
+        }
         val autoCompleteTextView = findViewById<MaterialTextView>(inputTextViewId)
         autoCompleteTextView.text = currentValue
 
