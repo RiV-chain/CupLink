@@ -7,8 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.VpnService
-import android.widget.Toast
+
 import androidx.core.content.ContextCompat
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.util.Log
 
 /*
@@ -57,7 +58,7 @@ class BootUpReceiver : BroadcastReceiver() {
                         ComponentName(context, BootUpReceiver::class.java),
                         newState, PackageManager.DONT_KILL_APP)
             } catch (e: Exception) {
-                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
+                showToastMessage(context,  e.toString())
             }
         }
     }

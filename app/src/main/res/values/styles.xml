@@ -46,6 +46,12 @@
         <item name="android:windowMinWidthMinor">85%</item>
     </style>
 
+    <style name="ToastDialog" parent="PPTCDialog">
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowMinWidthMajor">35%</item>
+        <item name="android:windowMinWidthMinor">35%</item>
+    </style>
+
     <!-- Custom Button Style -->
     <style name="CustomAlertDialogButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">@color/white</item>

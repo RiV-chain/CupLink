@@ -17,11 +17,20 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.RemoteViews
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.car.app.notification.CarAppExtender
 import androidx.car.app.notification.CarNotificationManager
@@ -29,6 +38,7 @@ import androidx.car.app.notification.CarPendingIntent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.Lifecycle
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.rivchain.cuplink.BaseActivity.Companion.isNightmodeEnabled
 import org.rivchain.cuplink.CallService.Companion.ID_ONGOING_CALL_NOTIFICATION
@@ -37,8 +47,98 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.RlpUtils
+import org.rivchain.cuplink.util.ViewUtil
 
 internal object NotificationUtils {
+
+    private fun showToastDialog(context: AppCompatActivity, message: String?, duration: Long = 2000L) {
+        val inflater = context.layoutInflater
+
+        val toolbar = context.findViewById<View>(R.id.toolbar) // Find toolbar by ID
+        if (toolbar != null) {
+            val logo = context.findViewById<View>(R.id.logo)
+            if(logo != null){
+                logo.visibility = View.INVISIBLE
+            }
+            // Inflate the custom layout
+            val popupView = inflater.inflate(R.layout.toast_message, null)
+            val toastText = popupView.findViewById<TextView>(R.id.toast_text)
+            toastText.text = message
+
+            // Create the PopupWindow with wrap content dimensions
+            val popupWindow = PopupWindow(popupView,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                false
+            )
+
+            // Position the popup above or near the toolbar
+            popupWindow.showAtLocation(toolbar, Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, toolbar.height/2)
+
+            // Dismiss the PopupWindow after the specified duration
+            Handler(Looper.getMainLooper()).postDelayed({
+                popupWindow.dismiss()
+                if (!context.isFinishing ) {
+                    popupWindow.dismiss()
+                    if(logo != null){
+                        logo.visibility = View.VISIBLE
+                    }
+                }
+            }, duration)
+        } else {
+
+            val dialogView = inflater.inflate(R.layout.toast_message, null)
+            val toastText = dialogView.findViewById<TextView>(R.id.toast_text)
+            toastText.text = message
+
+            val dialog = AlertDialog.Builder(context, R.style.ToastDialog)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create()
+            dialog.show()
+            // Dismiss the dialog after the specified duration
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (dialog.isShowing) {
+                    if (!context.isFinishing ) {
+                        dialog.dismiss()
+                    }
+                }
+            }, duration)
+        }
+    }
+
+    private fun showToastDialog(context: AppCompatActivity, resId: Int) {
+        val message = context.resources.getText(resId).toString()
+        showToastDialog(context, message)
+    }
+
+    fun showToastMessage(context: Context, message: String?){
+        val lifecycle = ViewUtil.getActivityLifecycle(context)
+        if(lifecycle != null && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            if (context is AppCompatActivity) {
+                showToastDialog(context, message)
+            }
+        } else {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun showToastMessage(context: Context, resId: Int){
+        val lifecycle = ViewUtil.getActivityLifecycle(context)
+        if(lifecycle != null && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            if (context is AppCompatActivity) {
+                showToastDialog(context, resId)
+            }
+        } else {
+            Toast.makeText(context, resId, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun showToastMessageMainLooper(context: Context, message: String?){
+        Handler(context.mainLooper).post {
+            showToastMessage(context, message)
+        }
+    }
 
     fun refreshContacts(context: Context) {
         LocalBroadcastManager.getInstance(context.applicationContext)

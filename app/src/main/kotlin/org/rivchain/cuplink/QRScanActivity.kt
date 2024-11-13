@@ -4,7 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.ResultPoint
@@ -13,6 +13,7 @@ import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
 import org.json.JSONException
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.util.Utils
 
 class QRScanActivity : AddContactActivity(), BarcodeCallback {
@@ -45,7 +46,7 @@ class QRScanActivity : AddContactActivity(), BarcodeCallback {
         isGranted -> if (isGranted) {
             initCamera()
         } else {
-            Toast.makeText(this, R.string.missing_camera_permission, Toast.LENGTH_LONG).show()
+            showToastMessage(this, R.string.missing_camera_permission)
             // no finish() in case no camera access wanted but contact data pasted
         }
     }
@@ -56,7 +57,7 @@ class QRScanActivity : AddContactActivity(), BarcodeCallback {
             super.addContact(result.text)
         } catch (e: JSONException) {
             e.printStackTrace()
-            Toast.makeText(this, R.string.invalid_qr, Toast.LENGTH_LONG).show()
+            showToastMessage(this, R.string.invalid_qr)
         }
     }
 

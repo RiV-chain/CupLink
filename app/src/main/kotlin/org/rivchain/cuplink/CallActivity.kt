@@ -33,7 +33,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
@@ -47,6 +47,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.call.CaptureQualityController
 import org.rivchain.cuplink.call.MicrophoneUsageMonitor
 import org.rivchain.cuplink.call.RTCAudioManager
@@ -757,9 +758,10 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
     override fun showTextMessage(message: String) {
         runOnUiThread {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, message)
         }
     }
+
     private fun initOutgoingCall() {
         connection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {

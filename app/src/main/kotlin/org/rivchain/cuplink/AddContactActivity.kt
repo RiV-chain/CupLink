@@ -8,11 +8,12 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.textfield.TextInputEditText
 import org.json.JSONException
 import org.json.JSONObject
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.Utils
@@ -64,7 +65,7 @@ open class AddContactActivity: BaseActivity() {
 
     override fun addContact(contact: Contact) {
         if (contact.addresses.isEmpty()) {
-            Toast.makeText(this, R.string.contact_has_no_address_warning, Toast.LENGTH_LONG).show()
+            showToastMessage(this, R.string.contact_has_no_address_warning)
         }
 
         // lookup existing contacts by key and name
@@ -110,7 +111,7 @@ open class AddContactActivity: BaseActivity() {
             addContact(newContact)
 
             // done
-            Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
+            showToastMessage(this@AddContactActivity, R.string.done)
             dialog.cancel()
             finish()
         }
@@ -134,19 +135,19 @@ open class AddContactActivity: BaseActivity() {
             addContact(newContact)
 
             // done
-            Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.done)
             dialog.cancel()
             finish()
         }
         renameButton.setOnClickListener {
             val name = nameEditText.text.toString()
             if (!Utils.isValidName(name)) {
-                Toast.makeText(this, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.contact_name_invalid)
                 return@setOnClickListener
             }
 
             if (DatabaseCache.database.contacts.getContactByName(name) != null) {
-                Toast.makeText(this, R.string.contact_name_exists, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.contact_name_exists)
                 return@setOnClickListener
             }
 
@@ -155,7 +156,7 @@ open class AddContactActivity: BaseActivity() {
             addContact(newContact)
 
             // done
-            Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.done)
             dialog.cancel()
             finish()
         }
@@ -178,7 +179,7 @@ open class AddContactActivity: BaseActivity() {
                 addContact(data)
             } catch (e: JSONException) {
                 e.printStackTrace()
-                Toast.makeText(this, R.string.invalid_qr_code_data, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.invalid_qr_code_data)
             }
             dialog.cancel()
         }

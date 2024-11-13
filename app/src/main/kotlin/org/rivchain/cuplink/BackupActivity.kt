@@ -8,13 +8,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.util.Utils.readExternalFile
 import org.rivchain.cuplink.util.Utils.writeExternalFile
 
@@ -100,9 +101,9 @@ class BackupActivity : BaseActivity() {
 
             if (dbData != null) {
                 writeExternalFile(this, uri, dbData)
-                Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.done)
             } else {
-                Toast.makeText(this, R.string.failed_to_export_database, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.failed_to_export_database)
             }
         } catch (e: Exception) {
             showMessage(getString(R.string.error), e.message ?: "unknown")
@@ -118,10 +119,10 @@ class BackupActivity : BaseActivity() {
             newDatabase = Database.fromData(db, password)
         } catch (e: Database.WrongPasswordException) {
             passwordEditText.error = getString(R.string.wrong_password)
-            Toast.makeText(this, R.string.wrong_password, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.wrong_password)
             return
         } catch (e: Exception) {
-            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, e.message)
             return
         }
 
@@ -168,7 +169,7 @@ class BackupActivity : BaseActivity() {
             if (!contactsCheckbox.isChecked &&
                 !callsCheckbox.isChecked &&
                 !settingsCheckbox.isChecked){
-                Toast.makeText(this, "Please select Contacts, Calls, Peers or Settings", Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  "Please select Contacts, Calls, Peers or Settings")
                 return@setOnClickListener
             }
             if (contactsCheckbox.isChecked) {
@@ -184,8 +185,7 @@ class BackupActivity : BaseActivity() {
                 importSettings(newDatabase)
             }
             DatabaseCache.save()
-            Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
-
+            showToastMessage(this,  R.string.done)
             // Restart service
             restartService()
             dialog.dismiss()

@@ -10,12 +10,13 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import org.libsodium.jni.Sodium
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
@@ -70,7 +71,7 @@ class ContactDetailsActivity : BaseActivity() {
             updateContact(contact)
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+            showToastMessage(this,  e.message)
             finish()
         }
     }
@@ -106,18 +107,18 @@ class ContactDetailsActivity : BaseActivity() {
             } else if (NetworkUtils.isMACAddress(address)) {
                 address.uppercase(Locale.ROOT)
             } else {
-                Toast.makeText(this, R.string.error_address_invalid, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.error_address_invalid)
                 return@setOnClickListener
             }
 
             // multicast addresses are not supported yet
             if (NetworkUtils.getAddressType(address) in listOf(AddressType.MULTICAST_MAC, AddressType.MULTICAST_IP)) {
-                Toast.makeText(this, R.string.error_address_multicast_not_supported, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.error_address_multicast_not_supported)
                 return@setOnClickListener
             }
 
             if (address in addressListViewAdapter.getAddresses()) {
-                Toast.makeText(this, R.string.error_address_exists, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.error_address_exists)
                 return@setOnClickListener
             }
 
@@ -133,9 +134,9 @@ class ContactDetailsActivity : BaseActivity() {
                 contact.publicKey = publicKey
 
                 DatabaseCache.save()
-                Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.done)
             } else {
-                Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.error)
             }
         }
 
@@ -144,7 +145,7 @@ class ContactDetailsActivity : BaseActivity() {
             if (contact != null) {
                 updateContact(contact)
             } else {
-                Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.error)
             }
         }
     }
@@ -173,9 +174,9 @@ class ContactDetailsActivity : BaseActivity() {
             )
 
             if (newPublicKey == null || (newPublicKey.size != Sodium.crypto_sign_publickeybytes())) {
-                Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.contact_public_key_invalid)
             } else if (DatabaseCache.database.contacts.getContactByPublicKey(newPublicKey) != null) {
-                Toast.makeText(this, R.string.contact_public_key_already_exists, Toast.LENGTH_LONG).show()
+                showToastMessage(this,  R.string.contact_public_key_already_exists)
             } else {
                 contactPublicKeyEdit.text = Utils.byteArrayToHexString(newPublicKey)
                 dialog.dismiss()
@@ -204,9 +205,9 @@ class ContactDetailsActivity : BaseActivity() {
             val existingContact = DatabaseCache.database.contacts.getContactByName(newName)
 
             if (!Utils.isValidName(newName)) {
-                Toast.makeText(this, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.contact_name_invalid)
             } else if ((existingContact != null) && !existingContact.publicKey.contentEquals(publicKey)) {
-                Toast.makeText(this, R.string.contact_name_exists, Toast.LENGTH_LONG).show()
+                showToastMessage(this,  R.string.contact_name_exists)
             } else {
                 contactNameEdit.text = newName
                 dialog.dismiss()

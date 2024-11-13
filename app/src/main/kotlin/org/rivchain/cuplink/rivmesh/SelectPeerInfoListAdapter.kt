@@ -12,7 +12,8 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 
@@ -71,7 +72,7 @@ class SelectPeerInfoListAdapter(
             val clip =
                 ClipData.newPlainText("Peer info", peerId)
             clipboard.setPrimaryClip(clip)
-            showToast(peerId + " " + context.getString(R.string.node_info_copied))
+            showToastMessage(context, peerId + " " + context.getString(R.string.node_info_copied))
         }
         peerInfoHolder.checkbox.isChecked = this.currentPeers.contains(currentPeer)
         return listItem
@@ -112,12 +113,5 @@ class SelectPeerInfoListAdapter(
         lateinit var countryFlag: ImageView
         lateinit var peerInfoText: TextView
         lateinit var ping: TextView
-    }
-
-    private fun showToast(text: String){
-        val duration = Toast.LENGTH_SHORT
-        val toast = Toast.makeText(context, text, duration)
-        toast.setGravity(Gravity.CENTER, 0, 0)
-        toast.show()
     }
 }

@@ -10,7 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.service.quicksettings.TileService
-import android.widget.Toast
+
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import org.acra.config.dialog
@@ -19,6 +19,7 @@ import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
 import org.libsodium.jni.NaCl
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.MeshTileService
 import org.rivchain.cuplink.rivmesh.State
@@ -82,7 +83,7 @@ class MainApplication : Application(), AppStateReceiver.StateReceiver {
             DatabaseCache.dbEncrypted = true
         } catch (e: Exception) {
             Log.e(this, "${e.message}")
-            Toast.makeText(this, "${e.message}", Toast.LENGTH_SHORT).show()
+            showToastMessage(this, "${e.message}")
         }
         Log.d(this, "init 1: load database complete")
     }

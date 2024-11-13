@@ -13,10 +13,11 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.json.JSONException
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.adapter.ContactListAdapter
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
@@ -54,7 +55,7 @@ class ContactListFragment() : Fragment() {
             val activity = requireActivity()
             val contact = adapterView.adapter.getItem(i) as Contact
             if (contact.addresses.isEmpty()) {
-                Toast.makeText(activity, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT).show()
+                showToastMessage(activity, R.string.contact_has_no_address_warning)
             } else {
                 Log.d(this, "start CallActivity")
                 val intent = Intent(activity, CallActivity::class.java)
@@ -150,13 +151,13 @@ class ContactListFragment() : Fragment() {
     private fun pingContact(contact: Contact) {
         activity.pingContacts(listOf(contact))
         val message = String.format(getString(R.string.ping_contact), contact.name)
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        showToastMessage(requireContext(), message)
     }
 
     private fun pingAllContacts() {
         activity.pingContacts(DatabaseCache.database.contacts.contactList)
         val message = String.format(getString(R.string.ping_all_contacts))
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        showToastMessage(requireContext(), message)
     }
 
     private fun showDeleteDialog(publicKey: ByteArray, name: String) {

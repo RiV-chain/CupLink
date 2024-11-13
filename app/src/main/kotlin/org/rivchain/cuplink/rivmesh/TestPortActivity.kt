@@ -8,7 +8,7 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import android.view.LayoutInflater
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import org.rivchain.cuplink.BaseActivity
 import org.rivchain.cuplink.DatabaseCache.Companion.database
 import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.rivmesh.models.PeerInfo
 import org.rivchain.cuplink.rivmesh.util.Utils
@@ -206,8 +207,7 @@ open class TestPortActivity: BaseActivity(), ServiceConnection {
 
     private fun showToast(message: String) {
         runOnUiThread {
-            Toast.makeText(this@TestPortActivity, message, Toast.LENGTH_LONG).show()
+            showToastMessage(this@TestPortActivity, message)
         }
     }
-
 }

@@ -12,12 +12,13 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants
-import android.widget.Toast
+
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import mobile.Mesh
 import org.json.JSONArray
+import org.rivchain.cuplink.NotificationUtils.showToastMessageMainLooper
 import org.rivchain.cuplink.call.PacketWriter
 import org.rivchain.cuplink.call.RTCPeerConnection
 import org.rivchain.cuplink.model.Contact
@@ -481,13 +482,7 @@ class MainService : VpnService() {
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()
-                        Handler(mainLooper).post {
-                            Toast.makeText(
-                                this,
-                                e.message,
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
+                        showToastMessageMainLooper(this, e.message)
                     }
                 }
                 serverThread!!.start()
@@ -495,7 +490,7 @@ class MainService : VpnService() {
         } catch (e: IOException) {
             Log.e(this, "run() e=$e")
             e.printStackTrace()
-            Handler(mainLooper).post { Toast.makeText(this, e.message, Toast.LENGTH_LONG).show() }
+            showToastMessageMainLooper(this, e.message)
             shutdown()
         }
     }

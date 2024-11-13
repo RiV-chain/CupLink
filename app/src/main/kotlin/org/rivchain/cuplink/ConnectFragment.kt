@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 
 class ConnectFragment : Fragment() {
 
@@ -25,7 +26,7 @@ class ConnectFragment : Fragment() {
         activity = requireActivity() as MainActivity
 
         if (arguments == null || arguments?.get("EXTRA_CONTACT_PUBLICKEY") == null) {
-            Toast.makeText(requireContext(), R.string.contact_public_key_invalid, Toast.LENGTH_LONG).show()
+            showToastMessage(requireContext(), R.string.contact_public_key_invalid)
             activity.finish()
         }
 

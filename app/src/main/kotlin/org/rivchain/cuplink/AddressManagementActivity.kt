@@ -10,10 +10,11 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import com.google.android.material.textfield.TextInputEditText
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.NetworkUtils.AddressType
@@ -78,7 +79,7 @@ class AddressManagementActivity : BaseActivity() {
 
         saveButton.setOnClickListener {
             DatabaseCache.database.settings.addresses = addressListViewAdapter.storedAddresses.map { it.address }.toMutableList()
-            Toast.makeText(this, R.string.done, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.done)
             DatabaseCache.save()
         }
 
@@ -90,21 +91,20 @@ class AddressManagementActivity : BaseActivity() {
                 address.uppercase(Locale.ROOT)
             } else {
                 customAddressTextEdit.error = getString(R.string.error_address_invalid)
-                Toast.makeText(this, R.string.error_address_invalid, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.error_address_invalid)
                 return@setOnClickListener
             }
 
             // multicast addresses are not supported yet
             if (NetworkUtils.getAddressType(address) in listOf(AddressType.MULTICAST_MAC, AddressType.MULTICAST_IP)) {
-                Toast.makeText(this, R.string.error_address_multicast_not_supported, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.error_address_multicast_not_supported)
                 return@setOnClickListener
             }
 
             val ae = AddressEntry(address, "")
 
             if (ae in addressListViewAdapter.allAddresses) {
-                Toast.makeText(applicationContext, R.string.error_address_exists, Toast.LENGTH_LONG)
-                    .show()
+                showToastMessage(this, R.string.error_address_exists)
                 return@setOnClickListener
             }
 

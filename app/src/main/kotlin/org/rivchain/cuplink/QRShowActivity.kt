@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.journeyapps.barcodescanner.BarcodeEncoder
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.RlpUtils
 
@@ -20,7 +21,7 @@ class QRShowActivity : BaseActivity() {
         setContentView(R.layout.activity_qrshow)
 
         if(intent == null || intent.extras == null || intent.extras?.get("EXTRA_CONTACT_PUBLICKEY") == null){
-            Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_LONG).show()
+            showToastMessage(this, R.string.contact_public_key_invalid)
             finish()
             return
         }
@@ -56,10 +57,10 @@ class QRShowActivity : BaseActivity() {
             }.start()
         } catch (e: NullPointerException) {
             e.printStackTrace()
-            Toast.makeText(this, "NPE", Toast.LENGTH_LONG).show()
+            showToastMessage(this, "NPE")
         } catch (e: Exception){
             e.printStackTrace()
-            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+            showToastMessage(this,  e.message)
             finish()
         }
     }
@@ -70,13 +71,13 @@ class QRShowActivity : BaseActivity() {
 
         val data = Contact.toJSON(contact, false).toString()
         if (contact.addresses.isEmpty()) {
-            Toast.makeText(this, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT).show()
+            showToastMessage(this,  R.string.contact_has_no_address_warning)
         }
         if (contact.name.isEmpty()) {
-            Toast.makeText(this, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this,  R.string.contact_name_invalid)
         }
         if (contact.publicKey.isEmpty()) {
-            Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this,  R.string.contact_public_key_invalid)
         }
         val multiFormatWriter = MultiFormatWriter()
         val bitMatrix = multiFormatWriter.encode(data, BarcodeFormat.QR_CODE, 1080, 1080)
@@ -91,16 +92,16 @@ class QRShowActivity : BaseActivity() {
 
         val data = RlpUtils.generateLink(contact)
         if(data == null){
-            Toast.makeText(this, R.string.contact_is_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this,  R.string.contact_is_invalid)
         }
         if (contact.addresses.isEmpty()) {
-            Toast.makeText(this, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT).show()
+            showToastMessage(this,  R.string.contact_has_no_address_warning)
         }
         if (contact.name.isEmpty()) {
-            Toast.makeText(this, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this,  R.string.contact_name_invalid)
         }
         if (contact.publicKey.isEmpty()) {
-            Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this,  R.string.contact_public_key_invalid)
         }
         val multiFormatWriter = MultiFormatWriter()
         val bitMatrix = multiFormatWriter.encode(data, BarcodeFormat.QR_CODE, 1080, 1080)

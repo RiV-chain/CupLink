@@ -8,7 +8,7 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
+
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -21,6 +21,7 @@ import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
 import org.json.JSONException
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.listener.OnSwipeTouchListener
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.RlpUtils
@@ -35,7 +36,7 @@ open class ConnectFragmentActivity : AddContactActivity(), BarcodeCallback {
         setContentView(R.layout.activity_connect)
 
         if(intent == null || intent.extras == null || intent.extras?.get("EXTRA_CONTACT_PUBLICKEY") == null){
-            Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_LONG).show()
+            showToastMessage(this, R.string.contact_public_key_invalid)
             finish()
             return
         }
@@ -73,10 +74,10 @@ open class ConnectFragmentActivity : AddContactActivity(), BarcodeCallback {
             }.start()
         } catch (e: NullPointerException) {
             e.printStackTrace()
-            Toast.makeText(this, "NPE", Toast.LENGTH_LONG).show()
+            showToastMessage(this, "NPE")
         } catch (e: Exception){
             e.printStackTrace()
-            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+            showToastMessage(this, e.message)
             finish()
         }
 
@@ -108,7 +109,7 @@ open class ConnectFragmentActivity : AddContactActivity(), BarcodeCallback {
             } catch (e: JSONException) {
                 e.printStackTrace()
                 contact.error = getString(R.string.invalid_qr_code_data)
-                Toast.makeText(this, R.string.invalid_qr_code_data, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.invalid_qr_code_data)
                 et.visibility = View.VISIBLE
             }
         } else {
@@ -123,7 +124,7 @@ open class ConnectFragmentActivity : AddContactActivity(), BarcodeCallback {
         if (isGranted) {
             initCamera()
         } else {
-            Toast.makeText(this, R.string.missing_camera_permission, Toast.LENGTH_LONG).show()
+            showToastMessage(this, R.string.missing_camera_permission)
             // no finish() in case no camera access wanted but contact data pasted
         }
     }
@@ -134,7 +135,7 @@ open class ConnectFragmentActivity : AddContactActivity(), BarcodeCallback {
             super.addContact(result.text)
         } catch (e: JSONException) {
             e.printStackTrace()
-            Toast.makeText(this, R.string.invalid_qr, Toast.LENGTH_LONG).show()
+            showToastMessage(this, R.string.invalid_qr)
         }
     }
 
@@ -161,16 +162,16 @@ open class ConnectFragmentActivity : AddContactActivity(), BarcodeCallback {
 
         val data = RlpUtils.generateLink(contact)
         if(data == null){
-            Toast.makeText(this, R.string.contact_is_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.contact_is_invalid)
         }
         if (contact.addresses.isEmpty()) {
-            Toast.makeText(this, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.contact_has_no_address_warning)
         }
         if (contact.name.isEmpty()) {
-            Toast.makeText(this, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.contact_name_invalid)
         }
         if (contact.publicKey.isEmpty()) {
-            Toast.makeText(this, R.string.contact_public_key_invalid, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.contact_public_key_invalid)
         }
         val multiFormatWriter = MultiFormatWriter()
         val bitMatrix = multiFormatWriter.encode(data, BarcodeFormat.QR_CODE, 1080, 1080)

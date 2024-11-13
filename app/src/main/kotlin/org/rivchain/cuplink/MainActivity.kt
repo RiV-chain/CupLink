@@ -16,7 +16,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -25,6 +25,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputEditText
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.PowerManager
@@ -222,14 +223,14 @@ class MainActivity : BaseActivity() {
                 // ignore, we only have domains configured
             } else if (storedAddresses.isEmpty()) {
                 // no addresses configured at all
-                Toast.makeText(this, R.string.warning_no_addresses_configured, Toast.LENGTH_LONG).show()
+                showToastMessage(this,  R.string.warning_no_addresses_configured)
             } else {
                 if (isWifiConnected()) {
                     val systemAddresses = NetworkUtils.collectAddresses().map { it.address }
                     if (storedIPAddresses.intersect(systemAddresses.toSet()).isEmpty()) {
                         // none of the configured addresses are used in the system
                         // addresses might have changed!
-                        Toast.makeText(this, R.string.warning_no_addresses_found, Toast.LENGTH_LONG).show()
+                        showToastMessage(this,  R.string.warning_no_addresses_found)
                     }
                 }
             }
@@ -252,7 +253,7 @@ class MainActivity : BaseActivity() {
                 startActivity(Intent(this, SettingsActivity::class.java))
             } else {
                 passwordEditText.error = getString(R.string.wrong_password)
-                Toast.makeText(this, R.string.wrong_password, Toast.LENGTH_SHORT).show()
+                showToastMessage(this,  R.string.wrong_password)
             }
             // close dialog
             dialog.dismiss()
@@ -289,6 +290,7 @@ class MainActivity : BaseActivity() {
         super.onResume()
 
         updateEventTabTitle()
+
     }
 
     //@SuppressLint("RestrictedApi")

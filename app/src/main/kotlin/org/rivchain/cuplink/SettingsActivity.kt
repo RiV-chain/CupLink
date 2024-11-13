@@ -14,7 +14,7 @@ import android.widget.CompoundButton
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +26,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import org.json.JSONArray
 import org.rivchain.cuplink.DatabaseCache.Companion.database
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.renderer.DescriptiveTextView
 import org.rivchain.cuplink.rivmesh.ConfigurePublicPeerActivity
 import org.rivchain.cuplink.rivmesh.PeerListActivity
@@ -99,7 +100,7 @@ class SettingsActivity : BaseActivity() {
         yesButton.setOnClickListener {
             this.clearEvents()
             DatabaseCache.save()
-            Toast.makeText(this@SettingsActivity, R.string.done, Toast.LENGTH_SHORT).show()
+            showToastMessage(this@SettingsActivity,  R.string.done)
             dialog.cancel()
         }
         noButton.setOnClickListener {
@@ -161,7 +162,9 @@ class SettingsActivity : BaseActivity() {
         findViewById<DescriptiveTextView>(R.id.publicKeyLayout)
             .subtitleTextView.text = Utils.byteArrayToHexString(settings.publicKey)
         findViewById<View>(R.id.publicKeyLayout)
-            .setOnClickListener { Toast.makeText(this@SettingsActivity, R.string.setting_read_only, Toast.LENGTH_SHORT).show() }
+            .setOnClickListener {
+                showToastMessage(this@SettingsActivity, R.string.setting_read_only)
+            }
 
         val publicPeerUrl = findViewById<DescriptiveTextView>(R.id.publicPeerLayout)
         val url = jsonArrayToString(database.mesh.getListen())
@@ -487,7 +490,8 @@ class SettingsActivity : BaseActivity() {
         if (result.resultCode != Activity.RESULT_OK) {
             if (Build.VERSION.SDK_INT >= 23) {
                 if (!Settings.canDrawOverlays(this)) {
-                    Toast.makeText(this, R.string.overlay_permission_missing, Toast.LENGTH_LONG).show()
+                    showToastMessage(this, R.string.overlay_permission_missing)
+                    showToastMessage(this, R.string.overlay_permission_missing)
                 }
             }
         } else {
@@ -514,7 +518,7 @@ class SettingsActivity : BaseActivity() {
                 dialog.cancel()
             } else {
                 nameEditText.error = getString(R.string.invalid_name)
-                Toast.makeText(this, R.string.invalid_name, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.invalid_name)
             }
         }
         cancelButton.setOnClickListener {
@@ -546,10 +550,10 @@ class SettingsActivity : BaseActivity() {
                 settings.connectRetries = connectRetries
                 DatabaseCache.save()
                 initViews()
-                Toast.makeText(this@SettingsActivity, R.string.done, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.done)
             } else {
                 val message = String.format(getString(R.string.invalid_number), minValue, maxValue)
-                Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, message)
             }
 
             dialog.cancel()
@@ -581,10 +585,10 @@ class SettingsActivity : BaseActivity() {
                 settings.connectTimeout = connectTimeout
                 DatabaseCache.save()
                 initViews()
-                Toast.makeText(this@SettingsActivity, R.string.done, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.done)
             } else {
                 val message = String.format(getString(R.string.invalid_number), minValue, maxValue)
-                Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, message)
             }
 
             dialog.cancel()
@@ -605,7 +609,7 @@ class SettingsActivity : BaseActivity() {
             val newPassword = passwordEditText.text.toString()
             DatabaseCache.databasePassword = newPassword
             DatabaseCache.save()
-            Toast.makeText(this@SettingsActivity, R.string.done, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.done)
             initViews()
             dialog.cancel()
         }
@@ -625,7 +629,7 @@ class SettingsActivity : BaseActivity() {
             val newPassword = passwordEditText.text.toString()
             DatabaseCache.database.settings.menuPassword = newPassword
             DatabaseCache.save()
-            Toast.makeText(this@SettingsActivity, R.string.done, Toast.LENGTH_SHORT).show()
+            showToastMessage(this, R.string.done)
             initViews()
             dialog.cancel()
         }

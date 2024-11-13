@@ -401,7 +401,7 @@ object ViewUtil {
         return getActivityLifecycle(view.context)
     }
 
-    private fun getActivityLifecycle(context: Context?): Lifecycle? {
+    fun getActivityLifecycle(context: Context?): Lifecycle? {
         if (context is ContextThemeWrapper) {
             return getActivityLifecycle(context.baseContext)
         }

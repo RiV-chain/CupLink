@@ -23,13 +23,14 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
+
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.PreferenceManager
 import com.google.android.material.textfield.TextInputEditText
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.MainService.MainBinder
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.model.AddressEntry
 import org.rivchain.cuplink.rivmesh.AutoSelectPeerActivity
 import org.rivchain.cuplink.rivmesh.AutoTestPublicPeerActivity
@@ -360,7 +361,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 dialog.dismiss()
                 continueInit()
             } else {
-                Toast.makeText(this, R.string.invalid_name, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.invalid_name)
             }
         }
         noButton.setOnClickListener {
@@ -371,7 +372,7 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 dialog.dismiss()
                 continueInit()
             } else {
-                Toast.makeText(this, R.string.invalid_name, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.invalid_name)
             }
         }
 
@@ -461,9 +462,9 @@ class StartActivity// to avoid "class has no zero argument constructor" on some 
                 // continue
                 continueInit()
             } catch (e: Database.WrongPasswordException) {
-                Toast.makeText(this, R.string.wrong_password, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, R.string.wrong_password)
             } catch (e: Exception) {
-                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+                showToastMessage(this, e.message)
             }
         }
         exitButton.setOnClickListener {

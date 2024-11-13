@@ -12,10 +12,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
-import android.widget.Toast
+
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.textfield.TextInputEditText
+import org.rivchain.cuplink.NotificationUtils.showToastMessage
 import org.rivchain.cuplink.adapter.EventListAdapter
 import org.rivchain.cuplink.model.Event
 import org.rivchain.cuplink.util.Log
@@ -60,8 +61,7 @@ class EventListFragment() : Fragment() {
             ?: latestEvent.createUnknownContact("")
 
         if (contact.addresses.isEmpty()) {
-            Toast.makeText(activity, R.string.contact_has_no_address_warning, Toast.LENGTH_SHORT)
-                .show()
+            showToastMessage(activity, R.string.contact_has_no_address_warning)
         } else {
             // start call
             Log.d(this, "start CallActivity")
@@ -219,20 +219,18 @@ class EventListFragment() : Fragment() {
         okButton.setOnClickListener {
             val name = nameEditText.text.toString()
             if (!Utils.isValidName(name)) {
-                Toast.makeText(activity, R.string.contact_name_invalid, Toast.LENGTH_SHORT).show()
+                showToastMessage(activity, R.string.contact_name_invalid)
                 return@setOnClickListener
             }
 
             if (DatabaseCache.database.contacts.getContactByName(name) != null) {
-                Toast.makeText(activity, R.string.contact_name_exists, Toast.LENGTH_LONG).show()
+                showToastMessage(activity, R.string.contact_name_exists)
                 return@setOnClickListener
             }
 
             val contact = latestEvent.createUnknownContact(name)
             activity.addContact(contact)
-
-            Toast.makeText(activity, R.string.done, Toast.LENGTH_SHORT).show()
-
+            showToastMessage(activity, R.string.done)
             // close dialog
             dialog.dismiss()
         }
