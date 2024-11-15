@@ -287,8 +287,17 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         } else {
             startCallStatusService()
         }
-    }
 
+        // Request call READ_PHONE_STATE permission if not granted
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_PHONE_STATE),
+                READ_PHONE_STATE_PERMISSION_REQUEST_CODE
+            )
+        }
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -314,6 +323,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     private val MICROPHONE_PERMISSION_REQUEST_CODE = 101
+
+    private val READ_PHONE_STATE_PERMISSION_REQUEST_CODE = 102
 
     override fun onConfigurationChanged(newConfig: Configuration)
     {
@@ -468,6 +479,13 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                             }
                         }
                     }
+                }
+                CallState.ON_HOLD -> {
+                    callStatus.visibility = VISIBLE
+                    callStatus.text = "On hold"
+                }
+                CallState.RESUME -> {
+                    callStatus.visibility = GONE
                 }
                 CallState.DISMISSED -> {
                     // call did not start
@@ -1252,7 +1270,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     override fun onDestroy() {
         Log.d(this, "onDestroy()")
         isCallInProgress = false
+        currentCall.callStatusHandler?.stopCallStatusListening()
         stopService(Intent(this, CallStatusService::class.java))
+
         try {
             proximitySensor.stop()
 

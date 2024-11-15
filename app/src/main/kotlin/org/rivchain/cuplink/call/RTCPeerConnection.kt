@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.Build
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.CallActivity
@@ -15,6 +17,7 @@ import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.DatabaseCache
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
+import org.rivchain.cuplink.message.ActionMessageDispatcher
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.NetworkUtils
@@ -37,9 +40,10 @@ abstract class RTCPeerConnection(
     protected var commSocket: Socket?
 ) {
     protected var state = CallState.WAITING
-    protected var callActivity: RTCCall.CallContext? = null
+    var callActivity: RTCCall.CallContext? = null
     private val executor = Executors.newSingleThreadExecutor()
     private var mediaPlayer: MediaPlayer? = null
+    var callStatusHandler: CallStatusHandler? = null
 
     // BroadcastReceiver to listen for screen lock/unlock events
     open val screenStateReceiver = object : BroadcastReceiver() {
@@ -75,6 +79,8 @@ abstract class RTCPeerConnection(
             CallState.DISMISSED -> R.raw.stop
             CallState.ENDED -> R.raw.ended
             CallState.CONNECTED -> R.raw.connected
+            CallState.ON_HOLD -> R.raw.waiting
+            CallState.RESUME -> R.raw.connected
             CallState.ERROR_COMMUNICATION -> R.raw.stop
             CallState.ERROR_AUTHENTICATION -> R.raw.stop
             CallState.ERROR_DECRYPTION -> R.raw.stop
@@ -122,39 +128,6 @@ abstract class RTCPeerConnection(
         this.callActivity = activity
     }
 
-    private fun sendOnSocket(message: String): Boolean {
-        Log.d(this, "sendOnSocket() message=$message")
-
-        Utils.checkIsNotOnMainThread()
-
-        val socket = commSocket
-        if (socket == null || socket.isClosed) {
-            return false
-        }
-
-        //val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = DatabaseCache.database.settings
-        val ownSecretKey = settings.secretKey
-        val ownPublicKey = settings.publicKey
-
-        val encrypted = Crypto.encryptMessage(
-            message,
-            contact.publicKey,
-            ownPublicKey,
-            ownSecretKey
-        )
-
-        if (encrypted == null) {
-            reportStateChange(CallState.ERROR_COMMUNICATION)
-            return false
-        }
-
-        val pw = PacketWriter(socket)
-        pw.writeMessage(encrypted)
-
-        return true
-    }
-
     protected fun createOutgoingCall(contact: Contact, offer: String) {
         Log.d(this, "createOutgoingCall()")
         Thread {
@@ -177,189 +150,31 @@ abstract class RTCPeerConnection(
     private fun createOutgoingCallInternal(contact: Contact, offer: String) {
         Log.d(this, "createOutgoingCallInternal()")
 
-        val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = DatabaseCache.database.settings
-        val ownPublicKey = settings.publicKey
-        val ownSecretKey = settings.secretKey
-
         val socket = createCommSocket(contact) ?: return
 
         callActivity?.onRemoteAddressChange(socket.remoteSocketAddress as InetSocketAddress, true)
         commSocket = socket
 
-        val remoteAddress = socket.remoteSocketAddress as InetSocketAddress
-
-        Log.d(this, "createOutgoingCallInternal() outgoing call from remote address: $remoteAddress")
-
-        val pr = PacketReader(socket)
         reportStateChange(CallState.CONNECTING)
-        run {
-            Log.d(this, "createOutgoingCallInternal() outgoing call: send call")
-            val obj = JSONObject()
-            obj.put("action", "call")
-            obj.put("offer", offer) // WebRTC offer!
-            val encrypted = Crypto.encryptMessage(
-                obj.toString(),
-                contact.publicKey,
-                ownPublicKey,
-                ownSecretKey
-            )
 
-            if (encrypted == null) {
-                reportStateChange(CallState.ERROR_COMMUNICATION)
-                return
-            }
+        val dispatcher = ActionMessageDispatcher(contact, this, socket)
 
-            val pw = PacketWriter(socket)
-            pw.writeMessage(encrypted)
+        callStatusHandler = CallStatusHandler(service, dispatcher)
+        MainScope().launch {
+            callStatusHandler!!.startCallStatusListening()
         }
 
-        run {
-            Log.d(this, "createOutgoingCallInternal() outgoing call: expect ringing")
-            val response = pr.readMessage()
-            if (response == null) {
-                reportStateChange(CallState.ERROR_COMMUNICATION)
-                return
-            }
+        dispatcher.call(offer)
 
-            val decrypted = Crypto.decryptMessage(
-                response,
-                otherPublicKey,
-                ownPublicKey,
-                ownSecretKey
-            )
+        dispatcher.receiveOfferResponse()
 
-            if (decrypted == null) {
-                reportStateChange(CallState.ERROR_DECRYPTION)
-                return
-            }
+        dispatcher.storeLastAddress()
 
-            if (!contact.publicKey.contentEquals(otherPublicKey)) {
-                reportStateChange(CallState.ERROR_AUTHENTICATION)
-                return
-            }
-
-            val obj = JSONObject(decrypted)
-            val action = obj.optString("action")
-            if (action == "ringing") {
-                Log.d(this, "createOutgoingCallInternal() got ringing")
-                reportStateChange(CallState.RINGING)
-            } else if (action == "dismissed") {
-                Log.d(this, "createOutgoingCallInternal() got dismissed")
-                reportStateChange(CallState.DISMISSED)
-                return
-            } else {
-                Log.d(this, "createOutgoingCallInternal() unexpected action: $action")
-                reportStateChange(CallState.ERROR_COMMUNICATION)
-                return
-            }
-        }
-
-        run {
-            // remember latest working address and set state
-            val workingAddress = InetSocketAddress(remoteAddress.address, MainService.serverPort)
-            val storedContact = DatabaseCache.database.contacts.getContactByPublicKey(contact.publicKey)
-            if (storedContact != null) {
-                storedContact.lastWorkingAddress = workingAddress
-            } else {
-                contact.lastWorkingAddress = workingAddress
-            }
-        }
-
-        var lastKeepAlive = System.currentTimeMillis()
-
-        // send keep alive to detect a broken connection
-        val writeExecutor = Executors.newSingleThreadExecutor()
-        writeExecutor?.execute {
-            val pw = PacketWriter(socket)
-
-            Log.d(this, "createOutgoingCallInternal() start to send keep_alive")
-            while (!socket.isClosed) {
-                try {
-                    val obj = JSONObject()
-                    obj.put("action", "keep_alive")
-                    val encrypted = Crypto.encryptMessage(
-                        obj.toString(),
-                        contact.publicKey,
-                        ownPublicKey,
-                        ownSecretKey
-                    ) ?: break
-                    pw.writeMessage(encrypted)
-                    Thread.sleep(SOCKET_TIMEOUT_MS / 2)
-                    if ((System.currentTimeMillis() - lastKeepAlive) > SOCKET_TIMEOUT_MS) {
-                        Log.w(this, "createOutgoingCallInternal() keep_alive timeout => close socket")
-                        closeSocket(socket)
-                    }
-
-                } catch (e: Exception) {
-                    Log.w(this, "createOutgoingCallInternal() got $e => close socket")
-                    closeSocket(socket)
-                    break
-                }
-            }
-            Log.d(this, "createOutgoingCallInternal() stop to send keep_alive")
-        }
-
-        while (!socket.isClosed) {
-            Log.d(this, "createOutgoingCallInternal() expect connected/dismissed")
-            val response = pr.readMessage()
-            if (response == null) {
-                Thread.sleep(SOCKET_TIMEOUT_MS / 10)
-                Log.d(this, "createOutgoingCallInternal() response is null")
-                continue
-            }
-
-            val decrypted = Crypto.decryptMessage(
-                response,
-                otherPublicKey,
-                ownPublicKey,
-                ownSecretKey
-            )
-
-            if (decrypted == null) {
-                reportStateChange(CallState.ERROR_DECRYPTION)
-                return
-            }
-
-            if (!contact.publicKey.contentEquals(otherPublicKey)) {
-                reportStateChange(CallState.ERROR_AUTHENTICATION)
-                return
-            }
-
-            val obj = JSONObject(decrypted)
-            val action = obj.getString("action")
-            if (action == "connected") {
-                Log.d(this, "createOutgoingCallInternal() connected")
-                reportStateChange(CallState.CONNECTED)
-                val answer = obj.optString("answer")
-                if (answer.isNotEmpty()) {
-                    handleAnswer(answer)
-                } else {
-                    reportStateChange(CallState.ERROR_COMMUNICATION)
-                }
-                break
-            } else if (action == "dismissed") {
-                Log.d(this, "createOutgoingCallInternal() dismissed")
-                reportStateChange(CallState.DISMISSED)
-                break
-            } else if (action == "keep_alive") {
-                Log.d(this, "createOutgoingCallInternal() keep_alive")
-                lastKeepAlive = System.currentTimeMillis()
-                continue
-            } else {
-                Log.e(this, "createOutgoingCallInternal() unknown action reply $action")
-                reportStateChange(CallState.ERROR_COMMUNICATION)
-                break
-            }
-        }
+        dispatcher.confirmConnected()
 
         Log.d(this, "createOutgoingCallInternal() close socket")
+        dispatcher.stop()
         closeSocket(socket)
-        //Log.d(this, "createOutgoingCallInternal() dataChannel is null: ${dataChannel == null}")
-
-        Log.d(this, "createOutgoingCallInternal() wait for writeExecutor")
-        writeExecutor.shutdown()
-        writeExecutor.awaitTermination(100, TimeUnit.MILLISECONDS)
 
         // detect broken initial connection
         if (isCallInit(state) && socket.isClosed) {
@@ -378,103 +193,31 @@ abstract class RTCPeerConnection(
 
         val socket = commSocket ?: throw IllegalStateException("commSocket not expected to be null")
 
-        val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = DatabaseCache.database.settings
-        val ownPublicKey = settings.publicKey
-        val ownSecretKey = settings.secretKey
+        val dispatcher = ActionMessageDispatcher(contact, this, socket)
 
         if (!socket.isClosed) {
             Log.d(this, "continueOnIncomingSocket() expected dismissed/keep_alive")
-            val pr = PacketReader(socket)
 
-            var lastKeepAlive = System.currentTimeMillis()
-
-            // send keep alive to detect a broken connection
-            val writeExecutor = Executors.newSingleThreadExecutor()
-            writeExecutor?.execute {
-                val pw = PacketWriter(socket)
-
-                Log.d(this, "continueOnIncomingSocket() start to send keep_alive")
-                while (!socket.isClosed) {
-                    try {
-                        val obj = JSONObject()
-                        obj.put("action", "keep_alive")
-                        val encrypted = Crypto.encryptMessage(
-                            obj.toString(),
-                            contact.publicKey,
-                            ownPublicKey,
-                            ownSecretKey
-                        ) ?: break
-                        pw.writeMessage(encrypted)
-                        Thread.sleep(SOCKET_TIMEOUT_MS / 2)
-                        if ((System.currentTimeMillis() - lastKeepAlive) > SOCKET_TIMEOUT_MS) {
-                            Log.w(this, "continueOnIncomingSocket() keep_alive timeout => close socket")
-                            closeSocket(socket)
-                        }
-                    } catch (e: Exception) {
-                        Log.w(this, "continueOnIncomingSocket() got $e => close socket")
-                        closeSocket(socket)
-                        break
-                    }
-                }
+            callStatusHandler = CallStatusHandler(service, dispatcher)
+            MainScope().launch {
+                callStatusHandler!!.startCallStatusListening()
             }
 
-            while (!socket.isClosed) {
-                val response = pr.readMessage()
-                if (response == null) {
-                    Thread.sleep(SOCKET_TIMEOUT_MS / 10)
-                    Log.d(this, "continueOnIncomingSocket() response is null")
-                    continue
-                }
-
-                val decrypted = Crypto.decryptMessage(
-                    response,
-                    otherPublicKey,
-                    ownPublicKey,
-                    ownSecretKey
-                )
-
-                if (decrypted == null) {
-                    reportStateChange(CallState.ERROR_DECRYPTION)
-                    break
-                }
-
-                val obj = JSONObject(decrypted)
-                val action = obj.optString("action")
-                if (action == "dismissed") {
-                    Log.d(this, "continueOnIncomingSocket() received dismissed")
-                    reportStateChange(CallState.DISMISSED)
-                    declineOwnCall()
-                    break
-                } else if (action == "keep_alive") {
-                    // ignore, keeps the socket alive
-                    lastKeepAlive = System.currentTimeMillis()
-                } else {
-                    Log.e(this, "continueOnIncomingSocket() received unknown action reply: $action")
-                    reportStateChange(CallState.ERROR_COMMUNICATION)
-                    break
-                }
-            }
-
+            dispatcher.receiveIncoming()
 
             Log.d(this, "continueOnIncomingSocket() wait for writeExecutor")
-            writeExecutor.shutdown()
-            writeExecutor.awaitTermination(100L, TimeUnit.MILLISECONDS)
-
-            //Log.d(this, "continueOnIncomingSocket() dataChannel is null: ${dataChannel == null}")
-            closeSocket(socket)
         }
+        dispatcher.stop()
 
         // detect broken initial connection
         if (isCallInit(state) && socket.isClosed) {
             Log.e(this, "continueOnIncomingSocket() call (state=$state) is not connected and socket is closed")
             reportStateChange(CallState.ERROR_COMMUNICATION)
         }
-
         Log.d(this, "continueOnIncomingSocket() finished")
     }
 
-    protected fun declineOwnCall(){
+    fun declineOwnCall(){
         // decline own call. call session has been started yet.
         if(!CallActivity.isCallInProgress) {
             Log.d(this, "decline() send broadcast to receiver")
@@ -623,11 +366,82 @@ abstract class RTCPeerConnection(
         return null
     }
 
+    fun createMessageSocket(contact: Contact): Socket? {
+        Log.d(this, "createCommSocket()")
+
+        Utils.checkIsNotOnMainThread()
+
+        val settings = DatabaseCache.database.settings
+        val useNeighborTable = settings.useNeighborTable
+        val connectTimeout = settings.connectTimeout
+        val connectRetries = settings.connectRetries
+
+        var unknownHostException = false
+        var connectException = false
+        var socketTimeoutException = false
+        var exception = false
+
+        val allGeneratedAddresses = NetworkUtils.getAllSocketAddresses(contact, useNeighborTable)
+        Log.d(this, "createCommSocket() contact.addresses: ${contact.addresses}, allGeneratedAddresses: $allGeneratedAddresses")
+
+        for (iteration in 0..max(0, min(connectRetries, 4))) {
+            Log.d(this, "createCommSocket() loop number $iteration")
+
+            for (address in allGeneratedAddresses) {
+                callActivity?.onRemoteAddressChange(address, false)
+                Log.d(this, "try address: $address")
+                val socket = Socket()
+                try {
+                    socket.connect(address, connectTimeout)
+                    return socket
+                } catch (e: SocketTimeoutException) {
+                    // no connection
+                    Log.d(this, "createCommSocket() socket has thrown SocketTimeoutException")
+                    socketTimeoutException = true
+                } catch (e: ConnectException) {
+                    // device is online, but does not listen on the given port
+                    Log.d(this, "createCommSocket() socket has thrown ConnectException")
+                    connectException = true
+                } catch (e: UnknownHostException) {
+                    // hostname did not resolve
+                    Log.d(this, "createCommSocket() socket has thrown UnknownHostException")
+                    unknownHostException = true
+                } catch (e: Exception) {
+                    Log.d(this, "createCommSocket() socket has thrown Exception")
+                    exception = true
+                }
+
+                closeSocket(socket)
+            }
+        }
+
+        if (connectException) {
+            reportStateChange(CallState.ERROR_CONNECT_PORT)
+        } else if (unknownHostException) {
+            reportStateChange(CallState.ERROR_UNKNOWN_HOST)
+        } else if (exception) {
+            reportStateChange(CallState.ERROR_COMMUNICATION)
+        } else if (socketTimeoutException) {
+            reportStateChange(CallState.ERROR_NO_CONNECTION)
+        } else if (contact.addresses.isEmpty()) {
+            reportStateChange(CallState.ERROR_NO_ADDRESSES)
+        } else {
+            // No addresses were generated.
+            // This happens if MAC addresses were
+            // used and no network is available.
+            reportStateChange(CallState.ERROR_NO_NETWORK)
+        }
+
+        return null
+    }
+
     enum class CallState {
         WAITING,
         CONNECTING,
         RINGING,
         CONNECTED,
+        ON_HOLD,
+        RESUME,
         DISMISSED,
         ENDED,
         ERROR_AUTHENTICATION,
@@ -651,23 +465,10 @@ abstract class RTCPeerConnection(
     }
 
     companion object {
-        private const val SOCKET_TIMEOUT_MS = 25000L
+        const val SOCKET_TIMEOUT_MS = 25000L
 
         // used to pass incoming RTCCall to CallActiviy
         var incomingRTCCall: RTCCall? = null
-
-/*
-        // for debug purposes
-        private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
-
-        private fun debugPacket(label: String, msg: ByteArray?) {
-            if (msg != null) {
-                Log.d(this, "$label: ${msg.size}, ${msg.toHex()}")
-            } else {
-                Log.d(this, "$label: message is null!")
-            }
-        }
-*/
 
         fun closeSocket(socket: Socket?) {
             try {
@@ -869,6 +670,24 @@ abstract class RTCPeerConnection(
                     } else {
                         Log.d(this, "createIncomingCallInternal() received unknown status_change: $status")
                     }
+                }
+                "on_hold" -> {
+                    if (!CallActivity.isCallInProgress) {
+                        Log.d(this, "call not started: invalid status => decline")
+                        decline()
+                        return
+                    }
+                    Log.d(this, "createOutgoingCallInternal() on_hold")
+                    incomingRTCCall?.reportStateChange(CallState.ON_HOLD)
+                }
+                "resume" -> {
+                    if (!CallActivity.isCallInProgress) {
+                        Log.d(this, "call not started: invalid status => decline")
+                        decline()
+                        return
+                    }
+                    Log.d(this, "createOutgoingCallInternal() resume")
+                    incomingRTCCall?.reportStateChange(CallState.RESUME)
                 }
             }
         }
