@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.Build
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.CallActivity
@@ -15,6 +17,7 @@ import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.DatabaseCache
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
+import org.rivchain.cuplink.message.MessageDispatcher
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.NetworkUtils
@@ -40,6 +43,7 @@ abstract class RTCPeerConnection(
     protected var callActivity: RTCCall.CallContext? = null
     private val executor = Executors.newSingleThreadExecutor()
     private var mediaPlayer: MediaPlayer? = null
+    private var callStatusHandler: CallStatusHandler? = null
 
     // BroadcastReceiver to listen for screen lock/unlock events
     open val screenStateReceiver = object : BroadcastReceiver() {
@@ -75,6 +79,8 @@ abstract class RTCPeerConnection(
             CallState.DISMISSED -> R.raw.stop
             CallState.ENDED -> R.raw.ended
             CallState.CONNECTED -> R.raw.connected
+            CallState.ON_HOLD -> R.raw.waiting
+            CallState.RESUME -> R.raw.connected
             CallState.ERROR_COMMUNICATION -> R.raw.stop
             CallState.ERROR_AUTHENTICATION -> R.raw.stop
             CallState.ERROR_DECRYPTION -> R.raw.stop
@@ -191,29 +197,24 @@ abstract class RTCPeerConnection(
 
         Log.d(this, "createOutgoingCallInternal() outgoing call from remote address: $remoteAddress")
 
-        val pr = PacketReader(socket)
+
         reportStateChange(CallState.CONNECTING)
+
+        val dispatcher = MessageDispatcher(socket, contact.publicKey, ownPublicKey, ownSecretKey, SOCKET_TIMEOUT_MS)
+        callStatusHandler = CallStatusHandler(service, dispatcher)
+        MainScope().launch {
+            callStatusHandler!!.startCallStatusListening()
+        }
+
         run {
             Log.d(this, "createOutgoingCallInternal() outgoing call: send call")
             val obj = JSONObject()
             obj.put("action", "call")
             obj.put("offer", offer) // WebRTC offer!
-            val encrypted = Crypto.encryptMessage(
-                obj.toString(),
-                contact.publicKey,
-                ownPublicKey,
-                ownSecretKey
-            )
-
-            if (encrypted == null) {
-                reportStateChange(CallState.ERROR_COMMUNICATION)
-                return
-            }
-
-            val pw = PacketWriter(socket)
-            pw.writeMessage(encrypted)
+            dispatcher.sendMessage(obj)
         }
 
+        val pr = PacketReader(socket)
         run {
             Log.d(this, "createOutgoingCallInternal() outgoing call: expect ringing")
             val response = pr.readMessage()
@@ -265,40 +266,8 @@ abstract class RTCPeerConnection(
                 contact.lastWorkingAddress = workingAddress
             }
         }
-
-        var lastKeepAlive = System.currentTimeMillis()
-
-        // send keep alive to detect a broken connection
-        val writeExecutor = Executors.newSingleThreadExecutor()
-        writeExecutor?.execute {
-            val pw = PacketWriter(socket)
-
-            Log.d(this, "createOutgoingCallInternal() start to send keep_alive")
-            while (!socket.isClosed) {
-                try {
-                    val obj = JSONObject()
-                    obj.put("action", "keep_alive")
-                    val encrypted = Crypto.encryptMessage(
-                        obj.toString(),
-                        contact.publicKey,
-                        ownPublicKey,
-                        ownSecretKey
-                    ) ?: break
-                    pw.writeMessage(encrypted)
-                    Thread.sleep(SOCKET_TIMEOUT_MS / 2)
-                    if ((System.currentTimeMillis() - lastKeepAlive) > SOCKET_TIMEOUT_MS) {
-                        Log.w(this, "createOutgoingCallInternal() keep_alive timeout => close socket")
-                        closeSocket(socket)
-                    }
-
-                } catch (e: Exception) {
-                    Log.w(this, "createOutgoingCallInternal() got $e => close socket")
-                    closeSocket(socket)
-                    break
-                }
-            }
-            Log.d(this, "createOutgoingCallInternal() stop to send keep_alive")
-        }
+        // Start keep-alive
+        dispatcher.startKeepAlive()
 
         while (!socket.isClosed) {
             Log.d(this, "createOutgoingCallInternal() expect connected/dismissed")
@@ -338,13 +307,21 @@ abstract class RTCPeerConnection(
                     reportStateChange(CallState.ERROR_COMMUNICATION)
                 }
                 break
+            } else if (action == "on_hold") {
+                Log.d(this, "createOutgoingCallInternal() on_hold")
+                reportStateChange(CallState.ON_HOLD)
+                break
+            }  else if (action == "resume") {
+                Log.d(this, "createOutgoingCallInternal() resume")
+                reportStateChange(CallState.RESUME)
+                break
             } else if (action == "dismissed") {
                 Log.d(this, "createOutgoingCallInternal() dismissed")
                 reportStateChange(CallState.DISMISSED)
                 break
             } else if (action == "keep_alive") {
                 Log.d(this, "createOutgoingCallInternal() keep_alive")
-                lastKeepAlive = System.currentTimeMillis()
+                dispatcher.updateLastKeepAlive()
                 continue
             } else {
                 Log.e(this, "createOutgoingCallInternal() unknown action reply $action")
@@ -354,12 +331,9 @@ abstract class RTCPeerConnection(
         }
 
         Log.d(this, "createOutgoingCallInternal() close socket")
+        callStatusHandler?.stopCallStatusListening()
+        dispatcher.stop()
         closeSocket(socket)
-        //Log.d(this, "createOutgoingCallInternal() dataChannel is null: ${dataChannel == null}")
-
-        Log.d(this, "createOutgoingCallInternal() wait for writeExecutor")
-        writeExecutor.shutdown()
-        writeExecutor.awaitTermination(100, TimeUnit.MILLISECONDS)
 
         // detect broken initial connection
         if (isCallInit(state) && socket.isClosed) {
@@ -382,43 +356,19 @@ abstract class RTCPeerConnection(
         val settings = DatabaseCache.database.settings
         val ownPublicKey = settings.publicKey
         val ownSecretKey = settings.secretKey
+        val dispatcher = MessageDispatcher(socket, contact.publicKey, ownPublicKey, ownSecretKey, SOCKET_TIMEOUT_MS)
 
         if (!socket.isClosed) {
             Log.d(this, "continueOnIncomingSocket() expected dismissed/keep_alive")
-            val pr = PacketReader(socket)
 
-            var lastKeepAlive = System.currentTimeMillis()
-
-            // send keep alive to detect a broken connection
-            val writeExecutor = Executors.newSingleThreadExecutor()
-            writeExecutor?.execute {
-                val pw = PacketWriter(socket)
-
-                Log.d(this, "continueOnIncomingSocket() start to send keep_alive")
-                while (!socket.isClosed) {
-                    try {
-                        val obj = JSONObject()
-                        obj.put("action", "keep_alive")
-                        val encrypted = Crypto.encryptMessage(
-                            obj.toString(),
-                            contact.publicKey,
-                            ownPublicKey,
-                            ownSecretKey
-                        ) ?: break
-                        pw.writeMessage(encrypted)
-                        Thread.sleep(SOCKET_TIMEOUT_MS / 2)
-                        if ((System.currentTimeMillis() - lastKeepAlive) > SOCKET_TIMEOUT_MS) {
-                            Log.w(this, "continueOnIncomingSocket() keep_alive timeout => close socket")
-                            closeSocket(socket)
-                        }
-                    } catch (e: Exception) {
-                        Log.w(this, "continueOnIncomingSocket() got $e => close socket")
-                        closeSocket(socket)
-                        break
-                    }
-                }
+            // Start keep-alive
+            dispatcher.startKeepAlive()
+            callStatusHandler = CallStatusHandler(service, dispatcher)
+            MainScope().launch {
+                callStatusHandler!!.startCallStatusListening()
             }
 
+            val pr = PacketReader(socket)
             while (!socket.isClosed) {
                 val response = pr.readMessage()
                 if (response == null) {
@@ -447,8 +397,7 @@ abstract class RTCPeerConnection(
                     declineOwnCall()
                     break
                 } else if (action == "keep_alive") {
-                    // ignore, keeps the socket alive
-                    lastKeepAlive = System.currentTimeMillis()
+                    dispatcher.updateLastKeepAlive()
                 } else {
                     Log.e(this, "continueOnIncomingSocket() received unknown action reply: $action")
                     reportStateChange(CallState.ERROR_COMMUNICATION)
@@ -456,21 +405,16 @@ abstract class RTCPeerConnection(
                 }
             }
 
-
             Log.d(this, "continueOnIncomingSocket() wait for writeExecutor")
-            writeExecutor.shutdown()
-            writeExecutor.awaitTermination(100L, TimeUnit.MILLISECONDS)
-
-            //Log.d(this, "continueOnIncomingSocket() dataChannel is null: ${dataChannel == null}")
-            closeSocket(socket)
         }
+        dispatcher.stop()
+        callStatusHandler?.stopCallStatusListening()
 
         // detect broken initial connection
         if (isCallInit(state) && socket.isClosed) {
             Log.e(this, "continueOnIncomingSocket() call (state=$state) is not connected and socket is closed")
             reportStateChange(CallState.ERROR_COMMUNICATION)
         }
-
         Log.d(this, "continueOnIncomingSocket() finished")
     }
 
@@ -628,6 +572,8 @@ abstract class RTCPeerConnection(
         CONNECTING,
         RINGING,
         CONNECTED,
+        ON_HOLD,
+        RESUME,
         DISMISSED,
         ENDED,
         ERROR_AUTHENTICATION,

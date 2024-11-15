@@ -57,6 +57,7 @@ import java.nio.ByteBuffer
 import java.util.Timer
 import java.util.TimerTask
 
+
 class RTCCall : RTCPeerConnection {
     private lateinit var factory: PeerConnectionFactory
     private var peerConnection: PeerConnection? = null
@@ -262,7 +263,7 @@ class RTCCall : RTCPeerConnection {
         service: MainService,
         contact: Contact,
         commSocket: Socket,
-        offer: String
+        offer: String,
     ) : super(service, contact, commSocket) {
         Log.d(this, "RTCCall() created for incoming calls")
 
@@ -276,15 +277,15 @@ class RTCCall : RTCPeerConnection {
             addAction(Intent.ACTION_USER_PRESENT)
         }
         service.registerReceiver(screenStateReceiver, filter)
+
     }
 
     // called for outgoing calls
     constructor(
         service: MainService,
-        contact: Contact
+        contact: Contact,
     ) : super(service, contact, null) {
         Log.d(this, "RTCCall() created for outgoing calls")
-
         createMediaConstraints()
     }
 
@@ -536,7 +537,7 @@ class RTCCall : RTCPeerConnection {
             }
 
             override fun onWebRtcAudioRecordStartError(
-                errorCode: JavaAudioDeviceModule.AudioRecordStartErrorCode, errorMessage: String
+                errorCode: JavaAudioDeviceModule.AudioRecordStartErrorCode, errorMessage: String,
             ) {
                 Log.e(this, "onWebRtcAudioRecordStartError: $errorCode. $errorMessage")
                 callActivity!!.showTextMessage(errorMessage)
@@ -554,7 +555,7 @@ class RTCCall : RTCPeerConnection {
             }
 
             override fun onWebRtcAudioTrackStartError(
-                errorCode: JavaAudioDeviceModule.AudioTrackStartErrorCode, errorMessage: String
+                errorCode: JavaAudioDeviceModule.AudioTrackStartErrorCode, errorMessage: String,
             ) {
                 Log.e(this, "onWebRtcAudioTrackStartError: $errorCode. $errorMessage")
                 callActivity!!.showTextMessage(errorMessage)
