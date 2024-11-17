@@ -7,9 +7,9 @@ import android.os.Handler
 import android.os.Looper
 import org.json.JSONException
 import org.json.JSONObject
-import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.DatabaseCache
 import org.rivchain.cuplink.MainService
+import org.rivchain.cuplink.message.ActionMessageDispatcher
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.Utils
@@ -708,7 +708,6 @@ class RTCCall : RTCPeerConnection {
         execute {
             Log.d(this, "initIncoming() executor start")
             val settings = DatabaseCache.database.settings
-            val remoteAddress = commSocket!!.remoteSocketAddress as InetSocketAddress
             val rtcConfig = RTCConfiguration(emptyList())
             rtcConfig.sdpSemantics = SdpSemantics.UNIFIED_PLAN
             rtcConfig.continualGatheringPolicy = ContinualGatheringPolicy.GATHER_ONCE
@@ -746,28 +745,7 @@ class RTCCall : RTCPeerConnection {
 
                     if (iceGatheringState == IceGatheringState.COMPLETE) {
                         try {
-                            val ownPublicKey = settings.publicKey
-                            val ownSecretKey = settings.secretKey
-                            val pw = PacketWriter(commSocket!!)
-                            val obj = JSONObject()
-                            obj.put("action", "connected")
-                            obj.put("answer", peerConnection!!.localDescription.description)
-                            val encrypted = Crypto.encryptMessage(
-                                obj.toString(),
-                                contact.publicKey,
-                                ownPublicKey,
-                                ownSecretKey
-                            )
-                            if (encrypted != null) {
-                                Log.d(this, "onIceGatheringChange() send connected")
-                                pw.writeMessage(encrypted)
-                                callActivity?.onRemoteAddressChange(remoteAddress, true)
-                                // connected state will be reported by WebRTC onIceConnectionChange()
-                                //reportStateChange(CallState.CONNECTED)
-                            } else {
-                                Log.d(this, "onIceGatheringChange() encryption failed")
-                                reportStateChange(CallState.ERROR_COMMUNICATION)
-                            }
+                            ActionMessageDispatcher(contact, this@RTCCall, commSocket!!).answerCall(peerConnection!!.localDescription.description)
                         } catch (e: Exception) {
                             e.printStackTrace()
                             reportStateChange(CallState.ERROR_COMMUNICATION)

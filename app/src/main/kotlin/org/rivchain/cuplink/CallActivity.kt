@@ -1270,6 +1270,7 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     override fun onDestroy() {
         Log.d(this, "onDestroy()")
         isCallInProgress = false
+        currentCall.callStatusHandler?.stopCallStatusListening()
         stopService(Intent(this, CallStatusService::class.java))
 
         try {
