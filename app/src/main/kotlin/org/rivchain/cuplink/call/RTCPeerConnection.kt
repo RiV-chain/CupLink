@@ -360,7 +360,7 @@ abstract class RTCPeerConnection(
                 val socket = Socket()
 
                 try {
-                    socket.connect(address, connectTimeout)
+                    socket.connect(address, SOCKET_TIMEOUT_MS.toInt())
                     reportStateChange(CallState.CONNECTING)
                     return socket
                 } catch (e: SocketTimeoutException) {

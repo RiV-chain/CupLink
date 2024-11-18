@@ -83,7 +83,11 @@ class ActionMessageDispatcher(
                     contact.publicKey,
                     ownPublicKey,
                     ownSecretKey
-                ) ?: throw IllegalStateException("Encryption failed")
+                )
+
+                if (encryptedMessage == null){
+                    throw IllegalStateException("Encryption failed")
+                }
 
                 val packetWriter = PacketWriter(socket)
                 packetWriter.writeMessage(encryptedMessage)
