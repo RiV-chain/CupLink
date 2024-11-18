@@ -63,7 +63,10 @@ class CallStatusHandler(private val context: Context, private val dispatcher: Ac
     }
 
     private fun processCallStateChanged(state: Int){
+        Toast.makeText(context, "State:$state", Toast.LENGTH_LONG)
+            .show()
         when (state) {
+
             TelephonyManager.CALL_STATE_RINGING -> {
                 onHold = true
                 Log.d("CallStatusHandler", "Incoming GSM call detected")
