@@ -8,8 +8,10 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import org.json.JSONObject
+import org.rivchain.cuplink.R
 import org.rivchain.cuplink.message.ActionMessageDispatcher
 
 class CallStatusHandler(private val context: Context, private val dispatcher: ActionMessageDispatcher) {
@@ -22,6 +24,9 @@ class CallStatusHandler(private val context: Context, private val dispatcher: Ac
     fun startCallStatusListening() {
 
         if(ActivityCompat.checkSelfPermission(this.context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+
+            Toast.makeText(context, "Permission found for READ_PHONE_STATE", Toast.LENGTH_LONG)
+                .show()
 
             telephonyManager =
                 context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -51,6 +56,9 @@ class CallStatusHandler(private val context: Context, private val dispatcher: Ac
                     telephonyManager.listen(it, PhoneStateListener.LISTEN_CALL_STATE)
                 }
             }
+        } else {
+            Toast.makeText(context, "No permissions found for READ_PHONE_STATE", Toast.LENGTH_LONG)
+                .show()
         }
     }
 
