@@ -128,39 +128,6 @@ abstract class RTCPeerConnection(
         this.callActivity = activity
     }
 
-    private fun sendOnSocket(message: String): Boolean {
-        Log.d(this, "sendOnSocket() message=$message")
-
-        Utils.checkIsNotOnMainThread()
-
-        val socket = commSocket
-        if (socket == null || socket.isClosed) {
-            return false
-        }
-
-        //val otherPublicKey = ByteArray(Sodium.crypto_sign_publickeybytes())
-        val settings = DatabaseCache.database.settings
-        val ownSecretKey = settings.secretKey
-        val ownPublicKey = settings.publicKey
-
-        val encrypted = Crypto.encryptMessage(
-            message,
-            contact.publicKey,
-            ownPublicKey,
-            ownSecretKey
-        )
-
-        if (encrypted == null) {
-            reportStateChange(CallState.ERROR_COMMUNICATION)
-            return false
-        }
-
-        val pw = PacketWriter(socket)
-        pw.writeMessage(encrypted)
-
-        return true
-    }
-
     protected fun createOutgoingCall(contact: Contact, offer: String) {
         Log.d(this, "createOutgoingCall()")
         Thread {
@@ -203,9 +170,6 @@ abstract class RTCPeerConnection(
 
         dispatcher.storeLastAddress()
 
-        // Start keep-alive
-        dispatcher.startKeepAlive()
-
         dispatcher.confirmConnected()
 
         Log.d(this, "createOutgoingCallInternal() close socket")
@@ -234,8 +198,6 @@ abstract class RTCPeerConnection(
         if (!socket.isClosed) {
             Log.d(this, "continueOnIncomingSocket() expected dismissed/keep_alive")
 
-            // Start keep-alive
-            dispatcher.startKeepAlive()
             callStatusHandler = CallStatusHandler(service, dispatcher)
             MainScope().launch {
                 callStatusHandler!!.startCallStatusListening()
@@ -404,6 +366,75 @@ abstract class RTCPeerConnection(
         return null
     }
 
+    fun createMessageSocket(contact: Contact): Socket? {
+        Log.d(this, "createCommSocket()")
+
+        Utils.checkIsNotOnMainThread()
+
+        val settings = DatabaseCache.database.settings
+        val useNeighborTable = settings.useNeighborTable
+        val connectTimeout = settings.connectTimeout
+        val connectRetries = settings.connectRetries
+
+        var unknownHostException = false
+        var connectException = false
+        var socketTimeoutException = false
+        var exception = false
+
+        val allGeneratedAddresses = NetworkUtils.getAllSocketAddresses(contact, useNeighborTable)
+        Log.d(this, "createCommSocket() contact.addresses: ${contact.addresses}, allGeneratedAddresses: $allGeneratedAddresses")
+
+        for (iteration in 0..max(0, min(connectRetries, 4))) {
+            Log.d(this, "createCommSocket() loop number $iteration")
+
+            for (address in allGeneratedAddresses) {
+                callActivity?.onRemoteAddressChange(address, false)
+                Log.d(this, "try address: $address")
+                val socket = Socket()
+                try {
+                    socket.connect(address, connectTimeout)
+                    return socket
+                } catch (e: SocketTimeoutException) {
+                    // no connection
+                    Log.d(this, "createCommSocket() socket has thrown SocketTimeoutException")
+                    socketTimeoutException = true
+                } catch (e: ConnectException) {
+                    // device is online, but does not listen on the given port
+                    Log.d(this, "createCommSocket() socket has thrown ConnectException")
+                    connectException = true
+                } catch (e: UnknownHostException) {
+                    // hostname did not resolve
+                    Log.d(this, "createCommSocket() socket has thrown UnknownHostException")
+                    unknownHostException = true
+                } catch (e: Exception) {
+                    Log.d(this, "createCommSocket() socket has thrown Exception")
+                    exception = true
+                }
+
+                closeSocket(socket)
+            }
+        }
+
+        if (connectException) {
+            reportStateChange(CallState.ERROR_CONNECT_PORT)
+        } else if (unknownHostException) {
+            reportStateChange(CallState.ERROR_UNKNOWN_HOST)
+        } else if (exception) {
+            reportStateChange(CallState.ERROR_COMMUNICATION)
+        } else if (socketTimeoutException) {
+            reportStateChange(CallState.ERROR_NO_CONNECTION)
+        } else if (contact.addresses.isEmpty()) {
+            reportStateChange(CallState.ERROR_NO_ADDRESSES)
+        } else {
+            // No addresses were generated.
+            // This happens if MAC addresses were
+            // used and no network is available.
+            reportStateChange(CallState.ERROR_NO_NETWORK)
+        }
+
+        return null
+    }
+
     enum class CallState {
         WAITING,
         CONNECTING,
@@ -438,19 +469,6 @@ abstract class RTCPeerConnection(
 
         // used to pass incoming RTCCall to CallActiviy
         var incomingRTCCall: RTCCall? = null
-
-/*
-        // for debug purposes
-        private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
-
-        private fun debugPacket(label: String, msg: ByteArray?) {
-            if (msg != null) {
-                Log.d(this, "$label: ${msg.size}, ${msg.toHex()}")
-            } else {
-                Log.d(this, "$label: message is null!")
-            }
-        }
-*/
 
         fun closeSocket(socket: Socket?) {
             try {
@@ -652,6 +670,24 @@ abstract class RTCPeerConnection(
                     } else {
                         Log.d(this, "createIncomingCallInternal() received unknown status_change: $status")
                     }
+                }
+                "on_hold" -> {
+                    if (!CallActivity.isCallInProgress) {
+                        Log.d(this, "call not started: invalid status => decline")
+                        decline()
+                        return
+                    }
+                    Log.d(this, "createOutgoingCallInternal() on_hold")
+                    incomingRTCCall?.reportStateChange(CallState.ON_HOLD)
+                }
+                "resume" -> {
+                    if (!CallActivity.isCallInProgress) {
+                        Log.d(this, "call not started: invalid status => decline")
+                        decline()
+                        return
+                    }
+                    Log.d(this, "createOutgoingCallInternal() resume")
+                    incomingRTCCall?.reportStateChange(CallState.RESUME)
                 }
             }
         }

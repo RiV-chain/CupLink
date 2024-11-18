@@ -22,7 +22,7 @@ import kotlin.concurrent.withLock
 class ActionMessageDispatcher(
     private val contact: Contact,
     private val peerConnection: RTCPeerConnection,
-    private val socket: Socket,
+    private var socket: Socket,
 ) {
 
     private val pr: PacketReader = PacketReader(socket)
@@ -30,41 +30,8 @@ class ActionMessageDispatcher(
     private val ownPublicKey: ByteArray = DatabaseCache.database.settings.publicKey
     private val ownSecretKey: ByteArray = DatabaseCache.database.settings.secretKey
 
-    @Volatile
-    private var lastKeepAlive: Long = System.currentTimeMillis()
-
     private val messageExecutor = Executors.newSingleThreadExecutor()
     private val socketLock = ReentrantLock()
-
-    fun startKeepAlive() {
-        messageExecutor.execute {
-            Log.d(this,  "startKeepAlive() - Begin sending keep_alive messages")
-            while (isSocketOpen()) {
-                try {
-                    val keepAliveMessage = JSONObject().apply {
-                        put("action", "keep_alive")
-                    }
-                    sendMessage(keepAliveMessage)
-
-                    Thread.sleep(SOCKET_TIMEOUT_MS / 2)
-
-                    if ((System.currentTimeMillis() - lastKeepAlive) > SOCKET_TIMEOUT_MS) {
-                        Log.w(this, "startKeepAlive() - Keep-alive timeout exceeded, closing socket")
-                        closeSocket()
-                    }
-                } catch (e: Exception) {
-                    Log.w(this, "startKeepAlive() - Exception occurred: $e, closing socket")
-                    closeSocket()
-                    break
-                }
-            }
-            Log.d(this,  "startKeepAlive() - Stopped sending keep_alive messages")
-        }
-    }
-
-    private fun updateLastKeepAlive() {
-        lastKeepAlive = System.currentTimeMillis()
-    }
 
     /**
      * Sends a generic message.
@@ -73,8 +40,7 @@ class ActionMessageDispatcher(
     fun sendMessage(message: JSONObject) {
         socketLock.withLock {
             if (!isSocketOpen()) {
-                Log.w(this, "sendMessage() - Socket is closed, cannot send message")
-                return
+                socket = peerConnection.createMessageSocket(contact)!!
             }
 
             try {
@@ -87,7 +53,7 @@ class ActionMessageDispatcher(
 
                 val packetWriter = PacketWriter(socket)
                 packetWriter.writeMessage(encryptedMessage)
-                Log.d(this,  "sendMessage() - Message sent: ${message.toString()}")
+                Log.d(this,  "sendMessage() - Message sent: ${message}")
             } catch (e: Exception) {
                 Log.e(this,  "sendMessage() - Error sending message: $e")
                 closeSocket()
@@ -95,7 +61,7 @@ class ActionMessageDispatcher(
         }
     }
 
-    private fun closeSocket() {
+    fun closeSocket() {
         socketLock.withLock {
             try {
                 if (!socket.isClosed) {
@@ -253,22 +219,10 @@ class ActionMessageDispatcher(
                     peerConnection.reportStateChange(CallState.ERROR_COMMUNICATION)
                     break
                 }
-            } else if (action == "on_hold") {
-                Log.d(this, "createOutgoingCallInternal() on_hold")
-                peerConnection.reportStateChange(CallState.ON_HOLD)
-                continue
-            } else if (action == "resume") {
-                Log.d(this, "createOutgoingCallInternal() resume")
-                peerConnection.reportStateChange(CallState.RESUME)
-                continue
             } else if (action == "dismissed") {
                 Log.d(this, "createOutgoingCallInternal() dismissed")
                 peerConnection.reportStateChange(CallState.DISMISSED)
                 break
-            } else if (action == "keep_alive") {
-                Log.d(this, "createOutgoingCallInternal() keep_alive")
-                updateLastKeepAlive()
-                continue
             } else {
                 Log.w(this, "createOutgoingCallInternal() unknown action reply $action")
                 //peerConnection.reportStateChange(CallState.ERROR_COMMUNICATION)
@@ -307,17 +261,6 @@ class ActionMessageDispatcher(
                 peerConnection.reportStateChange(CallState.DISMISSED)
                 peerConnection.declineOwnCall()
                 break
-            } else if (action == "on_hold") {
-                Log.d(this, "createOutgoingCallInternal() on_hold")
-                peerConnection.reportStateChange(CallState.ON_HOLD)
-                continue
-            } else if (action == "resume") {
-                Log.d(this, "createOutgoingCallInternal() resume")
-                peerConnection.reportStateChange(CallState.RESUME)
-                continue
-            } else if (action == "keep_alive") {
-                updateLastKeepAlive()
-                continue
             } else {
                 Log.w(this, "continueOnIncomingSocket() received unknown action reply: $action")
                 //peerConnection.reportStateChange(CallState.ERROR_COMMUNICATION)

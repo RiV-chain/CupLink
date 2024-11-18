@@ -63,7 +63,9 @@ class CallStatusHandler(private val context: Context, private val dispatcher: Ac
                 val obj = JSONObject().apply {
                     put("action", "on_hold")
                 }
-                dispatcher.sendMessage(obj)
+                Thread {
+                    dispatcher.sendMessage(obj)
+                }.start()
             }
             TelephonyManager.CALL_STATE_OFFHOOK -> {
                 onHold = true
@@ -71,7 +73,10 @@ class CallStatusHandler(private val context: Context, private val dispatcher: Ac
                 val obj = JSONObject().apply {
                     put("action", "on_hold")
                 }
-                dispatcher.sendMessage(obj)
+                Thread {
+                    dispatcher.sendMessage(obj)
+                }.start()
+                dispatcher.closeSocket()
             }
             TelephonyManager.CALL_STATE_IDLE -> {
                 Log.d("CallStatusHandler", "No active GSM call")
@@ -80,7 +85,10 @@ class CallStatusHandler(private val context: Context, private val dispatcher: Ac
                     val obj = JSONObject().apply {
                         put("action", "resume")
                     }
-                    dispatcher.sendMessage(obj)
+                    Thread {
+                        dispatcher.sendMessage(obj)
+                    }.start()
+                    dispatcher.closeSocket()
                 }
             }
         }
