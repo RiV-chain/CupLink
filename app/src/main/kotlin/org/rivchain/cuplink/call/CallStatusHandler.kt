@@ -77,6 +77,7 @@ class CallStatusHandler(private val context: Context, private val dispatcher: Ac
                 Thread {
                     dispatcher.sendMessage(obj)
                 }.start()
+                dispatcher.closeSocket()
             }
             TelephonyManager.CALL_STATE_OFFHOOK -> {
                 onHold = true
