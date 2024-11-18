@@ -20,6 +20,7 @@ import mobile.Mesh
 import org.json.JSONArray
 import org.rivchain.cuplink.call.PacketWriter
 import org.rivchain.cuplink.call.RTCPeerConnection
+import org.rivchain.cuplink.call.RTCPeerConnection.Companion.SOCKET_TIMEOUT_MS
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.rivmesh.AppStateReceiver
 import org.rivchain.cuplink.rivmesh.NetworkStateCallback
@@ -470,6 +471,8 @@ class MainService : VpnService() {
                 serverThread = Thread {
                     try {
                         serverSocket = ServerSocket(serverPort)
+                        serverSocket!!.reuseAddress = true
+                        serverSocket!!.soTimeout = SOCKET_TIMEOUT_MS.toInt()
                         while (true) {
                             Log.d(TAG, "Server listening on port $serverPort")
                             val clientSocket: Socket = serverSocket!!.accept()
