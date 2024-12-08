@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.Build
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -714,7 +716,9 @@ abstract class RTCPeerConnection(
                             decline()
                         }
                         reportStateChange(CallState.ON_HOLD)
-                        callOnHold()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            callOnHold()
+                        }
                     }
                     outgoingRTCCall?.apply{
                         // decline non callers requests
@@ -722,7 +726,9 @@ abstract class RTCPeerConnection(
                             decline()
                         }
                         reportStateChange(CallState.ON_HOLD)
-                        callOnHold()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            callOnHold()
+                        }
                     }
                 }
                 "resume" -> {
@@ -738,7 +744,9 @@ abstract class RTCPeerConnection(
                             decline()
                         }
                         reportStateChange(CallState.RESUME)
-                        callResume()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            callResume()
+                        }
                     }
                     outgoingRTCCall?.apply {
                         // decline non callers requests
@@ -746,7 +754,9 @@ abstract class RTCPeerConnection(
                             decline()
                         }
                         reportStateChange(CallState.RESUME)
-                        callResume()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            callResume()
+                        }
                     }
                 }
             }

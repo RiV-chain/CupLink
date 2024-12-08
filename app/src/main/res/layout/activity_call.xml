@@ -326,87 +326,79 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/controlPanel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="50dp"
+            android:layout_height="210dp"
+            android:layout_margin="30dp"
+            android:padding="@dimen/padding_20"
             app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@drawable/call_controls_box"
             android:translationZ="1dp">
-
-            <ImageButton
-                android:id="@+id/acceptButton"
-                android:layout_width="@dimen/call_button_size"
-                android:layout_height="@dimen/call_button_size"
-                android:background="@drawable/ic_button_background"
-                android:contentDescription="accept call"
-                android:padding="@dimen/call_button_image_padding"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_call_accept"
-                app:tint="@android:color/white"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/toggleCameraButton" />
-
-            <ImageButton
-                android:id="@+id/toggleCameraButton"
-                android:layout_width="@dimen/call_button_size"
-                android:layout_height="@dimen/call_button_size"
-                android:background="@drawable/ic_button_background"
-                android:contentDescription="switch camera on/off"
-                android:padding="@dimen/call_button_image_padding"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_camera_on"
-                app:tint="@android:color/white"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/acceptButton"
-                app:layout_constraintEnd_toStartOf="@id/declineButton" />
-
-            <ImageButton
-                android:id="@+id/declineButton"
-                android:layout_width="@dimen/call_button_size"
-                android:layout_height="@dimen/call_button_size"
-                android:background="@drawable/ic_button_background_decline"
-                android:contentDescription="decline call"
-                android:padding="@dimen/call_button_image_padding"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_call_decline"
-                app:tint="@android:color/white"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/toggleCameraButton"
-                app:layout_constraintEnd_toStartOf="@id/toggleMicButton" />
-
-            <ImageButton
-                android:id="@+id/toggleMicButton"
-                android:layout_width="@dimen/call_button_size"
-                android:layout_height="@dimen/call_button_size"
-                android:background="@drawable/ic_button_background"
-                android:contentDescription="switch microphone on/off"
-                android:padding="@dimen/call_button_image_padding"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_mic_on"
-                app:tint="@android:color/white"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/declineButton"
-                app:layout_constraintEnd_toStartOf="@id/speakerphoneButton" />
 
             <ImageButton
                 android:id="@+id/speakerphoneButton"
                 android:layout_width="@dimen/call_button_size"
                 android:layout_height="@dimen/call_button_size"
-                android:background="@drawable/ic_button_background"
+                android:background="@color/colorTransparent"
                 android:contentDescription="audio source selection"
                 android:padding="@dimen/call_button_image_padding"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_audio_device_automatic"
-                app:tint="@android:color/white"
+                android:src="@drawable/selector_audio_device_automatic"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/toggleMicButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@color/colorTransparent"
+                android:contentDescription="switch microphone on/off"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/selector_mic_on"
+                app:layout_constraintEnd_toStartOf="@+id/toggleCameraButton"
+                app:layout_constraintStart_toEndOf="@+id/speakerphoneButton"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/toggleCameraButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@color/colorTransparent"
+                android:contentDescription="switch camera on/off"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/selector_camera_on"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/declineButton"
+                android:contentDescription="decline call"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@color/colorTransparent"
+                android:scaleType="fitXY"
+                android:src="@drawable/selector_call_decline"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/toggleMicButton"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/acceptButton"
+                android:layout_width="@dimen/call_button_size"
+                android:layout_height="@dimen/call_button_size"
+                android:background="@color/colorTransparent"
+                android:contentDescription="accept call"
+                android:padding="@dimen/call_button_image_padding"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_call_accept"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:tint="@android:color/white"
+                android:visibility="gone"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
         <!-- fullscreen video window -->

@@ -25,8 +25,8 @@ android {
         minSdkVersion 21
         compileSdkVersion 34
         targetSdkVersion 34
-        versionCode 683
-        versionName "0.6.13.47"
+        versionCode 685
+        versionName "0.6.13.49"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -101,5 +101,5 @@ dependencies {
     implementation 'org.rivchain:mesh:0.4.7.18@aar'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
 }

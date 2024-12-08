@@ -56,6 +56,7 @@ import org.rivchain.cuplink.DatabaseCache
 import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
+import org.rivchain.cuplink.call.RTCAudioManager.AudioDevice
 import org.rivchain.cuplink.call.RTCPeerConnection.CallState
 import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.model.Event
@@ -584,10 +585,10 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         if (cameraEnabled) {
             toggleFrontCameraButton.visibility = VISIBLE
-            toggleCameraButton.setImageResource(R.drawable.ic_camera_off)
+            toggleCameraButton.setImageResource(R.drawable.selector_camera_on)
         } else {
             toggleFrontCameraButton.visibility = GONE
-            toggleCameraButton.setImageResource(R.drawable.ic_camera_on)
+            toggleCameraButton.setImageResource(R.drawable.selector_camera_off)
         }
     }
 
@@ -713,9 +714,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
         val enabled = currentCall.getMicrophoneEnabled() && rtcAudioManager.getMicrophoneEnabled()
 
         if (enabled) {
-            toggleMicButton.setImageResource(R.drawable.ic_mic_on)
+            toggleMicButton.setImageResource(R.drawable.selector_mic_on)
         } else {
-            toggleMicButton.setImageResource(R.drawable.ic_mic_off)
+            toggleMicButton.setImageResource(R.drawable.selector_mic_off)
         }
 
         // set background
@@ -1203,12 +1204,15 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         val mode = rtcAudioManager.getSpeakerphoneMode()
         val device = rtcAudioManager.getAudioDevice()
-
         // get matching button icon
-        val icon = when (mode) {
-            RTCAudioManager.SpeakerphoneMode.AUTO -> R.drawable.ic_audio_device_automatic // preferred device
-            //RTCAudioManager.SpeakerphoneMode.ON -> R.drawable.ic_audio_device_speakerphone // enforced setting
-            RTCAudioManager.SpeakerphoneMode.OFF -> R.drawable.ic_audio_device_phone // enforced setting
+        val icon = if (device == AudioDevice.BLUETOOTH){
+            R.drawable.ic_audio_device_bluetooth
+        } else {
+            when (mode) {
+                RTCAudioManager.SpeakerphoneMode.AUTO -> R.drawable.selector_audio_device_automatic // preferred device
+                //RTCAudioManager.SpeakerphoneMode.ON -> R.drawable.ic_audio_device_speakerphone // enforced setting
+                RTCAudioManager.SpeakerphoneMode.OFF -> R.drawable.selector_audio_device_phone // enforced setting
+            }
         }
 
         Log.d(this, "updateSpeakerphoneIcon() mode=$mode, device=$device")

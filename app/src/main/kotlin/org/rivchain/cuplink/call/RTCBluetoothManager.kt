@@ -8,7 +8,6 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 package org.rivchain.cuplink.call
-//package org.appspot.apprtc;
 
 import android.Manifest
 import android.annotation.SuppressLint

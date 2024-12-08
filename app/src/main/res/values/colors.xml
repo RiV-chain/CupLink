@@ -4,6 +4,7 @@
     <color name="colorBackground">#111111</color>
     <color name="colorBackgroundDialog">#33000000</color>
     <color name="colorPrimaryDark">#111111</color>
+    <color name="colorPrimaryBox">#33555555</color>
     <color name="colorTransparent">@color/zxing_transparent</color>
     <color name="colorAccent">#B1B1B1</color>
     <color name="light_grey">#B1B1B1</color>
