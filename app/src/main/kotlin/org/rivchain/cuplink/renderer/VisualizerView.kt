@@ -2,7 +2,9 @@ package org.rivchain.cuplink.renderer
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Shader
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
@@ -14,16 +16,12 @@ class VisualizerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val paint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.fftChartColor)
-        style = Paint.Style.FILL
-        isAntiAlias = true
-    }
+    private val barColors = intArrayOf(ContextCompat.getColor(context, R.color.fftChartEdgeColor), ContextCompat.getColor(context, R.color.lightRedStatus))
 
     private var fftData: ByteArray? = null
 
     // Default bar width in dp
-    private var barWidthDp: Float = 1.3f
+    private var barWidthDp: Float = 2f
 
     // Update FFT data for rendering
     fun updateFFT(data: ByteArray?) {
@@ -35,6 +33,11 @@ class VisualizerView @JvmOverloads constructor(
     fun setBarWidth(dp: Float) {
         barWidthDp = dp
         invalidate() // Trigger redraw
+    }
+
+    private val paintBar = Paint().apply {
+        style = Paint.Style.FILL
+        isAntiAlias = true
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -80,11 +83,19 @@ class VisualizerView @JvmOverloads constructor(
             val top = centerY - barHeight
             val bottom = centerY + barHeight
 
+
+            paintBar.shader = LinearGradient(
+                0f, top, 0f, bottom,
+                barColors, // Green to Red
+                null,
+                Shader.TileMode.CLAMP
+            )
+
             // Draw bars on the left
-            canvas.drawRect(leftBarLeft, top, leftBarRight, bottom, paint)
+            canvas.drawRect(leftBarLeft, top, leftBarRight, bottom, paintBar)
 
             // Draw bars on the right
-            canvas.drawRect(rightBarLeft, top, rightBarRight, bottom, paint)
+            canvas.drawRect(rightBarLeft, top, rightBarRight, bottom, paintBar)
         }
     }
 }
