@@ -983,68 +983,9 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             updateVideoDisplay()
         }
 
-        pipContainer.setOnTouchListener(object : OnTouchListener {
-            var dX = 0f
-            var dY = 0f
-            var oX = 0f
-            var oY = 0f
-            var newX = 0f
-            var newY = 0f
-            private val gestureDetector =
-                GestureDetector(this@CallActivity, object : SimpleOnGestureListener() {
-                    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                        pipContainer.translationX = 0f
-                        pipContainer.translationY = 0f
-                        pipContainer.performClick()
-                        return true
-                    }
-                })
-
-            override fun onTouch(v: View, event: MotionEvent): Boolean {
-                if (gestureDetector.onTouchEvent(event)) {
-                    return true
-                }
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        dX = v.x - event.rawX
-                        oX = v.x
-                        dY = v.y - event.rawY
-                        oY = v.y
-                    }
-
-                    MotionEvent.ACTION_MOVE -> {
-                        newX = event.rawX + dX
-                        newY = event.rawY + dY
-                        if (newX < 0) {
-                            newX = 0f
-                        } else if (newX > settingsView.width - pipContainer.width) {
-                            newX =
-                                (settingsView.width - pipContainer.width).toFloat()
-                        }
-                        if (newY < 0) {
-                            newY = 0f
-                        } else if (newY > settingsView.height - pipContainer.height) {
-                            newY =
-                                (settingsView.height - pipContainer.height).toFloat()
-                        }
-                        pipContainer.bringToFront()
-                        v.animate()
-                            .x(newX)
-                            .y(newY)
-                            .setDuration(0)
-                            .start()
-                    }
-
-                    MotionEvent.ACTION_UP -> {
-                        newX = event.rawX + dX
-                        newY = event.rawY + dY
-                    }
-
-                    else -> return false
-                }
-                return true
-            }
-        })
+        val getMoveListener = getMoveListener()
+        pipContainer.setOnTouchListener(getMoveListener)
+        changePipButton.setOnTouchListener(getMoveListener)
 
         // swap pip and fullscreen content
         fullscreenRenderer.setOnClickListener {
@@ -1108,6 +1049,77 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             currentCall.switchCamera(
                 !currentCall.getFrontCameraEnabled()
             )
+        }
+    }
+
+    private fun resetPiP() {
+        pipContainer.translationX = 0f
+        pipContainer.translationY = 0f
+        pipContainer.performClick()
+    }
+
+    private fun getMoveListener(): OnTouchListener {
+        return object : OnTouchListener {
+            var dX = 0f
+            var dY = 0f
+            var oX = 0f
+            var oY = 0f
+            var newX = 0f
+            var newY = 0f
+            private val gestureDetector =
+                GestureDetector(this@CallActivity, object : SimpleOnGestureListener() {
+                    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                        resetPiP()
+                        return true
+                    }
+                })
+
+            override fun onTouch(v: View, event: MotionEvent): Boolean {
+                if (gestureDetector.onTouchEvent(event)) {
+                    return true
+                }
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        //Instead of pipContainer was v below if you need to move only child element
+                        dX = pipContainer.x - event.rawX
+                        oX = pipContainer.x
+                        dY = pipContainer.y - event.rawY
+                        oY = pipContainer.y
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        newX = event.rawX + dX
+                        newY = event.rawY + dY
+                        if (newX < 0) {
+                            newX = 0f
+                        } else if (newX > settingsView.width - pipContainer.width) {
+                            newX =
+                                (settingsView.width - pipContainer.width).toFloat()
+                        }
+                        if (newY < 0) {
+                            newY = 0f
+                        } else if (newY > settingsView.height - pipContainer.height) {
+                            newY =
+                                (settingsView.height - pipContainer.height).toFloat()
+                        }
+                        pipContainer.bringToFront()
+                        //Instead of pipContainer was v below if you need to move only child element
+                        pipContainer.animate()
+                            .x(newX)
+                            .y(newY)
+                            .setDuration(0)
+                            .start()
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        newX = event.rawX + dX
+                        newY = event.rawY + dY
+                    }
+
+                    else -> return false
+                }
+                return true
+            }
         }
     }
 
