@@ -359,6 +359,7 @@ class RTCCall : RTCPeerConnection {
                     override fun onCreateFailure(s: String) {
                         super.onCreateFailure(s)
                         if (reconnectionAttempts < maxReconnectionAttempts){
+                            reportStateChange(CallState.RE_CONNECTING)
                             reconnectionAttempts++
                             createOffer()
                         } else {
@@ -369,6 +370,7 @@ class RTCCall : RTCPeerConnection {
 
                     override fun onCreateSuccess(sessionDescription: SessionDescription) {
                         super.onCreateSuccess(sessionDescription)
+                        reportStateChange(CallState.CONNECTED)
                         peerConnection!!.setLocalDescription(DefaultSdpObserver(), sessionDescription)
                     }
                 }, sdpMediaConstraints)
@@ -400,8 +402,8 @@ class RTCCall : RTCPeerConnection {
                             createOffer()
                             // reportStateChange(CallState.ENDED)
                         }
-                        IceConnectionState.FAILED -> reportStateChange(CallState.ERROR_COMMUNICATION)
-                        IceConnectionState.CONNECTED -> reportStateChange(CallState.CONNECTED)
+                        //IceConnectionState.FAILED -> reportStateChange(CallState.ERROR_COMMUNICATION)
+                        //IceConnectionState.CONNECTED -> reportStateChange(CallState.CONNECTED)
                         else -> return
                     }
                     closeSocket(commSocket!!)
@@ -409,6 +411,14 @@ class RTCCall : RTCPeerConnection {
 
                 override fun onConnectionChange(state: PeerConnectionState) {
                     Log.d(this, "onConnectionChange() state=$state")
+                    when (state) {
+                        PeerConnectionState.NEW -> { reportStateChange(CallState.WAITING) }
+                        PeerConnectionState.CONNECTING -> { reportStateChange(CallState.CONNECTING) }
+                        PeerConnectionState.CONNECTED -> { reportStateChange(CallState.CONNECTED) }
+                        PeerConnectionState.DISCONNECTED -> {}
+                        PeerConnectionState.FAILED -> {}
+                        PeerConnectionState.CLOSED -> {}
+                    }
                 }
 
                 override fun onAddStream(mediaStream: MediaStream) {
@@ -837,13 +847,12 @@ class RTCCall : RTCPeerConnection {
                             }
                             handler.postDelayed(disconnectTimer!!, 15000)
                         }
-                        IceConnectionState.FAILED -> reportStateChange(CallState.ERROR_COMMUNICATION)
+                        //IceConnectionState.FAILED -> reportStateChange(CallState.ERROR_COMMUNICATION)
                         IceConnectionState.CONNECTED -> {
                             disconnectTimer?.let {
                                 Log.d(this, "Connection re-established, canceling disconnect timer.")
                                 handler.removeCallbacks(it)
                             }
-                            reportStateChange(CallState.CONNECTED)
                         }
                         else -> return
                     }
@@ -852,6 +861,14 @@ class RTCCall : RTCPeerConnection {
 
                 override fun onConnectionChange(state: PeerConnectionState) {
                     Log.d(this, "onConnectionChange() state=$state")
+                    when (state) {
+                        PeerConnectionState.NEW -> { reportStateChange(CallState.WAITING) }
+                        PeerConnectionState.CONNECTING -> { reportStateChange(CallState.CONNECTING) }
+                        PeerConnectionState.CONNECTED -> { reportStateChange(CallState.CONNECTED) }
+                        PeerConnectionState.DISCONNECTED -> {}
+                        PeerConnectionState.FAILED -> {}
+                        PeerConnectionState.CLOSED -> {}
+                    }
                 }
 
                 override fun onAddStream(mediaStream: MediaStream) {

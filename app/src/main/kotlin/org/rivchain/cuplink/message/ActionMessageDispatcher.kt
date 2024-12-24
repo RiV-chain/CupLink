@@ -14,8 +14,6 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -29,8 +27,6 @@ class ActionMessageDispatcher(
     private val otherPublicKey: ByteArray = ByteArray(Sodium.crypto_sign_publickeybytes())
     private val ownPublicKey: ByteArray = DatabaseCache.database.settings.publicKey
     private val ownSecretKey: ByteArray = DatabaseCache.database.settings.secretKey
-
-    private val messageExecutor = Executors.newSingleThreadExecutor()
     private val socketLock = ReentrantLock()
 
     /**
@@ -47,8 +43,8 @@ class ActionMessageDispatcher(
                     return false
                 }
             }
-
             try {
+                socketLock.lock()
                 val encryptedMessage = Crypto.encryptMessage(
                     message.toString(),
                     contact.publicKey,
@@ -64,6 +60,8 @@ class ActionMessageDispatcher(
                 Log.e(this,  "sendMessage() - Error sending message: $e")
                 closeSocket()
                 return false
+            } finally {
+                socketLock.unlock()
             }
         }
     }
@@ -71,6 +69,7 @@ class ActionMessageDispatcher(
     fun closeSocket() {
         socketLock.withLock {
             try {
+                socketLock.lock()
                 if (!socket.isClosed) {
                     socket.close()
                     Log.d(this,  "closeSocket() - Socket closed successfully")
@@ -79,19 +78,17 @@ class ActionMessageDispatcher(
                 }
             } catch (e: Exception) {
                 Log.e(this,  "closeSocket() - Error closing socket: $e")
+            } finally {
+                socketLock.unlock()
             }
         }
     }
 
     private fun isSocketOpen(): Boolean {
-        socketLock.withLock {
-            return !socket.isClosed && socket.isConnected
-        }
+        return !socket.isClosed && socket.isConnected
     }
 
     fun stop() {
-        messageExecutor.shutdownNow()
-        messageExecutor.awaitTermination(100, TimeUnit.MILLISECONDS)
         closeSocket()
     }
 
@@ -156,9 +153,9 @@ class ActionMessageDispatcher(
             peerConnection.reportStateChange(CallState.DISMISSED)
             return
         } else if (action == "busy") {
-                Log.d(this, "receiveOfferResponse() got busy")
-                peerConnection.reportStateChange(CallState.BUSY)
-                return
+            Log.d(this, "receiveOfferResponse() got busy")
+            peerConnection.reportStateChange(CallState.BUSY)
+            return
         } else {
             Log.d(this, "receiveOfferResponse() unexpected action: $action")
             peerConnection.reportStateChange(CallState.ERROR_COMMUNICATION)

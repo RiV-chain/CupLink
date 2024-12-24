@@ -80,6 +80,7 @@ abstract class RTCPeerConnection(
             CallState.DISMISSED -> R.raw.stop
             CallState.ENDED -> R.raw.ended
             CallState.CONNECTED -> R.raw.connected
+            CallState.RE_CONNECTING -> R.raw.waiting
             CallState.ON_HOLD -> R.raw.waiting
             CallState.BUSY -> R.raw.stop
             CallState.RESUME -> R.raw.connected
@@ -444,6 +445,7 @@ abstract class RTCPeerConnection(
 
     enum class CallState {
         WAITING,
+        RE_CONNECTING,
         CONNECTING,
         RINGING,
         CONNECTED,

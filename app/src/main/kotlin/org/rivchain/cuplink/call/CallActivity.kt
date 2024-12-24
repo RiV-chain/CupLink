@@ -458,12 +458,18 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
             }
             when (state) {
                 CallState.WAITING -> {
+                    callDuration.visibility = GONE
+                    callStatus.visibility = VISIBLE
                     callStatus.text = getString(R.string.call_waiting)
                 }
                 CallState.CONNECTING -> {
+                    callDuration.visibility = GONE
+                    callStatus.visibility = VISIBLE
                     callStatus.text = getString(R.string.call_connecting)
                 }
                 CallState.RINGING -> {
+                    callDuration.visibility = GONE
+                    callStatus.visibility = VISIBLE
                     callStatus.text = getString(R.string.call_ringing)
                     setContactState(Contact.State.CONTACT_ONLINE)
                 }
@@ -492,6 +498,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
                             }
                         }
                     }
+                }
+                CallState.RE_CONNECTING -> {
+                    callStatus.visibility = VISIBLE
+                    callDuration.visibility = GONE
+                    callStatus.text = getString(R.string.call_reconnecting)
                 }
                 CallState.ON_HOLD -> {
                     callStatus.visibility = VISIBLE
