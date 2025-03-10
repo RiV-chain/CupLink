@@ -902,14 +902,11 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
     }
 
     private fun initIncomingCall() {
-        initServiceConnection()
-
         // decline before call starts
         val declineListener = View.OnClickListener {
             Log.d(this, "decline call...")
             declineCall()
         }
-
         // accept call
         val acceptListener = View.OnClickListener {
             Log.d(this, "accept call...")
@@ -918,6 +915,8 @@ class CallActivity : BaseActivity(), RTCCall.CallContext {
 
         acceptButton.setOnClickListener(acceptListener)
         declineButton.setOnClickListener(declineListener)
+
+        initServiceConnection()
 
         acceptButton.visibility = VISIBLE
         declineButton.visibility = VISIBLE

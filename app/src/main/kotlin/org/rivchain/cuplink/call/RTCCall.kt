@@ -770,7 +770,7 @@ class RTCCall : RTCPeerConnection {
     }
 
     // called when call accepted
-    fun initIncoming() {
+    override fun initIncoming() {
         Log.d(this, "initIncoming()")
         Utils.checkIsOnMainThread()
 

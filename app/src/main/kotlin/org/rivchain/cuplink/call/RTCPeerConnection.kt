@@ -25,6 +25,7 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.Log
 import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.Utils
+import org.rivchain.cuplink.util.ExecutorManager
 import java.io.IOException
 import java.lang.Integer.max
 import java.lang.Integer.min
@@ -44,7 +45,9 @@ abstract class RTCPeerConnection(
 ) {
     protected var state = CallState.WAITING
     var callActivity: RTCCall.CallContext? = null
-    private val executor = Executors.newCachedThreadPool()
+    val executorManager = ExecutorManager()
+    val executor = executorManager.getExecutor()
+
     private var mediaPlayer: MediaPlayer? = null
     var callStatusHandler: CallStatusHandler? = null
 
@@ -125,8 +128,7 @@ abstract class RTCPeerConnection(
 
         service.unregisterReceiver(screenStateReceiver)
         // wait for tasks to finish
-        executor.shutdown()
-        executor.awaitTermination(4L, TimeUnit.SECONDS)
+        executorManager.shutdownExecutor()
     }
 
     fun setCallContext(activity: RTCCall.CallContext?) {
@@ -240,7 +242,7 @@ abstract class RTCPeerConnection(
 
     protected fun execute(r: Runnable) {
         try {
-            executor.execute(r)
+            executorManager.getExecutor().execute(r)
         } catch (e: RejectedExecutionException) {
             e.printStackTrace()
             // can happen when the executor has shut down
@@ -621,6 +623,31 @@ abstract class RTCPeerConnection(
             val obj = JSONObject(decrypted)
             val action = obj.optString("action", "")
             Log.d(this, "handleIncomingMessageInternal() action: $action")
+
+            Log.d(this, "handleIncomingMessageInternal() got WebRTC offer")
+
+            // someone calls us
+            val offer = obj.optString("offer")
+            if (offer.isEmpty()) {
+                Log.d(this, "handleIncomingMessageInternal() missing offer")
+                decline()
+                return
+            }
+
+            // respond that we accept the call (our phone is ringing)
+            val encrypted = Crypto.encryptMessage(
+                "{\"action\":\"ringing\"}",
+                contact.publicKey,
+                ownPublicKey,
+                ownSecretKey
+            )
+
+            if (encrypted == null) {
+                Log.d(this, "handleIncomingMessageInternal() encryption failed")
+                decline()
+                return
+            }
+
             when (action) {
                 "call" -> {
                     contact.state = Contact.State.CONTACT_ONLINE
@@ -628,27 +655,20 @@ abstract class RTCPeerConnection(
 
                     if (CallActivity.isCallInProgress) {
                         //remoteAddress == outgoing call address
-                        if(outgoingRTCCall != null && outgoingRTCCall!!.commSocket !=null && outgoingRTCCall!!.commSocket!!.remoteSocketAddress == remoteAddress){
+                        if(outgoingRTCCall != null && (outgoingRTCCall as RTCPeerConnection).contact.publicKey.contentEquals(otherPublicKey)){
                             //handle race condition for calls
                             if(compareByteArraysAsNumbers(otherPublicKey, settings.publicKey)){
-                                outgoingRTCCall!!.commSocket!!.close()
-                                outgoingRTCCall = null
-                                val activity = MainActivity.instance
-                                if (activity != null && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                                    Log.d(this, "createIncomingCallInternal() start incoming call from stored MainActivity")
-                                    val intent = Intent(activity, CallActivity::class.java)
-                                    intent.action = "ACTION_INCOMING_CALL"
-                                    intent.putExtra("EXTRA_CONTACT", contact)
-                                    activity.startActivity(intent)
-                                } else {
-                                    handleIncomingMessage(service, socket)
-                                }
+                                //send ringing
+                                pw.writeMessage(encrypted)
+                            } else {
+                                //accept call message
                             }
                             return
+                        } else {
+                            Log.d(this, "handleIncomingMessageInternal() call in progress => busy")
+                            busy()
+                            return
                         }
-                        Log.d(this, "handleIncomingMessageInternal() call in progress => busy")
-                        busy()
-                        return
                     }
 
                     Log.d(this, "handleIncomingMessageInternal() got WebRTC offer")
@@ -661,22 +681,7 @@ abstract class RTCPeerConnection(
                         return
                     }
 
-                    // respond that we accept the call (our phone is ringing)
-                    val encrypted = Crypto.encryptMessage(
-                        "{\"action\":\"ringing\"}",
-                        contact.publicKey,
-                        ownPublicKey,
-                        ownSecretKey
-                    )
-
-                    if (encrypted == null) {
-                        Log.d(this, "handleIncomingMessageInternal() encryption failed")
-                        decline()
-                        return
-                    }
-
                     pw.writeMessage(encrypted)
-
                     incomingRTCCall?.cleanup() // just in case
                     incomingRTCCall = RTCCall(service, contact, socket, offer)
                     try {
@@ -794,4 +799,6 @@ abstract class RTCPeerConnection(
             }
         }
     }
+
+    abstract fun initIncoming()
 }
