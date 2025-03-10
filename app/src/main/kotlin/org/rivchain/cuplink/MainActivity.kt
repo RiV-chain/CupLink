@@ -57,6 +57,8 @@ class MainActivity : BaseActivity() {
 
         initToolbar()
 
+        instance = this
+
         viewPager = findViewById(R.id.container)
         viewPager.adapter = ViewPagerFragmentAdapter(this)
 
@@ -339,6 +341,10 @@ class MainActivity : BaseActivity() {
         handleDeeplinkIntent(intent)
     }
 
+    override fun onDestroy() {
+        instance = null
+        super.onDestroy()
+    }
 
     private fun handleDeeplinkIntent(intent: Intent) {
         val data = intent.data
@@ -381,5 +387,7 @@ class MainActivity : BaseActivity() {
 
             return intent
         }
+
+        var instance: MainActivity? = null
     }
 }

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.os.Build
+import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -16,6 +17,7 @@ import org.libsodium.jni.Sodium
 import org.rivchain.cuplink.CallService
 import org.rivchain.cuplink.Crypto
 import org.rivchain.cuplink.DatabaseCache
+import org.rivchain.cuplink.MainActivity
 import org.rivchain.cuplink.MainService
 import org.rivchain.cuplink.R
 import org.rivchain.cuplink.message.ActionMessageDispatcher
@@ -38,7 +40,7 @@ import java.util.concurrent.TimeUnit
 abstract class RTCPeerConnection(
     var service: MainService,
     protected var contact: Contact,
-    protected var commSocket: Socket?
+    var commSocket: Socket?
 ) {
     protected var state = CallState.WAITING
     var callActivity: RTCCall.CallContext? = null
@@ -500,6 +502,16 @@ abstract class RTCPeerConnection(
             }.start()
         }
 
+        fun compareByteArraysAsNumbers(a: ByteArray, b: ByteArray): Boolean {
+            for (i in a.indices) {
+                if (a[i] != b[i]) {
+                    return a[i].toUByte() > b[i].toUByte() // Compare unsigned bytes
+                }
+            }
+            return false // They are equal, so `a` is not greater than `b`
+        }
+
+
         private fun handleIncomingMessageInternal(service: MainService, socket: Socket) {
             Log.d(this, "handleIncomingMessageInternal()")
 
@@ -615,6 +627,25 @@ abstract class RTCPeerConnection(
                     //MainService.refreshContacts(service)
 
                     if (CallActivity.isCallInProgress) {
+                        //remoteAddress == outgoing call address
+                        if(outgoingRTCCall != null && outgoingRTCCall!!.commSocket !=null && outgoingRTCCall!!.commSocket!!.remoteSocketAddress == remoteAddress){
+                            //handle race condition for calls
+                            if(compareByteArraysAsNumbers(otherPublicKey, settings.publicKey)){
+                                outgoingRTCCall!!.commSocket!!.close()
+                                outgoingRTCCall = null
+                                val activity = MainActivity.instance
+                                if (activity != null && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                                    Log.d(this, "createIncomingCallInternal() start incoming call from stored MainActivity")
+                                    val intent = Intent(activity, CallActivity::class.java)
+                                    intent.action = "ACTION_INCOMING_CALL"
+                                    intent.putExtra("EXTRA_CONTACT", contact)
+                                    activity.startActivity(intent)
+                                } else {
+                                    handleIncomingMessage(service, socket)
+                                }
+                            }
+                            return
+                        }
                         Log.d(this, "handleIncomingMessageInternal() call in progress => busy")
                         busy()
                         return
