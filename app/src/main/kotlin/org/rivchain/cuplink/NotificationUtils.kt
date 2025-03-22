@@ -130,7 +130,7 @@ internal object NotificationUtils {
             val chan = NotificationChannel(
                 channelId,
                 "CupLink Call Listener",
-                NotificationManager.IMPORTANCE_LOW, // display notification as collapsed by default
+                NotificationManager.IMPORTANCE_HIGH, // display notification as collapsed by default
             ).apply {
                 setShowBadge(true)
                 lightColor = Color.RED
@@ -178,7 +178,7 @@ internal object NotificationUtils {
             .setWhen(sinceWhen.time)
             .setUsesChronometer(false)
             .setSmallIcon(R.drawable.cup_link_small)
-            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentText(text)
             .setContentIntent(pendingNotificationIntent)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
@@ -485,7 +485,7 @@ internal object NotificationUtils {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Call Status Service",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             )
             val manager = context.getSystemService(NotificationManager::class.java)
             manager?.createNotificationChannel(channel)
@@ -512,7 +512,7 @@ internal object NotificationUtils {
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(text)
             .setSmallIcon(R.drawable.cup_link_small)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent) // Attach the PendingIntent to the notification
             .setAutoCancel(false) // Make sure notification is not dismissed when tapped
             .setShowWhen(false)

@@ -155,7 +155,7 @@ fun createServiceNotification(context: Context, state: State): Notification {
         .setContentTitle(text)
         .setSmallIcon(R.drawable.cup_link_small)
         .setContentIntent(pendingIntent)
-        .setPriority(NotificationCompat.PRIORITY_MIN)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
         .build()
 }
 
@@ -187,7 +187,7 @@ private fun createNotificationChannels(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = context.getString(R.string.channel_name)
         val descriptionText = context.getString(R.string.channel_description)
-        val importance = NotificationManager.IMPORTANCE_MIN
+        val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(MAIN_CHANNEL_ID, name, importance).apply {
             description = descriptionText
             setShowBadge(false)
