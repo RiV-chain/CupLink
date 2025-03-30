@@ -1444,6 +1444,11 @@ class CallActivity() : BaseActivity(), RTCCall.CallContext {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent) // Ensure intent updates properly
+    }
+
     override fun onUserLeaveHint() {
         Log.d(this, "onUserLeaveHint")
 

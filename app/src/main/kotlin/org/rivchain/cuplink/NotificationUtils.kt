@@ -495,7 +495,7 @@ internal object NotificationUtils {
     fun buildNotification(context: Context, contact: Contact?): Notification {
         // Create an Intent to open CallActivity when the user taps the notification
         val notificationIntent = Intent(context, CallActivity::class.java)
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+        notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
 
         // Create a PendingIntent that wraps the intent for launching CallActivity
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
