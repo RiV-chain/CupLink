@@ -138,10 +138,6 @@
             android:noHistory="true"/>
 
         <activity
-            android:name=".ConnectFragmentActivity"
-            android:noHistory="true"/>
-
-        <activity
             android:name=".AcceptTermsAndConditionsActivity"/>
 
         <activity

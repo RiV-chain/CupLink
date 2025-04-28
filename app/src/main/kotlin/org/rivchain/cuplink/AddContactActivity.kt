@@ -46,15 +46,15 @@ open class AddContactActivity: BaseActivity() {
         // nothing to do
     }
 
-    protected open fun pause(){
+    open fun pause(){
         // nothing to do
     }
 
-    protected open fun resume(){
+    open fun resume(){
         // nothing to do
     }
 
-    protected open fun addContact(data: String) {
+    open fun addContact(data: String) {
         var contact = RlpUtils.parseLink(data)
         if (contact != null) {
             addContact(contact)
@@ -103,7 +103,7 @@ open class AddContactActivity: BaseActivity() {
                     }
                 }
             }
-            finish()
+            //finish()
         }
     }
 
@@ -134,7 +134,7 @@ open class AddContactActivity: BaseActivity() {
             // done
             Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
             dialog.cancel()
-            finish()
+            //finish()
         }
         dialog.show()
     }
@@ -154,7 +154,7 @@ open class AddContactActivity: BaseActivity() {
             // done
             Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
             dialog.cancel()
-            finish()
+            //finish()
         }
         renameButton.setOnClickListener {
             val name = nameEditText.text.toString()
@@ -175,7 +175,7 @@ open class AddContactActivity: BaseActivity() {
             // done
             Toast.makeText(this@AddContactActivity, R.string.done, Toast.LENGTH_SHORT).show()
             dialog.cancel()
-            finish()
+            //finish()
         }
         dialog.show()
     }

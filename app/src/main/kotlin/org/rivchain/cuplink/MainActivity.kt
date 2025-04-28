@@ -32,11 +32,11 @@ import org.rivchain.cuplink.util.NetworkUtils
 import org.rivchain.cuplink.util.PowerManager
 import androidx.core.view.get
 
-class MainActivity : BaseActivity() {
+class MainActivity : AddContactActivity() {
 
     private var currentFragmentTag: String? = null
-    private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var viewPager: ViewPager2
+    internal lateinit var bottomNavigationView: BottomNavigationView
+    internal lateinit var viewPager: ViewPager2
 
     private fun initToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -133,6 +133,14 @@ class MainActivity : BaseActivity() {
             override fun onPageSelected(position: Int) {
                 bottomNavigationView.menu.getItem(position).isChecked = true
                 currentFragmentTag = position.toString()
+
+                if(position == 2) {
+                    bottomNavigationView.visibility = View.GONE
+                    (findViewById<Toolbar>(R.id.toolbar).parent as View).visibility = View.GONE
+                } else {
+                    bottomNavigationView.visibility = View.VISIBLE
+                    (findViewById<Toolbar>(R.id.toolbar).parent as View).visibility = View.VISIBLE
+                }
             }
         })
 
@@ -195,10 +203,14 @@ class MainActivity : BaseActivity() {
                 finish()
             } else {
                 // If not on the first page, navigate to the first page
-                viewPager.setCurrentItem(0, true) // true to animate the transition
-                bottomNavigationView.menu[0].isChecked = true // Sync BottomNavigationView
+                backToContractsPage()
             }
         }
+    }
+
+    internal fun backToContractsPage(){
+        viewPager.setCurrentItem(0, true) // true to animate the transition
+        bottomNavigationView.menu[0].isChecked = true // Sync BottomNavigationView
     }
 
     private fun isWifiConnected(): Boolean {
