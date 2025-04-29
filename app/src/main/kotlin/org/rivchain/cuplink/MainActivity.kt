@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -35,8 +36,8 @@ import androidx.core.view.get
 class MainActivity : AddContactActivity() {
 
     private var currentFragmentTag: String? = null
-    internal lateinit var bottomNavigationView: BottomNavigationView
-    internal lateinit var viewPager: ViewPager2
+    private lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var viewPager: ViewPager2
 
     private fun initToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -131,9 +132,6 @@ class MainActivity : AddContactActivity() {
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                bottomNavigationView.menu.getItem(position).isChecked = true
-                currentFragmentTag = position.toString()
-
                 if(position == 2) {
                     bottomNavigationView.visibility = View.GONE
                     (findViewById<Toolbar>(R.id.toolbar).parent as View).visibility = View.GONE
@@ -141,6 +139,8 @@ class MainActivity : AddContactActivity() {
                     bottomNavigationView.visibility = View.VISIBLE
                     (findViewById<Toolbar>(R.id.toolbar).parent as View).visibility = View.VISIBLE
                 }
+                bottomNavigationView.menu[position].isChecked = true
+                currentFragmentTag = position.toString()
             }
         })
 

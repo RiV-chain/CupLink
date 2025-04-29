@@ -29,8 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:cardBackgroundColor="@color/colorTransparent"
-            app:cardCornerRadius="@dimen/image_inner_corner_radius"
-            app:layout_constraintDimensionRatio="1:1">
+            app:cardCornerRadius="@dimen/image_inner_corner_radius">
             <com.journeyapps.barcodescanner.DecoratedBarcodeView
                 android:id="@+id/barcodeScannerView"
                 android:layout_width="match_parent"

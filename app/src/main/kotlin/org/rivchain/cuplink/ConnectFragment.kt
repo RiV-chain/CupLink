@@ -7,10 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
@@ -22,7 +21,6 @@ import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,30 +29,30 @@ import org.rivchain.cuplink.model.Contact
 import org.rivchain.cuplink.util.RlpUtils
 import org.rivchain.cuplink.util.Utils
 import androidx.core.view.isVisible
-import androidx.core.view.isInvisible
+import com.google.android.material.imageview.ShapeableImageView
+import org.rivchain.cuplink.util.Log
 
 class ConnectFragment : Fragment(), BarcodeCallback {
 
     private lateinit var activity: MainActivity
     private lateinit var publicKey: ByteArray
     private lateinit var barcodeView: DecoratedBarcodeView
+    private lateinit var qrCodeView: ShapeableImageView
+    private lateinit var barcodeScannerContainer: FrameLayout
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val view: View = inflater.inflate(R.layout.activity_connect, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         activity = requireActivity() as MainActivity
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         if (arguments == null || arguments?.get("EXTRA_CONTACT_PUBLICKEY") == null) {
             Toast.makeText(requireContext(), R.string.contact_deeplink_invalid, Toast.LENGTH_LONG).show()
-            activity.finish()
         }
 
         publicKey = arguments?.get("EXTRA_CONTACT_PUBLICKEY") as ByteArray
-
-        // Set the title for the fragment (if needed)
-        activity.title = getString(R.string.title_show_qr_code)
 
         // Inflate the layout for this Activity
         requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
@@ -62,6 +60,9 @@ class ConnectFragment : Fragment(), BarcodeCallback {
         barcodeView = view.findViewById(R.id.barcodeScannerView)
         barcodeView.setStatusText(null)
 
+
+        qrCodeView = view.findViewById<ShapeableImageView>(R.id.QRView)
+        barcodeScannerContainer = view.findViewById<FrameLayout>(R.id.barcodeScannerContainer)
 
         view.findViewById<View>(R.id.fabShare).setOnClickListener {
             try {
@@ -83,7 +84,7 @@ class ConnectFragment : Fragment(), BarcodeCallback {
 
         try {
             val contact = activity.getContactOrOwn(publicKey)!!
-            CoroutineScope(Dispatchers.Main).launch {
+            lifecycleScope.launch {
                 // Directly call the suspending function
                 generateDeepLinkQR(contact)
             }
@@ -104,6 +105,13 @@ class ConnectFragment : Fragment(), BarcodeCallback {
         if (Utils.hasPermission(this.activity, Manifest.permission.CAMERA)) {
             initCamera()
         }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view: View = inflater.inflate(R.layout.activity_connect, container, false)
 
         return view
     }
@@ -128,8 +136,8 @@ class ConnectFragment : Fragment(), BarcodeCallback {
 
             // Update UI with the generated QR code
             withContext(Dispatchers.Main) {
-                val qrCode = activity.findViewById<ImageView>(R.id.QRView)
-                qrCode.setImageBitmap(bitmap)
+                qrCodeView.setImageBitmap(bitmap)
+                //initCamera()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
@@ -209,6 +217,14 @@ class ConnectFragment : Fragment(), BarcodeCallback {
     override fun onResume() {
         super.onResume()
         barcodeView.resume()  // <--- Resume camera when fragment resumes
+        barcodeView.invalidate()
+        barcodeView.requestLayout()
+
+// Optional: Wait for layout pass to finish
+        barcodeView.post {
+            barcodeView.pause()
+            barcodeView.resume()
+        }
     }
 
     override fun onPause() {
